@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Template",
+  "version": "1.0.0",
+  "description": "Extension template",
+  "minimum_chrome_version": "114",
+  "background": {
+    "scripts": ["background_bundle.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Template Popup",
+    "default_popup": "/popup/popup.html"
+  },
+  "options_page": "options/options.html"
+}
