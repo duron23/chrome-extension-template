@@ -4,6 +4,8 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
 
+const extensionName = "testmanifest2";
+
 module.exports = {
   entry: {
     "popup/popup": path.resolve("./src/popup/index.tsx"),
@@ -13,7 +15,7 @@ module.exports = {
   },
   output: {
     clean: true,
-    path: path.resolve(__dirname, "./dist/testmanifest2"),
+    path: path.resolve(__dirname, `./dist/${extensionName}`),
     filename: "[name]_bundle.js",
   },
   module: {
@@ -49,15 +51,11 @@ module.exports = {
       patterns: [
         {
           from: path.resolve("./src/root/"),
-          to: path.resolve("./dist/testmanifest2/"),
+          to: path.resolve(`./dist/${extensionName}/`),
         },
         {
           from: path.resolve("./src/static"),
-          to: path.resolve("./dist/testmanifest2/static/"),
-        },
-        {
-          from: path.resolve("./src/dist"),
-          to: path.resolve("./dist/"),
+          to: path.resolve(`./dist/${extensionName}/static/`),
         },
       ],
     }),
