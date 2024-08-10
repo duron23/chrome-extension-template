@@ -3,5 +3,4 @@ dist
 node_modules
 manifest2.back
 /src/static/referenceDocs.txt
-.env
-.env*
+.env.secrets
