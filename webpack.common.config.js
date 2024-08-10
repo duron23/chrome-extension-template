@@ -4,70 +4,86 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
 
-const extensionName = "testmanifest2";
+const getParentFolderName = () => {
+  const parentDir = path.basename(path.resolve(__dirname, "."));
+  return parentDir;
+};
 
-module.exports = {
-  entry: {
-    "popup/popup": path.resolve("./src/popup/index.tsx"),
-    "options/options": path.resolve("./src/options/index.tsx"),
-    background: path.resolve("./src/background/background.ts"),
-    //"content/content": path.resolve("./src/content/content.tsx"),
-  },
-  output: {
-    clean: true,
-    path: path.resolve(__dirname, `./dist/${extensionName}`),
-    filename: "[name]_bundle.js",
-    libraryTarget: "module",
-  },
-  experiments: {
-    outputModule: true,
-  },
-  module: {
-    rules: [
-      {
-        use: "ts-loader",
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-      },
-      {
-        use: [
-          "style-loader",
-          "css-loader",
-          {
-            loader: "postcss-loader",
-            options: {
-              postcssOptions: {
-                indent: "postcss",
-                plugins: [tailwindcss, autoprefixer],
+module.exports = (env) => {
+  const extensionName = `${getParentFolderName()}`;
+  const basePath = `./dist/${env.EXTENSION_BUILD}`;
+  const outputPath = `${basePath}/output/${extensionName}${env.EXTENSION_BUILD}`;
+  return {
+    entry: {
+      "popup/popup": path.resolve("./src/popup/index.tsx"),
+      "options/options": path.resolve("./src/options/index.tsx"),
+      background: path.resolve("./src/background/background.ts"),
+      //"content/content": path.resolve("./src/content/content.tsx"),
+    },
+    output: {
+      clean: true,
+      path: path.resolve(__dirname, `${outputPath}`),
+      filename: "[name]_bundle.js",
+      libraryTarget: "module",
+    },
+    experiments: {
+      outputModule: true,
+    },
+    module: {
+      rules: [
+        {
+          use: "ts-loader",
+          test: /\.tsx?$/,
+          exclude: /node_modules/,
+        },
+        {
+          use: [
+            "style-loader",
+            "css-loader",
+            {
+              loader: "postcss-loader",
+              options: {
+                postcssOptions: {
+                  indent: "postcss",
+                  plugins: [tailwindcss, autoprefixer],
+                },
               },
             },
-          },
-        ],
-        test: /\.css$/i,
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".tsx", ".ts", ".jsx", ".js"],
-  },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: path.resolve("./src/root/"),
-          to: path.resolve(`./dist/${extensionName}/`),
-        },
-        {
-          from: path.resolve("./src/static"),
-          to: path.resolve(`./dist/${extensionName}/static/`),
+          ],
+          test: /\.css$/i,
         },
       ],
-    }),
-    ...getHtmlPlugins([
-      { path: "popup/", fileName: "popup" },
-      { path: "options/", fileName: "options" },
-    ]),
-  ],
+    },
+    resolve: {
+      extensions: [".tsx", ".ts", ".jsx", ".js"],
+    },
+    plugins: [
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve(
+              `./src/manifest/manifest${env.EXTENSION_BUILD}.json`
+            ),
+            to: path.resolve(`${outputPath}/manifest.json`),
+          },
+          {
+            from: path.resolve(
+              `./src/manifest/manifest${env.EXTENSION_BUILD}.xml`
+            ),
+            to: path.resolve(`${basePath}/manifest.xml`),
+          },
+          {
+            from: path.resolve("./src/static"),
+            to: path.resolve(`${outputPath}/static/`),
+          },
+        ],
+      }),
+      ...getHtmlPlugins([
+        { path: "popup/", fileName: "popup" },
+        { path: "options/", fileName: "options" },
+      ]),
+    ],
+  };
 };
 
 function getHtmlPlugins(chunks) {

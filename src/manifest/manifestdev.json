@@ -1,14 +1,18 @@
 {
   "manifest_version": 2,
-  "name": "Template",
-  "version": "1.0.0",
-  "description": "Extension template",
+  "name": "dev : <CHANGE_ME>",
+  "version": "1.0.8",
+  "description": "dev : <CHANGE_ME>",
   "minimum_chrome_version": "114",
   "background": {
-    "scripts": ["background_bundle.js"],
+    "scripts": [
+      "background_bundle.js"
+    ],
     "persistent": false
   },
-  "permissions": ["downloads"],
+  "permissions": [
+    "downloads"
+  ],
   "browser_action": {
     "default_title": "Template Popup",
     "default_popup": "/popup/popup.html"

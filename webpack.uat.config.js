@@ -4,7 +4,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const dotenv = require("dotenv");
 
 // Load environment variables for production
-dotenv.config({ path: "./.env.prod" });
+dotenv.config({ path: "./.env.uat" });
 
 module.exports = merge(
   common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD }),
