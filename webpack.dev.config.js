@@ -6,7 +6,17 @@ module.exports = merge(common, {
   devtool: "cheap-module-source-map",
   optimization: {
     splitChunks: {
-      chunks: "all",
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: (chunk) =>
+            chunk.name !== "background" &&
+            chunk.name !== "content" &&
+            chunk.name !== "popup" &&
+            chunk.name !== "sidepanel",
+        },
+      },
     },
   },
 });

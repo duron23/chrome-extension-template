@@ -8,6 +8,7 @@
     "scripts": ["background_bundle.js"],
     "persistent": false
   },
+  "permissions": ["downloads"],
   "browser_action": {
     "default_title": "Template Popup",
     "default_popup": "/popup/popup.html"

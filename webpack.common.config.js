@@ -17,12 +17,16 @@ module.exports = {
     clean: true,
     path: path.resolve(__dirname, `./dist/${extensionName}`),
     filename: "[name]_bundle.js",
+    libraryTarget: "module",
+  },
+  experiments: {
+    outputModule: true,
   },
   module: {
     rules: [
       {
         use: "ts-loader",
-        test: /\.tsx$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
       },
       {
@@ -44,7 +48,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".jsx"],
+    extensions: [".tsx", ".ts", ".jsx", ".js"],
   },
   plugins: [
     new CopyPlugin({
