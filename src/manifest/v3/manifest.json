@@ -1,23 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "<CHANGE_ME>",
-  "version": "0.0.0",
-  "description": "<CHANGE_ME>",
+  "name": "dev : <CHANGE_ME>",
+  "version": "0.0.2",
+  "description": "dev : <CHANGE_ME>",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "js": ["content/content.bundle.js"],
-      "matches": ["http://localhost/*"]
+      "js": [
+        "content/content.bundle.js"
+      ],
+      "matches": [
+        "http://localhost/*"
+      ]
     }
   ],
   "action": {
     "default_popup": "popup/popup.html"
   },
-  "host_permissions": ["http://localhost/*"],
-  "permissions": ["storage", "sidePanel", "downloads"],
+  "host_permissions": [
+    "http://localhost/*"
+  ],
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "downloads"
+  ],
   "side_panel": {
     "default_path": "sidepanel/sidepanel.html"
   },
