@@ -3,6 +3,6 @@
 @tailwind utilities;
 
 body {
-  width: 100dvw;
-  height: 100dvh;
+  width: fit-content;
+  height: fit-content;
 }

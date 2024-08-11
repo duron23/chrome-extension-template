@@ -58,6 +58,18 @@ const config = (env: Env): Configuration => {
       rules: [
         {
           use: "ts-loader",
+          /* use: [
+            {
+              loader: "babel-loader",
+              options: {
+                presets: [
+                  "@babel/preset-typescript",
+                  "@babel/preset-env",
+                  "@babel/preset-react",
+                ],
+              },
+            },
+          ], */
           test: /\.tsx?$/,
           exclude: /node_modules/,
         },
@@ -79,6 +91,7 @@ const config = (env: Env): Configuration => {
         },
       ],
     },
+    //target: ["web", "es6"],
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
     },

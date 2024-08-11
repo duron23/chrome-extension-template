@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
   <app appid="">
-    <updatecheck codebase="" version="0.0.2" prodversionmin="114" appid=""/>
+    <updatecheck codebase="" version="0.0.3" prodversionmin="114" appid=""/>
   </app>
 </gupdate>
