@@ -3,7 +3,6 @@
   "name": "<CHANGE_ME>",
   "version": "0.0.0",
   "description": "<CHANGE_ME>",
-  "minimum_chrome_version": "114",
   "background": {
     "scripts": ["background.bundle.js"],
     "persistent": false
