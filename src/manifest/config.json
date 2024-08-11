@@ -1,0 +1,30 @@
+{
+  "v2": {
+    "dev": {
+      "extensionId": "",
+      "version": "0.0.14"
+    },
+    "uat": {
+      "extensionId": "",
+      "version": "0.0.0"
+    },
+    "prod": {
+      "extensionId": "",
+      "version": "0.0.1"
+    }
+  },
+  "v3": {
+    "dev": {
+      "extensionId": "",
+      "version": "0.0.24"
+    },
+    "uat": {
+      "extensionId": "",
+      "version": "0.0.0"
+    },
+    "prod": {
+      "extensionId": "",
+      "version": "0.0.3"
+    }
+  }
+}

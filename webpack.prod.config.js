@@ -22,6 +22,7 @@ module.exports = merge(
               chunk.name !== "background" &&
               chunk.name !== "content" &&
               chunk.name !== "popup" &&
+              chunk.name !== "options" &&
               chunk.name !== "sidepanel",
           },
         },
