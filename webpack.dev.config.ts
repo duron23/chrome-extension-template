@@ -1,18 +1,18 @@
-const path = require("path");
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.config.js");
-const dotenv = require("dotenv");
+import { merge } from "webpack-merge";
+import common from "./webpack.common.config";
+import * as dotenv from "dotenv";
+import { Configuration } from "webpack";
 
 // Load environment variables for development
 dotenv.config({ path: "./.env.dev" });
 
-module.exports = merge(
-  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD }),
+const config: Configuration = merge(
+  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "dev" }),
   {
     mode: "development",
-    devtool: "cheap-module-source-map",
+    devtool: "inline-source-map",
     optimization: {
-      splitChunks: {
+      /* splitChunks: {
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
@@ -25,7 +25,9 @@ module.exports = merge(
               chunk.name !== "sidepanel",
           },
         },
-      },
+      }, */
     },
   }
 );
+
+export default config;

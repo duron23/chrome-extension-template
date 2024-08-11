@@ -1,22 +1,42 @@
-const path = require("path");
-const CopyPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const tailwindcss = require("tailwindcss");
-const autoprefixer = require("autoprefixer");
-const dotenv = require("dotenv");
+import * as path from "path";
+import CopyPlugin from "copy-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
+import * as dotenv from "dotenv";
+import { Configuration } from "webpack";
 
 dotenv.config();
 const manifestVersion = process.env.MANIFEST_VERSION;
 
-const getParentFolderName = () => {
+const getParentFolderName = (): string => {
   const parentDir = path.basename(path.resolve(__dirname, "."));
   return parentDir;
 };
 
-module.exports = (env) => {
+interface Env {
+  EXTENSION_BUILD: string;
+}
+
+const getHtmlPlugins = (
+  chunks: { path: string; fileName: string }[]
+): HtmlWebpackPlugin[] => {
+  return chunks.map(
+    (chunk) =>
+      new HtmlWebpackPlugin({
+        title: chunk.fileName,
+        filename: `${chunk.path}${chunk.fileName}.html`,
+        chunks: [`${chunk.path}${chunk.fileName}`],
+        template: `src/index.html`,
+      })
+  );
+};
+
+const config = (env: Env): Configuration => {
   const extensionName = `${getParentFolderName()}`;
   const basePath = `./dist/${env.EXTENSION_BUILD}`;
   const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
+
   return {
     entry: {
       "content/content": path.resolve("./src/content/content.ts"),
@@ -24,7 +44,6 @@ module.exports = (env) => {
       "options/options": path.resolve("./src/options/index.tsx"),
       "sidepanel/sidepanel": path.resolve("./src/sidepanel/index.tsx"),
       background: path.resolve("./src/background/background.ts"),
-      mqttClient: path.resolve("./src/background/mqttClient.ts"),
     },
     output: {
       clean: true,
@@ -90,7 +109,7 @@ module.exports = (env) => {
         { path: "sidepanel/", fileName: "sidepanel" },
       ]),
     ],
-    optimization: {
+    /* optimization: {
       splitChunks: {
         cacheGroups: {
           commons: {
@@ -100,53 +119,8 @@ module.exports = (env) => {
           },
         },
       },
-    },
+    }, */
   };
 };
 
-function getHtmlPlugins(chunks) {
-  return chunks.map(
-    (chunk) =>
-      new HtmlWebpackPlugin({
-        title: chunk.fileName,
-        filename: `${chunk.path}${chunk.fileName}.html`,
-        chunks: [`${chunk.path}${chunk.fileName}`],
-        template: `src/index.html`,
-      })
-  );
-}
-
-/* 
-
-[
-      { name: "popup/popup", title: "Action Page" },
-      { name: "options/options", title: "options" },
-    ]
-
-function getHtmlPlugins(chunks) {
-  return chunks.map(
-    (chunk) =>
-      new HtmlWebpackPlugin({
-        title: chunk.title,
-        filename: `${chunk.name}.html`,
-        chunks: [chunk.name],
-        template: `${chunk.name}/index.html`,
-      })
-  );
-} */
-
-/* 
-
-{ htmlName: "popup", chuck: "popup", title: "Popup" },
-{ htmlName: "options", chuck: "options", title: "options" },
-
-function getHtmlPlugins(chunks) {
-  return chunks.map(
-    (chunk) =>
-      new HtmlWebpackPlugin({
-        title: chunk.title,
-        filename: `${chunk.chuck}/${chunk.chuck}.html`,
-        chunks: [`${chunk.chuck}/${chunk.chuck}`],
-      })
-  );
-} */
+export default config;

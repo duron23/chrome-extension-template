@@ -4,4 +4,3 @@ node_modules
 manifest2.back
 /src/static/referenceDocs.txt
 .env.secrets
-generate-manifest.js

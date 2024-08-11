@@ -1,18 +1,14 @@
 {
   "manifest_version": 2,
   "name": "<CHANGE_ME>",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "<CHANGE_ME>",
   "minimum_chrome_version": "114",
   "background": {
-    "scripts": [
-      "background.bundle.js"
-    ],
+    "scripts": ["background.bundle.js"],
     "persistent": false
   },
-  "permissions": [
-    "downloads"
-  ],
+  "permissions": ["downloads"],
   "browser_action": {
     "default_title": "<CHANGE_ME>",
     "default_popup": "/popup/popup.html"

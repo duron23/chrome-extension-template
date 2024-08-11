@@ -1,19 +1,20 @@
-const { merge } = require("webpack-merge");
-const common = require("./webpack.common.config.js");
-const TerserPlugin = require("terser-webpack-plugin");
-const dotenv = require("dotenv");
+import { merge } from "webpack-merge";
+import common from "./webpack.common.config";
+import TerserPlugin from "terser-webpack-plugin";
+import * as dotenv from "dotenv";
+import { Configuration } from "webpack";
 
-// Load environment variables for production
+// Load environment variables for uat
 dotenv.config({ path: "./.env.uat" });
 
-module.exports = merge(
-  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD }),
+const config: Configuration = merge(
+  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "prod" }),
   {
     mode: "production",
     optimization: {
       minimize: true,
       minimizer: [new TerserPlugin()],
-      splitChunks: {
+      /* splitChunks: {
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
@@ -26,7 +27,9 @@ module.exports = merge(
               chunk.name !== "sidepanel",
           },
         },
-      },
+      }, */
     },
   }
 );
+
+export default config;

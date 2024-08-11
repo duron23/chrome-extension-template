@@ -1,25 +1,27 @@
 {
   "name": "testmanifest2",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scripts": {
-    "prebuild:dev": "cross-env NODE_ENV=dev node generate-manifest.js",
-    "prebuild:uat": "cross-env NODE_ENV=uat node generate-manifest.js",
-    "prebuild:prod": "cross-env NODE_ENV=prod node generate-manifest.js",
-    "build:dev": "npm run prebuild:dev && webpack --config webpack.dev.config.js",
-    "build:uat": "webpack --progress --config webpack.uat.config.js",
-    "build:prod": "webpack --progress --config webpack.prod.config.js",
-    "watch": "webpack --watch --progress --config webpack.dev.config.js",
+    "prebuild:dev": "cross-env NODE_ENV=dev ts-node generate-manifest.ts",
+    "prebuild:uat": "cross-env NODE_ENV=uat ts-node generate-manifest.ts",
+    "prebuild:prod": "cross-env NODE_ENV=prod ts-node generate-manifest.ts",
+    "build:dev": "webpack --config webpack.dev.config.ts",
+    "build:uat": "webpack --config webpack.uat.config.ts",
+    "build:prod": "webpack --config webpack.prod.config.ts",
+    "watch": "webpack --watch --progress --config webpack.dev.config.ts",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx --max-warnings=0 ."
   },
   "author": "Farooq Hussain M",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/webpack": "^5.28.5",
     "mqtt": "^5.9.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tsconfig/recommended": "^1.0.7",
     "@types/chrome": "^0.0.269",
     "@types/node": "^22.2.0",
     "@types/react": "^18.3.3",
