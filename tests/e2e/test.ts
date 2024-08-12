@@ -1,7 +1,9 @@
-const puppeteer = require("puppeteer");
+import puppeteer, { Browser } from "puppeteer";
+
+//const puppeteer = require("puppeteer");
 
 (async () => {
-  const browser = await puppeteer.launch({
+  const browser: Browser = await puppeteer.launch({
     headless: false,
     args: [
       "--disable-extensions-except=C:\\Users\\faroo\\Documents\\Projects\\chrome-extensions\\chrome-extension-template\\dist\\dev\\chrome-extension-templatedev",
@@ -16,10 +18,10 @@ const puppeteer = require("puppeteer");
   );
 
   // Do something with element...
-  await element.click(); // Just an example.
+  await element?.click(); // Just an example.
 
   // Dispose of handle.
-  await element.dispose();
+  await element?.dispose();
 
-  await browser.close();
+  //await browser.close();
 })();
