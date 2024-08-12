@@ -39,7 +39,8 @@
       "node_modules/@types"
     ] /* Specify multiple folders that act like './node_modules/@types'. */,
     "types": [
-      "chrome"
+      "chrome",
+      "node"
     ] /* Specify type package names to be included without being referenced in a source file. */,
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
@@ -113,6 +114,6 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tests"],
   "exclude": ["node_modules"]
 }
