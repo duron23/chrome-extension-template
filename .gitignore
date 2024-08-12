@@ -1,7 +1,7 @@
-.vscode
-dist
-node_modules
+.vscode/
+dist/
+node_modules/
 manifest2.back
 /src/static/referenceDocs.txt
 .env.secrets
-coverage
+coverage/
