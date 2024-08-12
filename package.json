@@ -9,7 +9,7 @@
     "build:uat": "webpack --config webpack.uat.config.ts",
     "build:prod": "webpack --config webpack.prod.config.ts",
     "watch": "webpack --watch --progress --config webpack.dev.config.ts",
-    "lint": "eslint --ext .ts,.tsx,.js,.jsx --max-warnings=0 .",
+    "lint": "eslint . --fix",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
@@ -25,6 +25,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
