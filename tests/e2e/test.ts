@@ -1,15 +1,17 @@
-import path from "path";
-import puppeteer, { Browser } from "puppeteer";
-import fs from "fs";
+//import path from "path";
+//import puppeteer, { Browser } from "puppeteer";
+//import fs from "fs";
 
 //const puppeteer = require("puppeteer");
+//const extensionPath = "";
+//const pageUrl = "";
 
-(async () => {
+/* (async () => {
   const browser: Browser = await puppeteer.launch({
     headless: true,
     args: [
-      "--disable-extensions-except=C:\\Users\\faroo\\Documents\\Projects\\chrome-extensions\\chrome-extension-template\\dist\\dev\\chrome-extension-templatedev",
-      "--load-extension=C:\\Users\\faroo\\Documents\\Projects\\chrome-extensions\\chrome-extension-template\\dist\\dev\\chrome-extension-templatedev",
+      `--disable-extensions-except=${extensionPath}`,
+      `--load-extension=${extensionPath}`,
     ],
   });
   const page = await browser.newPage();
@@ -21,7 +23,7 @@ import fs from "fs";
     downloadPath: downloadPath,
   });
 
-  await page.goto("http://10.5.1.6/share");
+  await page.goto("pageUrl");
 
   const element = await page.waitForSelector(
     "body > table > tbody > tr:nth-child(10) > td:nth-child(2) > a"
@@ -38,7 +40,7 @@ import fs from "fs";
   await element?.dispose();
 
   await browser.close();
-})();
+})(); 
 
 // Helper function to wait for the file to be downloaded
 function waitForFile(downloadPath: string) {
@@ -57,4 +59,4 @@ function waitForFile(downloadPath: string) {
       });
     }, 100);
   });
-}
+}*/

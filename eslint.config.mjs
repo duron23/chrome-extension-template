@@ -13,6 +13,11 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 });
 
+/* 
+ "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+*/
+
 export default [
   {
     ignores: ["**/dist/", "**/node_modules/", "**/coverage/"],
@@ -36,7 +41,7 @@ export default [
       },
       parser: tseslint.parser,
       parserOptions: {
-        project: true,
+        project: ["./tsconfig.eslint.json", "./tsconfig.json"],
       },
     },
     rules: {

@@ -12,6 +12,12 @@ type ConfigType = {
   };
 };
 
+interface Manifest {
+  name: string;
+  version: string;
+  description: string;
+}
+
 // Determine the environment (development or production)
 const env = process.env.NODE_ENV || "development";
 // Load the common .env file
@@ -35,8 +41,13 @@ const xmlFilePath = path.resolve(
 const configFilePath = path.resolve(__dirname, "src", `manifest/config.json`);
 
 // Read the existing manifest file
-const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-const config: ConfigType = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
+const manifest: Manifest = JSON.parse(
+  fs.readFileSync(manifestPath, "utf8")
+) as Manifest;
+
+const config: ConfigType = JSON.parse(
+  fs.readFileSync(configFilePath, "utf8")
+) as ConfigType;
 
 console.log("Config", config);
 
@@ -66,7 +77,9 @@ fs.readFile(xmlFilePath, "utf8", (err, data) => {
     if (err) throw err;
 
     // Modify the XML structure
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     result.gupdate.app[0].updatecheck[0].$.appid = getExtensionId();
 
     // Write the updated XML back to the file
@@ -87,7 +100,7 @@ function getIncreamentedVersion(): string {
   if (config[versionKey] && config[versionKey][envKey]) {
     const currentVersion = config[versionKey][envKey].version;
     const versionParts = currentVersion.split(".");
-    versionParts[2] = (parseInt(versionParts[2], 10) + 1).toString();
+    versionParts[2] = (parseInt(versionParts[2]!, 10) + 1).toString();
     config[versionKey][envKey].version = versionParts.join(".");
     return config[versionKey][envKey].version;
   } else {

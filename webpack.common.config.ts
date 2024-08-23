@@ -1,5 +1,5 @@
 import * as path from "path";
-import CopyPlugin from "copy-webpack-plugin";
+import CopyPlugin, { PluginOptions } from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
@@ -37,7 +37,25 @@ const config = (env: Env): Configuration => {
   const basePath = `./dist/${env.EXTENSION_BUILD}`;
   const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
 
+  const copyPluginOptions: PluginOptions = {
+    patterns: [
+      {
+        from: path.resolve(`./src/manifest/v${manifestVersion}/manifest.json`),
+        to: path.resolve(`${outputPath}/manifest.json`),
+      },
+      {
+        from: path.resolve(`./src/manifest/v${manifestVersion}/manifest.xml`),
+        to: path.resolve(`${basePath}/manifest.xml`),
+      },
+      {
+        from: path.resolve("./src/static"),
+        to: path.resolve(`${outputPath}/static/`),
+      },
+    ],
+  };
+
   return {
+    target: ["web", "es6"],
     entry: {
       "content/content": path.resolve("./src/content/content.ts"),
       "popup/popup": path.resolve("./src/popup/index.tsx"),
@@ -91,31 +109,11 @@ const config = (env: Env): Configuration => {
         },
       ],
     },
-    //target: ["web", "es6"],
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
     },
     plugins: [
-      new CopyPlugin({
-        patterns: [
-          {
-            from: path.resolve(
-              `./src/manifest/v${manifestVersion}/manifest.json`
-            ),
-            to: path.resolve(`${outputPath}/manifest.json`),
-          },
-          {
-            from: path.resolve(
-              `./src/manifest/v${manifestVersion}/manifest.xml`
-            ),
-            to: path.resolve(`${basePath}/manifest.xml`),
-          },
-          {
-            from: path.resolve("./src/static"),
-            to: path.resolve(`${outputPath}/static/`),
-          },
-        ],
-      }),
+      new CopyPlugin(copyPluginOptions),
       ...getHtmlPlugins([
         { path: "popup/", fileName: "popup" },
         { path: "options/", fileName: "options" },
