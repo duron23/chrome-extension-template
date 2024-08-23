@@ -10,7 +10,7 @@ This repository serves as a powerful and flexible template for building Chrome E
 - **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces.
 - **ViTest**: A fast and lightweight testing framework for unit tests.
 - **Puppeteer**: Enables headless browser testing, ensuring your extension functions as expected across different scenarios.
-- **ChromeTests**: Provides built-in support for Chrome's testing framework, allowing you to easily verify your extension's functionality within the browser.
+- **Chrome Types**: Provides built-in for typescript support.
 
 ## 🚀 Getting Started
 
