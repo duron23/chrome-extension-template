@@ -127,8 +127,11 @@
     "tests",
     "webpack.*.config.ts",
     "generate-manifest.ts",
+    "pack-extension.ts",
     "tailwind.config.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "generate-manifest.ts",
+    "pack-extension.ts"
   ],
   "exclude": ["node_modules", "dist", "tests"]
 }

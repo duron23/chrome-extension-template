@@ -4,7 +4,8 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 import * as dotenv from "dotenv";
-import { Configuration } from "webpack";
+import { Compiler, Configuration, WebpackPluginInstance } from "webpack";
+import { exec } from "child_process";
 
 dotenv.config();
 const manifestVersion = process.env.MANIFEST_VERSION;
@@ -16,6 +17,25 @@ const getParentFolderName = (): string => {
 
 interface Env {
   EXTENSION_BUILD: string;
+}
+
+class AfterEmitPlugin implements WebpackPluginInstance {
+  apply(compiler: Compiler) {
+    compiler.hooks.afterEmit.tapAsync(
+      "AfterEmitPlugin",
+      (compilation, callback) => {
+        console.log("============================");
+        exec("ts-node pack-extension.ts", (err, stdout, stderr) => {
+          if (err) {
+            console.error(`Error during packing: ${stderr}`);
+          } else {
+            console.log(`Packing output: ${stdout}`);
+          }
+          callback(); // Ensure Webpack continues after the command execution
+        });
+      }
+    );
+  }
 }
 
 const getHtmlPlugins = (
@@ -119,6 +139,7 @@ const config = (env: Env): Configuration => {
         { path: "options/", fileName: "options" },
         { path: "sidepanel/", fileName: "sidepanel" },
       ]),
+      new AfterEmitPlugin(),
     ],
     /* optimization: {
       splitChunks: {
