@@ -95,7 +95,12 @@ const config = (env: Env): Configuration => {
     module: {
       rules: [
         {
-          use: "ts-loader",
+          use: {
+            loader: "ts-loader",
+            options: {
+              configFile: "tsconfig.app.json",
+            },
+          },
           /* use: [
             {
               loader: "babel-loader",

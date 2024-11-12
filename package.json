@@ -2,9 +2,9 @@
   "name": "chrome-extension-template",
   "version": "1.1.0",
   "scripts": {
-    "prebuild:dev": "cross-env NODE_ENV=dev ts-node generate-manifest.ts",
-    "prebuild:uat": "cross-env NODE_ENV=uat ts-node generate-manifest.ts",
-    "prebuild:prod": "cross-env NODE_ENV=prod ts-node generate-manifest.ts",
+    "prebuild:dev": "cross-env NODE_ENV=dev ts-node --project tsconfig.webpack.json generate-manifest.ts",
+    "prebuild:uat": "cross-env NODE_ENV=uat ts-node --project tsconfig.webpack.json generate-manifest.ts",
+    "prebuild:prod": "cross-env NODE_ENV=prod ts-node --project tsconfig.webpack.json generate-manifest.ts",
     "build:dev": "webpack --config webpack.dev.config.ts",
     "build:uat": "webpack --config webpack.uat.config.ts",
     "build:prod": "webpack --config webpack.prod.config.ts",
@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
-    "test:e2e": "ts-node tests/e2e/test.ts",
+    "test:e2e": "ts-node --project tsconfig.webpack.json tests/e2e/test.ts",
     "coverage": "vitest run --coverage"
   },
   "author": "Farooq Hussain M",

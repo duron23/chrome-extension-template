@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs"
+  },
+  "include": [
+    "webpack.*.config.ts",
+    "generate-manifest.ts",
+    "pack-extension.ts",
+    "generate-manifest.ts",
+    "pack-extension.ts"
+  ],
+  "exclude": ["node_modules", "dist", "tests", "src"]
+}

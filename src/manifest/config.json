@@ -16,15 +16,15 @@
   "v3": {
     "dev": {
       "extensionId": "",
-      "version": "0.0.33"
+      "version": "0.0.36"
     },
     "uat": {
       "extensionId": "",
-      "version": "0.0.0"
+      "version": "0.0.1"
     },
     "prod": {
       "extensionId": "",
-      "version": "0.0.0"
+      "version": "0.0.1"
     }
   }
 }

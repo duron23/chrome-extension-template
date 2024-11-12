@@ -1,4 +1,5 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["postcss.config.js", "eslint.config.mjs"]
+  "extends": "./tsconfig.base.json",
+  "include": ["postcss.config.js", "eslint.config.mjs"],
+  "exclude": ["node_modules", "node_modules", "dist", "tests"]
 }
