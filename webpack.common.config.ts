@@ -19,7 +19,25 @@ interface Env {
   EXTENSION_BUILD: string;
 }
 
-class AfterEmitPlugin implements WebpackPluginInstance {
+export class AfterDonePlugin implements WebpackPluginInstance {
+  apply(compiler: Compiler) {
+    compiler.hooks.done.tap("AfterDonePlugin", (stats) => {
+      exec("ts-node pack-extension.ts", (err, stdout, stderr) => {
+        if (err) {
+          console.error(`Error during packing: ${stderr}`);
+        } else {
+          console.log(
+            "!============================!",
+            stats.endTime - stats.startTime
+          );
+          console.log(`Packing output: ${stdout}`);
+        }
+      });
+    });
+  }
+}
+
+/* class AfterEmitPlugin implements WebpackPluginInstance {
   apply(compiler: Compiler) {
     compiler.hooks.afterEmit.tapAsync(
       "AfterEmitPlugin",
@@ -36,7 +54,7 @@ class AfterEmitPlugin implements WebpackPluginInstance {
       }
     );
   }
-}
+} */
 
 const getHtmlPlugins = (
   chunks: { path: string; fileName: string }[]
@@ -144,7 +162,7 @@ const config = (env: Env): Configuration => {
         { path: "options/", fileName: "options" },
         { path: "sidepanel/", fileName: "sidepanel" },
       ]),
-      new AfterEmitPlugin(),
+      //new AfterDonePlugin(),
     ],
   };
 };

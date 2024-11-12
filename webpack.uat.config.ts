@@ -1,5 +1,5 @@
 import { merge } from "webpack-merge";
-import common from "./webpack.common.config";
+import common, { AfterDonePlugin } from "./webpack.common.config";
 import TerserPlugin from "terser-webpack-plugin";
 import * as dotenv from "dotenv";
 import { Configuration } from "webpack";
@@ -29,6 +29,7 @@ const config: Configuration = merge(
         },
       }, */
     },
+    plugins: [new AfterDonePlugin()],
   }
 );
 

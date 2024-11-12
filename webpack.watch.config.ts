@@ -1,16 +1,17 @@
 import { merge } from "webpack-merge";
-import common, { AfterDonePlugin } from "./webpack.common.config";
+import common from "./webpack.common.config";
 import TerserPlugin from "terser-webpack-plugin";
 import * as dotenv from "dotenv";
 import { Configuration } from "webpack";
 
-// Load environment variables for production
-dotenv.config({ path: "./.env.prod" });
+// Load environment variables for development
+dotenv.config({ path: "./.env.dev" });
 
 const config: Configuration = merge(
-  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "prod" }),
+  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "dev" }),
   {
-    mode: "production",
+    mode: "development",
+    devtool: "inline-source-map",
     optimization: {
       minimize: true,
       minimizer: [new TerserPlugin()],
@@ -29,7 +30,6 @@ const config: Configuration = merge(
         },
       }, */
     },
-    plugins: [new AfterDonePlugin()],
   }
 );
 

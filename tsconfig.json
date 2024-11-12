@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  },
+  "include": [
+    "webpack.*.config.ts",
+    "generate-manifest.ts",
+    "pack-extension.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tailwind.config.ts",
+    "vitest.config.ts"
+  ]
+}

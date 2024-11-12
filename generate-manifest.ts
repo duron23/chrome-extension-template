@@ -100,7 +100,7 @@ function getIncreamentedVersion(): string {
   if (config[versionKey] && config[versionKey][envKey]) {
     const currentVersion = config[versionKey][envKey].version;
     const versionParts = currentVersion.split(".");
-    versionParts[2] = (parseInt(versionParts[2]!, 10) + 1).toString();
+    versionParts[2] = (parseInt(versionParts[2], 10) + 1).toString();
     config[versionKey][envKey].version = versionParts.join(".");
     return config[versionKey][envKey].version;
   } else {

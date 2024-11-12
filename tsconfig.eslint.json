@@ -1,5 +1,16 @@
 {
-  "extends": "./tsconfig.base.json",
-  "include": ["postcss.config.js", "eslint.config.mjs"],
-  "exclude": ["node_modules", "node_modules", "dist", "tests"]
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "webpack.*.config.ts",
+    "generate-manifest.ts",
+    "pack-extension.ts",
+    "postcss.config.js",
+    "eslint.config.mjs",
+    "tests",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tailwind.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
 }

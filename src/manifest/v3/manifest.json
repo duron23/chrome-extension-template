@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "<CHANGE_ME>",
-  "version": "0.0.1",
-  "description": "<CHANGE_ME>",
+  "name": "dev : <CHANGE_ME>",
+  "version": "0.0.96",
+  "description": "dev : <CHANGE_ME>",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
