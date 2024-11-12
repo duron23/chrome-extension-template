@@ -15,10 +15,10 @@ const getParentFolderName = (): string => {
 };
 
 const parentDir = getParentFolderName();
-console.log("...............................Parent Dir", parentDir);
+console.log("............................... Parent Dir:   ", parentDir);
 
 const basePath = path.join(__dirname, `dist/${process.env.EXTENSION_BUILD}`);
-console.log("...............................BasePath/PEM", basePath);
+console.log("............................... BasePath/PEM: ", basePath);
 
 const extensionPath = path.join(
   __dirname,

@@ -1,5 +1,6 @@
 import { merge } from "webpack-merge";
 import common from "./webpack.common.config";
+import TerserPlugin from "terser-webpack-plugin";
 import * as dotenv from "dotenv";
 import { Configuration } from "webpack";
 
@@ -12,6 +13,8 @@ const config: Configuration = merge(
     mode: "development",
     devtool: "inline-source-map",
     optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin()],
       /* splitChunks: {
         cacheGroups: {
           vendor: {

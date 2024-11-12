@@ -75,7 +75,7 @@ const config = (env: Env): Configuration => {
   };
 
   return {
-    target: ["web", "es6"],
+    target: ["web", "es2023"],
     entry: {
       "content/content": path.resolve("./src/content/content.ts"),
       "popup/popup": path.resolve("./src/popup/index.tsx"),
@@ -141,17 +141,6 @@ const config = (env: Env): Configuration => {
       ]),
       new AfterEmitPlugin(),
     ],
-    /* optimization: {
-      splitChunks: {
-        cacheGroups: {
-          commons: {
-            test: /[\\/]src[\\/]/,
-            name: "commons",
-            chunks: "all",
-          },
-        },
-      },
-    }, */
   };
 };
 
