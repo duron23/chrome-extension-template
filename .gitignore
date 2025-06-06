@@ -5,6 +5,7 @@ manifest2.back
 /src/static/referenceDocs.txt
 .env.secrets
 coverage/
+.tsbuildinfo
 
 # TypeScript build cache
 .tsbuildinfo
