@@ -1,17 +1,20 @@
-import { merge } from "webpack-merge";
-import common from "./webpack.common.config";
-import * as dotenv from "dotenv";
-import { Configuration } from "webpack";
+const { merge } = require("webpack-merge");
+const common = require("./webpack.common.config");
+const { AfterDonePlugin } = require("./webpack.common.config");
+const TerserPlugin = require("terser-webpack-plugin");
+const dotenv = require("dotenv");
 
 // Load environment variables for development
 dotenv.config({ path: "./.env.dev" });
 
-const config: Configuration = merge(
+const config = merge(
   common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "dev" }),
   {
     mode: "development",
     devtool: "inline-source-map",
     optimization: {
+      minimize: true,
+      minimizer: [new TerserPlugin()],
       /* splitChunks: {
         cacheGroups: {
           vendor: {
@@ -27,7 +30,8 @@ const config: Configuration = merge(
         },
       }, */
     },
+    plugins: [new AfterDonePlugin()],
   }
 );
 
-export default config;
+module.exports = config;

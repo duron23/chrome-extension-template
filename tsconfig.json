@@ -1,23 +1,15 @@
 {
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */
-
-    /* Projects */
-    // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
+    /* Visit https://aka.ms/tsconfig to read more about this file */    /* Projects */
+    "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
     // "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
-    // "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
+    "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
     // "disableSourceOfProjectReferenceRedirect": true,  /* Disable preferring source files instead of declaration files when referencing composite projects. */
     // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
-    // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
-
-    /* Language and Environment */
-    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    /*"lib": [
-      "ESNext",
-      "WebWorker",
-      "DOM"
-    ]  Specify a set of bundled library declaration files that describe the target runtime environment. */
-    "jsx": "react" /* Specify what JSX code is generated. */,
+    // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */    /* Language and Environment */
+    "target": "ES2023" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+    "jsx": "react-jsx" /* Specify what JSX code is generated. */,
     // "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
     // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
@@ -36,14 +28,14 @@
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     /* "typeRoots": [
-      "node_modules/@types",
-      "node_modules/vitest"
-    ] */ /* Specify multiple folders that act like './node_modules/@types'. */
+        "node_modules/@types",
+        "node_modules/vitest"
+      ] */ /* Specify multiple folders that act like './node_modules/@types'. */
     /* "types": [
-      "chrome",
-      "node",
-      "vitest/globals"
-    ]  */ /* Specify type package names to be included without being referenced in a source file. */
+        "chrome",
+        "node",
+        "vitest/globals"
+      ]  */ /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
@@ -116,19 +108,12 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "tests",
-    "webpack.*.config.ts",
-    "generate-manifest.ts",
-    "tailwind.config.ts",
-    "vitest.config.ts"
   ],
-  "exclude": ["node_modules", "dist", "tests"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -7,6 +7,7 @@ import SidePanel from "../../../src/sidepanel/sidepanel";
 
 //import userEvent from "@testing-library/user-event";
 import React from "react";
+import { describe, expect, it } from "vitest";
 
 describe("Template", () => {
   it("should be successful", () => {
