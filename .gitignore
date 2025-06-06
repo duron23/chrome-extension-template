@@ -5,3 +5,18 @@ manifest2.back
 /src/static/referenceDocs.txt
 .env.secrets
 coverage/
+
+# TypeScript build cache
+.tsbuildinfo
+
+# Bundle analyzer output
+webpack-stats.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~

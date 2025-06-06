@@ -1,28 +1,24 @@
-import * as path from "path";
-import CopyPlugin, { PluginOptions } from "copy-webpack-plugin";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import tailwindcss from "tailwindcss";
-import autoprefixer from "autoprefixer";
-import * as dotenv from "dotenv";
-import { Compiler, Configuration, WebpackPluginInstance } from "webpack";
-import { exec } from "child_process";
+const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const tailwindcss = require("@tailwindcss/postcss");
+const autoprefixer = require("autoprefixer");
+const dotenv = require("dotenv");
+const { exec } = require("child_process");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 dotenv.config();
 const manifestVersion = process.env.MANIFEST_VERSION;
 
-const getParentFolderName = (): string => {
+const getParentFolderName = () => {
   const parentDir = path.basename(path.resolve(__dirname, "."));
   return parentDir;
 };
 
-interface Env {
-  EXTENSION_BUILD: string;
-}
-
-export class AfterDonePlugin implements WebpackPluginInstance {
-  apply(compiler: Compiler) {
+class AfterDonePlugin {
+  apply(compiler) {
     compiler.hooks.done.tap("AfterDonePlugin", (stats) => {
-      exec("ts-node pack-extension.ts", (err, stdout, stderr) => {
+      exec("node pack-extension.js", (err, stdout, stderr) => {
         if (err) {
           console.error(`Error during packing: ${stderr}`);
         } else {
@@ -37,13 +33,13 @@ export class AfterDonePlugin implements WebpackPluginInstance {
   }
 }
 
-/* class AfterEmitPlugin implements WebpackPluginInstance {
-  apply(compiler: Compiler) {
+/* class AfterEmitPlugin {
+  apply(compiler) {
     compiler.hooks.afterEmit.tapAsync(
       "AfterEmitPlugin",
       (compilation, callback) => {
         console.log("============================");
-        exec("ts-node pack-extension.ts", (err, stdout, stderr) => {
+        exec("node pack-extension.js", (err, stdout, stderr) => {
           if (err) {
             console.error(`Error during packing: ${stderr}`);
           } else {
@@ -56,9 +52,7 @@ export class AfterDonePlugin implements WebpackPluginInstance {
   }
 } */
 
-const getHtmlPlugins = (
-  chunks: { path: string; fileName: string }[]
-): HtmlWebpackPlugin[] => {
+const getHtmlPlugins = (chunks) => {
   return chunks.map(
     (chunk) =>
       new HtmlWebpackPlugin({
@@ -70,12 +64,14 @@ const getHtmlPlugins = (
   );
 };
 
-const config = (env: Env): Configuration => {
+const config = (env) => {
   const extensionName = `${getParentFolderName()}`;
   const basePath = `./dist/${env.EXTENSION_BUILD}`;
   const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
+  const isProduction = env.EXTENSION_BUILD === 'prod';
+  const shouldAnalyze = process.env.ANALYZE === 'true';
 
-  const copyPluginOptions: PluginOptions = {
+  const copyPluginOptions = {
     patterns: [
       {
         from: path.resolve(`./src/manifest/v${manifestVersion}/manifest.json`),
@@ -109,14 +105,13 @@ const config = (env: Env): Configuration => {
     },
     experiments: {
       outputModule: true,
-    },
-    module: {
+    },    module: {
       rules: [
         {
           use: {
             loader: "ts-loader",
             options: {
-              configFile: "tsconfig.app.json",
+              configFile: "tsconfig.json",
             },
           },
           /* use: [
@@ -135,21 +130,42 @@ const config = (env: Env): Configuration => {
           exclude: /node_modules/,
         },
         {
-          use: [
-            "style-loader",
-            "css-loader",
-            {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
-                  indent: "postcss",
-                  plugins: [tailwindcss, autoprefixer],
+          use: isProduction 
+            ? [
+                "style-loader",
+                {
+                  loader: "css-loader",
+                  options: {
+                    importLoaders: 1,
+                    modules: false,
+                  },
                 },
-              },
-            },
-          ],
-          test: /\.css$/i,
-        },
+                {
+                  loader: "postcss-loader",
+                  options: {
+                    postcssOptions: {
+                      plugins: [
+                        tailwindcss,
+                        autoprefixer,
+                        ...(isProduction ? [require('cssnano')({ preset: 'default' })] : []),
+                      ],
+                    },
+                  },
+                },
+              ]
+            : [
+                "style-loader",
+                "css-loader",
+                {
+                  loader: "postcss-loader",
+                  options: {
+                    postcssOptions: {
+                      plugins: [tailwindcss, autoprefixer],
+                    },
+                  },
+                },
+              ],
+          test: /\.css$/i,        },
       ],
     },
     resolve: {
@@ -162,9 +178,11 @@ const config = (env: Env): Configuration => {
         { path: "options/", fileName: "options" },
         { path: "sidepanel/", fileName: "sidepanel" },
       ]),
+      ...(shouldAnalyze ? [new BundleAnalyzerPlugin()] : []),
       //new AfterDonePlugin(),
     ],
   };
 };
 
-export default config;
+module.exports = config;
+module.exports.AfterDonePlugin = AfterDonePlugin;

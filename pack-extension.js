@@ -1,7 +1,7 @@
-import { exec } from "child_process";
-import path from "path";
-import fs from "fs";
-import * as dotenv from "dotenv";
+const { exec } = require("child_process");
+const path = require("path");
+const fs = require("fs");
+const dotenv = require("dotenv");
 
 // Determine the environment (development or production)
 const env = process.env.NODE_ENV || "development";
@@ -9,7 +9,7 @@ const env = process.env.NODE_ENV || "development";
 // Load the appropriate .env file
 dotenv.config({ path: path.resolve(__dirname, `.env.${env}`) });
 
-const getParentFolderName = (): string => {
+const getParentFolderName = () => {
   const parentDir = path.basename(path.resolve(__dirname, "."));
   return parentDir;
 };

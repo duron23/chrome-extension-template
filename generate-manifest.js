@@ -1,22 +1,7 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as dotenv from "dotenv";
-import { parseString, Builder } from "xml2js";
-
-type ConfigType = {
-  [key: string]: {
-    [key: string]: {
-      extensionId: string;
-      version: string;
-    };
-  };
-};
-
-interface Manifest {
-  name: string;
-  version: string;
-  description: string;
-}
+const fs = require("fs");
+const path = require("path");
+const dotenv = require("dotenv");
+const { parseString, Builder } = require("xml2js");
 
 // Determine the environment (development or production)
 const env = process.env.NODE_ENV || "development";
@@ -41,13 +26,13 @@ const xmlFilePath = path.resolve(
 const configFilePath = path.resolve(__dirname, "src", `manifest/config.json`);
 
 // Read the existing manifest file
-const manifest: Manifest = JSON.parse(
+const manifest = JSON.parse(
   fs.readFileSync(manifestPath, "utf8")
-) as Manifest;
+);
 
-const config: ConfigType = JSON.parse(
+const config = JSON.parse(
   fs.readFileSync(configFilePath, "utf8")
-) as ConfigType;
+);
 
 console.log("Config", config);
 
@@ -77,9 +62,7 @@ fs.readFile(xmlFilePath, "utf8", (err, data) => {
     if (err) throw err;
 
     // Modify the XML structure
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     result.gupdate.app[0].updatecheck[0].$.appid = getExtensionId();
 
     // Write the updated XML back to the file
@@ -92,7 +75,7 @@ fs.readFile(xmlFilePath, "utf8", (err, data) => {
 });
 
 // Function to get the version
-function getIncreamentedVersion(): string {
+function getIncreamentedVersion() {
   const versionKey = `v${manifestVersion}`;
   const envKey = env;
 
@@ -108,7 +91,7 @@ function getIncreamentedVersion(): string {
   }
 }
 
-function getExtensionId(): string {
+function getExtensionId() {
   const versionKey = `v${manifestVersion}`;
   const envKey = env;
   if (config[versionKey] && config[versionKey][envKey]) {
