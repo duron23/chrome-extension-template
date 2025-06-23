@@ -6,7 +6,16 @@ manifest2.back
 .env.secrets
 coverage/
 .tsbuildinfo
+
+# PEM files containing private keys
 keys/*.pem
+*.pem
+# Ensure no PEM files are ever committed again
+
+# Cleanup script (not part of the toolchain)
+cleanup-extension.js
+cleanup-extension.bat
+CLEANUP-SCRIPT.md
 
 # TypeScript build cache
 .tsbuildinfo
