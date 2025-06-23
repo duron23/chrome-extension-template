@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const tailwindcss = require("@tailwindcss/postcss");
 const autoprefixer = require("autoprefixer");
 const dotenv = require("dotenv");
+const fs = require("fs");
 const { exec } = require("child_process");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
@@ -17,7 +18,14 @@ const getParentFolderName = () => {
 class AfterDonePlugin {
   apply(compiler) {
     compiler.hooks.done.tap("AfterDonePlugin", (stats) => {
-      exec("node pack-extension.js", (err, stdout, stderr) => {
+      // Get the current environment from compiler options
+      const env = process.env.NODE_ENV || "dev";
+      const extensionBuild = process.env.EXTENSION_BUILD || env;
+      
+      // Execute pack-extension.js with the correct environment variables
+      exec(`node pack-extension.js`, {
+        env: { ...process.env, NODE_ENV: env, EXTENSION_BUILD: extensionBuild }
+      }, (err, stdout, stderr) => {
         if (err) {
           console.error(`Error during packing: ${stderr}`);
         } else {
@@ -69,6 +77,16 @@ const config = (env) => {
   const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
   const isProduction = env.EXTENSION_BUILD === 'prod';
   const shouldAnalyze = process.env.ANALYZE === 'true';
+  
+  // Load feature configuration
+  const features = loadFeaturesConfig();
+  console.log("Building with features:", 
+    Object.entries(features.features)
+      .filter(([_, val]) => val.enabled)
+      .map(([key]) => key)
+      .join(", ")
+  );
+  
   const copyPluginOptions = {
     patterns: [
       {
@@ -86,16 +104,64 @@ const config = (env) => {
     ],
   };
 
+  /**
+   * Load the features configuration file if it exists
+   * @returns {Object} The features configuration
+   */
+  const loadFeaturesConfig = () => {
+    const featuresPath = path.resolve(__dirname, "src", "manifest", "features.json");
+    
+    if (fs.existsSync(featuresPath)) {
+      try {
+        return JSON.parse(fs.readFileSync(featuresPath, "utf8"));
+      } catch (error) {
+        console.error(`Error loading features.json: ${error.message}`);
+      }
+    }
+    
+    // Return default config if features.json doesn't exist or has errors
+    return {
+      features: {
+        background: { enabled: true },
+        popup: { enabled: true },
+        options: { enabled: true },
+        sidepanel: { enabled: true },
+        offscreen: { enabled: true },
+        contentScripts: { enabled: true }
+      }
+    };
+  };
+  // Build entry points based on enabled features
+  const entries = {};
+  
+  // Only include entries for enabled features
+  if (features.features.contentScripts?.enabled) {
+    entries["content/content"] = path.resolve("./src/content/content.ts");
+  }
+  
+  if (features.features.popup?.enabled) {
+    entries["popup/popup"] = path.resolve("./src/popup/index.tsx");
+  }
+  
+  if (features.features.options?.enabled) {
+    entries["options/options"] = path.resolve("./src/options/index.tsx");
+  }
+  
+  if (features.features.sidepanel?.enabled) {
+    entries["sidepanel/sidepanel"] = path.resolve("./src/sidepanel/index.tsx");
+  }
+  
+  if (features.features.offscreen?.enabled) {
+    entries["offscreen/offscreen"] = path.resolve("./src/offscreen/index.tsx");
+  }
+  
+  if (features.features.background?.enabled) {
+    entries.background = path.resolve("./src/background/background.ts");
+  }
+
   return {
     target: ["web", "es2023"],
-    entry: {
-      "content/content": path.resolve("./src/content/content.ts"),
-      "popup/popup": path.resolve("./src/popup/index.tsx"),
-      "options/options": path.resolve("./src/options/index.tsx"),
-      "sidepanel/sidepanel": path.resolve("./src/sidepanel/index.tsx"),
-      "offscreen/offscreen": path.resolve("./src/offscreen/index.tsx"),
-      background: path.resolve("./src/background/background.ts"),
-    },
+    entry: entries,
     output: {
       clean: true,
       path: path.resolve(__dirname, `${outputPath}`),
@@ -169,17 +235,16 @@ const config = (env) => {
     },
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
-    },
-    plugins: [
+    },    plugins: [
       new CopyPlugin(copyPluginOptions),
       ...getHtmlPlugins([
-        { path: "popup/", fileName: "popup" },
-        { path: "options/", fileName: "options" },
-        { path: "sidepanel/", fileName: "sidepanel" },
-        { path: "offscreen/", fileName: "offscreen" },
+        ...(features.features.popup?.enabled ? [{ path: "popup/", fileName: "popup" }] : []),
+        ...(features.features.options?.enabled ? [{ path: "options/", fileName: "options" }] : []),
+        ...(features.features.sidepanel?.enabled ? [{ path: "sidepanel/", fileName: "sidepanel" }] : []),
+        ...(features.features.offscreen?.enabled ? [{ path: "offscreen/", fileName: "offscreen" }] : []),
       ]),
       ...(shouldAnalyze ? [new BundleAnalyzerPlugin()] : []),
-      //new AfterDonePlugin(),
+      new AfterDonePlugin(),
     ],
   };
 };
