@@ -1,11 +1,12 @@
 {
   "dev": {
-    "extensionId": "managed-by-pem",
-    "version": "0.0.16"
+    "extensionId": "deehhbbdeeihdiecedjaaciajdfebgea",
+    "version": "0.0.16",
+    "calculatedId": "deehhbbdeeihdiecedjaaciajdfebgea"
   },
   "uat": {
     "extensionId": "",
-    "version": "0.0.1"
+    "version": "0.0.0"
   },
   "prod": {
     "extensionId": "",

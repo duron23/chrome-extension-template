@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const { parseString, Builder } = require("xml2js");
-const { extractPublicKeyForManifest } = require("./extract-key");
+const { extractPublicKeyForManifest, calculateExtensionId } = require("./extract-key");
 
 // Determine the environment (dev, uat, or prod)
 const env = process.env.NODE_ENV || "dev";
@@ -58,20 +58,54 @@ if (!fs.existsSync(keysDir)) {
 const pemPath = path.join(keysDir, `${parentDir}-${env}.pem`);
 console.log("PEM path:", pemPath);
 
-// Extract public key from PEM file if it exists
+// Function to generate a dummy PEM file if needed
+const generateDummyPemIfNeeded = () => {
+  if (!fs.existsSync(pemPath)) {
+    console.log("No PEM file found, generating a dummy one...");
+    const { execSync } = require('child_process');
+    try {
+      // Generate a simple RSA key pair
+      const crypto = require('crypto');
+      const { privateKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+      });
+      
+      // Save the private key to PEM file
+      fs.writeFileSync(pemPath, privateKey);
+      console.log(`Created dummy PEM file at: ${pemPath}`);
+      return true;
+    } catch (error) {
+      console.error(`Error generating dummy PEM: ${error.message}`);
+      return false;
+    }
+  }
+  return false;
+};
+
+// Generate dummy PEM if needed
+const pemWasGenerated = generateDummyPemIfNeeded();
+
+// Extract public key from PEM file
 if (fs.existsSync(pemPath)) {
   const publicKey = extractPublicKeyForManifest(pemPath);
   if (publicKey) {
     // Add the key to the manifest
     manifest.key = publicKey;
-    console.log("Added public key to manifest from existing PEM file");
+    console.log("Added public key to manifest from PEM file");
     
-    // Store the extension ID in the config if it's not already set
-    if (!config[env].extensionId) {
-      // The ID can be derived from the public key if needed
-      // For now, we'll just indicate that it's managed by the PEM file
-      config[env].extensionId = "managed-by-pem";
-      console.log("Updated config with extension ID indicator");
+    // Calculate the actual extension ID from the public key
+    const calculatedExtensionId = calculateExtensionId(publicKey);
+    
+    // Store the calculated ID in the config
+    config[env].calculatedId = calculatedExtensionId;
+    console.log(`Calculated ID from public key: ${calculatedExtensionId}`);
+    
+    // If no explicit extension ID is set, use the calculated one
+    if (!config[env].extensionId || config[env].extensionId === "") {
+      config[env].extensionId = calculatedExtensionId;
+      console.log(`Setting extension ID in config to calculated ID: ${calculatedExtensionId}`);
     }
   }
 }
@@ -101,25 +135,39 @@ console.log(`Manifest file updated for ${env}:`, manifest);
 
 // Update the XML file
 fs.readFile(xmlFilePath, "utf8", (err, data) => {
-  if (err) throw err;
+  if (err) {
+    console.error(`Error reading XML file: ${err}`);
+    return;
+  }
+  
   parseString(data, (err, result) => {
-    if (err) throw err;
-
-    // Modify the XML structure
-    result.gupdate.app[0].$.appid = getExtensionId(); // Set appid on the app tag
-    result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
-    
-    // Remove duplicate appid from updatecheck if it exists
-    if (result.gupdate.app[0].updatecheck[0].$.appid !== undefined) {
-      delete result.gupdate.app[0].updatecheck[0].$.appid;
+    if (err) {
+      console.error(`Error parsing XML: ${err}`);
+      return;
     }
 
-    // Write the updated XML back to the file
-    const builder = new Builder();
-    const updatedXml = builder.buildObject(result);
-    fs.writeFileSync(xmlFilePath, updatedXml, "utf8");
+    try {
+      // Get the actual extension ID
+      const extensionId = getExtensionId();
+      
+      // Modify the XML structure
+      result.gupdate.app[0].$.appid = extensionId; // Set appid on the app tag
+      result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
+      
+      // Remove duplicate appid from updatecheck if it exists
+      if (result.gupdate.app[0].updatecheck[0].$.appid !== undefined) {
+        delete result.gupdate.app[0].updatecheck[0].$.appid;
+      }
 
-    console.log(`XML file updated with version: ${manifest.version}`);
+      // Write the updated XML back to the file
+      const builder = new Builder();
+      const updatedXml = builder.buildObject(result);
+      fs.writeFileSync(xmlFilePath, updatedXml, "utf8");
+
+      console.log(`XML file updated with version: ${manifest.version} and extension ID: ${extensionId}`);
+    } catch (error) {
+      console.error(`Error updating XML file: ${error.message}`);
+    }
   });
 });
 
@@ -139,13 +187,43 @@ function getIncreamentedVersion() {
   }
 }
 
+/**
+ * Get the extension ID for the current environment.
+ * Prioritizes the extensionId from config.json if it's set (not empty).
+ * Falls back to the calculatedId from the PEM's public key if available.
+ * @returns {string} The extension ID
+ */
 function getExtensionId() {
   const envKey = env;
-  if (config[envKey]) {
-    return config[envKey].extensionId;
-  } else {
-    throw new Error("Invalid extensionId or environment");
+  if (!config[envKey]) {
+    throw new Error(`Invalid environment: ${envKey}`);
   }
+  
+  // First priority: Use explicitly set extension ID that's not empty
+  if (config[envKey].extensionId && config[envKey].extensionId !== "" && 
+      config[envKey].extensionId !== "managed-by-pem") {
+    console.log(`Using explicitly configured extension ID: ${config[envKey].extensionId}`);
+    return config[envKey].extensionId;
+  }
+  
+  // Second priority: Use calculatedId if available
+  if (config[envKey].calculatedId) {
+    console.log(`Using calculated extension ID: ${config[envKey].calculatedId}`);
+    return config[envKey].calculatedId;
+  }
+  
+  // Third priority: Calculate from manifest.key if available
+  if (manifest.key) {
+    const calculatedId = calculateExtensionId(manifest.key);
+    console.log(`Calculated extension ID from manifest key: ${calculatedId}`);
+    // Save it for future use
+    config[envKey].calculatedId = calculatedId;
+    return calculatedId;
+  }
+  
+  // If we got here, we don't have a valid extension ID
+  console.warn("No valid extension ID available. Using empty string.");
+  return "";
 }
 
 /**

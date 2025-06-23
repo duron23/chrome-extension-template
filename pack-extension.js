@@ -47,6 +47,96 @@ console.log("...............................pem Path", pemPath);
 // Adjust the path if Chrome is installed elsewhere
 const chromePath = `"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"`;
 
+// Function to ensure the manifest in the dist folder has the key property
+const ensureManifestHasKey = () => {
+  // Check if PEM file exists
+  if (!fs.existsSync(pemPath)) {
+    console.log("No PEM file found, skipping key insertion");
+    return;
+  }
+  
+  // Get manifest path in dist folder
+  const distManifestPath = path.join(extensionPath, 'manifest.json');
+  
+  // Check if manifest exists in dist
+  if (!fs.existsSync(distManifestPath)) {
+    console.log("No manifest.json found in dist folder");
+    return;
+  }
+  
+  // Read the source manifest to get the key
+  const sourceManifestPath = path.join(__dirname, 'src', 'manifest', 'manifest.json');
+  let sourceManifest;
+  try {
+    sourceManifest = JSON.parse(fs.readFileSync(sourceManifestPath, 'utf8'));
+  } catch (err) {
+    console.error("Error reading source manifest:", err);
+    return;
+  }
+  
+  // If source manifest doesn't have key, we need to extract it
+  if (!sourceManifest.key) {
+    console.log("Source manifest doesn't have key property");
+    return;
+  }
+  
+  // Read dist manifest
+  let distManifest;
+  try {
+    distManifest = JSON.parse(fs.readFileSync(distManifestPath, 'utf8'));
+  } catch (err) {
+    console.error("Error reading dist manifest:", err);
+    return;
+  }
+  
+  // Add key to dist manifest
+  distManifest.key = sourceManifest.key;
+  
+  // Write updated manifest back to dist
+  try {
+    fs.writeFileSync(distManifestPath, JSON.stringify(distManifest, null, 2), 'utf8');
+    console.log("Added key to manifest.json in dist folder");
+  } catch (err) {
+    console.error("Error writing updated manifest:", err);
+  }
+};
+
+// Function to generate a dummy PEM file if needed
+const ensurePemExists = () => {
+  if (!fs.existsSync(pemPath)) {
+    console.log("No PEM file found, generating a dummy one...");
+    try {
+      // Generate a simple RSA key pair
+      const crypto = require('crypto');
+      const { privateKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+      });
+      
+      // Save the private key to PEM file
+      fs.writeFileSync(pemPath, privateKey);
+      console.log(`Created PEM file at: ${pemPath}`);
+      
+      // Update manifest with the new key
+      const { execSync } = require('child_process');
+      try {
+        execSync(`node generate-manifest.js`, { 
+          env: { ...process.env },
+          stdio: 'inherit'
+        });
+        console.log("Generated and applied new key to manifest");
+        return true;
+      } catch (manifestError) {
+        console.error(`Error updating manifest with new key: ${manifestError.message}`);
+      }
+    } catch (error) {
+      console.error(`Error generating PEM: ${error.message}`);
+    }
+  }
+  return fs.existsSync(pemPath);
+};
+
 const packExtension = () => {
   // Check if the extension directory exists before attempting to package
   if (!fs.existsSync(extensionPath)) {
@@ -55,12 +145,20 @@ const packExtension = () => {
     return;
   }
   
+  // Ensure the PEM file exists
+  const pemExists = ensurePemExists();
+  if (!pemExists) {
+    console.error("Failed to ensure PEM file exists. Cannot continue packaging.");
+    return;
+  }
+  
+  // Ensure the manifest has the key before packaging
+  ensureManifestHasKey();
+  
   const command = `${chromePath} --pack-extension=${extensionPath}`;
 
-  // Check if a PEM file already exists in our keys directory
-  const commandWithKey = fs.existsSync(pemPath)
-    ? `${command} --pack-extension-key=${pemPath}`
-    : command;
+  // Always use the PEM key since we ensure it exists
+  const commandWithKey = `${command} --pack-extension-key=${pemPath}`;
   exec(commandWithKey, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error packing extension: ${stderr}`);
@@ -79,16 +177,23 @@ const packExtension = () => {
             // Clean up the generated PEM
             fs.unlinkSync(generatedPemPath);
             console.log(`Removed generated PEM from dist directory`);
-            
-            // Run generate-manifest.js again to update the manifest with the new key
-            console.log("Updating manifest with the new key...");
+              // Run generate-manifest.js again to update the manifest and XML with the new key and extension ID
+            console.log("Updating manifest and XML with the new key and extension ID...");
             const { execSync } = require('child_process');
             try {
               execSync(`node generate-manifest.js`, { 
                 env: { ...process.env },
                 stdio: 'inherit'
               });
-              console.log("Manifest updated successfully with the new key");
+              console.log("Manifest and XML updated successfully with the new key and extension ID");
+              
+              // Read updated config to show the extension ID
+              const updatedConfig = JSON.parse(
+                fs.readFileSync(path.join(__dirname, 'src', 'manifest', 'config.json'), 'utf8')
+              );
+              const currentEnv = process.env.NODE_ENV || "dev";
+              const extensionId = updatedConfig[currentEnv].calculatedId || "unknown";
+              console.log(`Extension ID for ${currentEnv}: ${extensionId}`);
             } catch (manifestError) {
               console.error(`Error updating manifest with key: ${manifestError.message}`);
             }

@@ -6,6 +6,7 @@ manifest2.back
 .env.secrets
 coverage/
 .tsbuildinfo
+keys/*.pem
 
 # TypeScript build cache
 .tsbuildinfo
