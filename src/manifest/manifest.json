@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "dev : <CHANGE_ME>",
+  "name": "<CHANGE_ME>",
   "version": "0.0.0",
-  "description": "dev : <CHANGE_ME>",
+  "description": "<CHANGE_ME>",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
@@ -25,7 +25,8 @@
   ],
   "permissions": [
     "storage",
-    "sidePanel"
+    "sidePanel",
+    "offscreen"
   ],
   "side_panel": {
     "default_path": "sidepanel/sidepanel.html"

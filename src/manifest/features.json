@@ -1,0 +1,50 @@
+{
+  "features": {
+    "background": {
+      "enabled": true,
+      "description": "Background service worker for extension logic"
+    },
+    "popup": {
+      "enabled": true,
+      "description": "Popup UI when clicking the extension icon"
+    },
+    "options": {
+      "enabled": true,
+      "description": "Options page for extension settings"
+    },
+    "sidepanel": {
+      "enabled": true,
+      "description": "Side panel UI for the extension"
+    },
+    "offscreen": {
+      "enabled": true,
+      "description": "Offscreen document for background processing"
+    },
+    "contentScripts": {
+      "enabled": true,
+      "description": "Content scripts that run on web pages",
+      "matches": ["http://localhost/*"]
+    }
+  },
+  "permissions": {
+    "storage": {
+      "enabled": true,
+      "description": "Access to extension storage"
+    },
+    "sidePanel": {
+      "enabled": true,
+      "description": "Required for side panel functionality"
+    },
+    "offscreen": {
+      "enabled": true,
+      "description": "Required for offscreen functionality"
+    }
+  },
+  "hostPermissions": {
+    "localhost": {
+      "enabled": true,
+      "pattern": "http://localhost/*",
+      "description": "Access to localhost for development"
+    }
+  }
+}

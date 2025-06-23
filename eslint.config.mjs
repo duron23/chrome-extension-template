@@ -111,7 +111,7 @@ export default [
       "no-var": "error",
       "eqeqeq": ["error", "always"],
       "curly": ["error", "all"],
-      "no-console": "warn",
+      //"no-console": "warn",
       "no-debugger": "error",
       "no-alert": "error",
       
