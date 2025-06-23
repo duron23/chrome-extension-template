@@ -51,6 +51,7 @@ function extractPublicKeyForManifest(pemFilePath) {
 /**
  * Calculate the Chrome extension ID from a public key
  * Chrome extension IDs are derived from the public key using a specific algorithm
+ * Based on Chrome's actual implementation in components/crx_file/id_util.cc
  * 
  * @param {string} publicKeyBase64 - The base64-encoded public key
  * @returns {string} The calculated extension ID
@@ -65,21 +66,23 @@ function calculateExtensionId(publicKeyBase64) {
     const buffer = Buffer.from(publicKeyBase64, 'base64');
     
     // Create SHA256 hash of the public key
-    const hash = crypto.createHash('sha256').update(buffer).digest('hex');
+    const hash = crypto.createHash('sha256').update(buffer).digest();
     
-    // Chrome uses the first 32 chars of the hash, with some character replacements
-    // to create the extension ID
-    const id = hash.substring(0, 32)
-      .replace(/0/g, 'a')
-      .replace(/1/g, 'b')
-      .replace(/2/g, 'c')
-      .replace(/3/g, 'd')
-      .replace(/4/g, 'e')
-      .replace(/5/g, 'f')
-      .replace(/6/g, 'g')
-      .replace(/7/g, 'h')
-      .replace(/8/g, 'i')
-      .replace(/9/g, 'j');
+    // The actual Chrome algorithm maps the first 128 bits (16 bytes) of the SHA-256 hash
+    // using a specific character set: a-p (replacing 0-9a-f)
+    // This is a direct port of Chrome's algorithm from components/crx_file/id_util.cc
+    
+    const chars = 'abcdefghijklmnop';
+    let id = '';
+    
+    // Use only the first 16 bytes (128 bits) of the hash
+    for (let i = 0; i < 16; i++) {
+      // Each byte becomes two characters in the ID
+      // First character is the high nibble (4 bits)
+      id += chars[(hash[i] >> 4) & 0xf];
+      // Second character is the low nibble (4 bits)
+      id += chars[hash[i] & 0xf];
+    }
     
     return id;
   } catch (error) {

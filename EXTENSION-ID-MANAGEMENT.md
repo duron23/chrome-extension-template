@@ -32,7 +32,10 @@ PEM files are stored in the `keys/` directory with environment-specific names:
 The `extract-key.js` module:
 - Extracts the public key from the PEM file
 - Converts it to the format required by Chrome
-- Calculates the actual extension ID using Chrome's algorithm
+- Calculates the actual extension ID using Chrome's exact algorithm
+  - Uses SHA-256 hash of the public key
+  - Takes the first 16 bytes of the hash
+  - Converts each nibble (4 bits) to a character in the range a-p
 
 ### 3. Configuration Management
 
@@ -79,3 +82,13 @@ Even when running after a clean, the system will automatically:
 The `config.json` file tracks extension IDs with these fields:
 - `extensionId`: The explicit extension ID used in manifest.xml
 - `calculatedId`: The ID calculated from the PEM's public key (for reference)
+
+## Validation Tool
+
+The project includes a validation tool (`validate-extension-id.js`) that you can use to verify the extension ID calculation:
+
+```
+node validate-extension-id.js <chrome-extension-id>
+```
+
+This tool helps ensure that our calculated extension ID matches what Chrome actually uses.
