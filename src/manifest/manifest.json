@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "dev : <CHANGE_ME>",
-  "version": "0.0.20",
-  "description": "dev : <CHANGE_ME>",
+  "name": "<CHANGE_ME>",
+  "version": "0.0.0",
+  "description": "<CHANGE_ME>",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
@@ -31,6 +31,5 @@
   "side_panel": {
     "default_path": "sidepanel/sidepanel.html"
   },
-  "options_page": "options/options.html",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvPpEO9rXhcJvNh418fyfsxiOBmbWEJ06xP4BUu32F2t7u7JfMN04MegJxXKQiFwMN67gHR/rAG1ZFJ/WoQNHmbw6voShzq7/etifAPEKvLdCXs3eJQBV+VjcXCB7DiRsrRNm4YVWaOlZeu0+Xh7m8TMKo8IcducS+kj0sc/Fy4zVMIg7+Niw6XdZDKyxL9ls9/9SffJ2XKbjZATRNjLu9i4AYz3MLnTLE0inaECW89dSvA1zBCiLdSpJ/Hx7gamxp4g7l28ZiUPaO3wuGZc7nzZ//2lI5VXsA9g6Ip4bRF8TiBF60piu966rsEO8CkR8gXGnpKf9Cu5CYsrggyX+ZwIDAQAB"
+  "options_page": "options/options.html"
 }

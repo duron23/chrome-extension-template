@@ -186,13 +186,12 @@ const packExtension = () => {
                 stdio: 'inherit'
               });
               console.log("Manifest and XML updated successfully with the new key and extension ID");
-              
-              // Read updated config to show the extension ID
+                // Read updated config to show the extension ID
               const updatedConfig = JSON.parse(
                 fs.readFileSync(path.join(__dirname, 'src', 'manifest', 'config.json'), 'utf8')
               );
               const currentEnv = process.env.NODE_ENV || "dev";
-              const extensionId = updatedConfig[currentEnv].calculatedId || "unknown";
+              const extensionId = updatedConfig[currentEnv].extensionId || "unknown";
               console.log(`Extension ID for ${currentEnv}: ${extensionId}`);
             } catch (manifestError) {
               console.error(`Error updating manifest with key: ${manifestError.message}`);

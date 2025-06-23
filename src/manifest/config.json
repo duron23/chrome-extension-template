@@ -1,8 +1,7 @@
 {
   "dev": {
-    "extensionId": "oahkddnondlcdgofnjnaemegeifmkdpl",
-    "version": "0.0.20",
-    "calculatedId": "oahkddnondlcdgofnjnaemegeifmkdpl"
+    "extensionId": "",
+    "version": "0.0.0"
   },
   "uat": {
     "extensionId": "",

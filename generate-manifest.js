@@ -5,7 +5,7 @@ const { parseString, Builder } = require("xml2js");
 const { extractPublicKeyForManifest, calculateExtensionId } = require("./extract-key");
 
 // Determine the environment (dev, uat, or prod)
-const env = process.env.NODE_ENV || "dev";
+const env = (process.env.NODE_ENV || "dev").trim(); // Trim to remove any whitespace
 // Load the common .env file
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 // Load the appropriate .env file
@@ -93,14 +93,14 @@ if (fs.existsSync(pemPath)) {
   if (publicKey) {
     // Add the key to the manifest
     manifest.key = publicKey;
-    console.log("Added public key to manifest from PEM file");
-    
-    // Calculate the actual extension ID from the public key
+    console.log("Added public key to manifest from PEM file");    // Calculate the actual extension ID from the public key
     const calculatedExtensionId = calculateExtensionId(publicKey);
-    
-    // Store the calculated ID in the config
-    config[env].calculatedId = calculatedExtensionId;
     console.log(`Calculated ID from public key: ${calculatedExtensionId}`);
+    
+    // Make sure the environment exists in config
+    if (!config[env]) {
+      config[env] = { extensionId: "", version: "0.0.0" };
+    }
     
     // If no explicit extension ID is set, use the calculated one
     if (!config[env].extensionId || config[env].extensionId === "") {
@@ -198,21 +198,14 @@ function getExtensionId() {
   if (!config[envKey]) {
     throw new Error(`Invalid environment: ${envKey}`);
   }
-  
-  // First priority: Use explicitly set extension ID that's not empty
+    // First priority: Use explicitly set extension ID that's not empty
   if (config[envKey].extensionId && config[envKey].extensionId !== "" && 
       config[envKey].extensionId !== "managed-by-pem") {
     console.log(`Using explicitly configured extension ID: ${config[envKey].extensionId}`);
     return config[envKey].extensionId;
   }
   
-  // Second priority: Use calculatedId if available
-  if (config[envKey].calculatedId) {
-    console.log(`Using calculated extension ID: ${config[envKey].calculatedId}`);
-    return config[envKey].calculatedId;
-  }
-  
-  // Third priority: Calculate from manifest.key if available
+  // Second priority: Calculate from manifest.key if available
   if (manifest.key) {
     const calculatedId = calculateExtensionId(manifest.key);
     console.log(`Calculated extension ID from manifest key: ${calculatedId}`);

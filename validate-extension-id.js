@@ -46,14 +46,10 @@ try {
   }
   
   // Output the current config settings
-  const configPath = path.join(__dirname, 'src', 'manifest', 'config.json');
-  if (fs.existsSync(configPath)) {
+  const configPath = path.join(__dirname, 'src', 'manifest', 'config.json');  if (fs.existsSync(configPath)) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     console.log('\nConfig file extension IDs:');
     console.log(`dev.extensionId: ${config.dev.extensionId}`);
-    if (config.dev.calculatedId) {
-      console.log(`dev.calculatedId: ${config.dev.calculatedId}`);
-    }
   }
 
   // Output the manifest.xml appid
