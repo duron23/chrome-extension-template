@@ -26,7 +26,6 @@ Chrome Extension “development toolchain” using modern web techniques and bes
 - static assets (images, fonts, etc.) are under `src/static/`
 
 ## General Guidelines
-- All suggestions should be relevant to Chrome Extensions and the specified tech stack, no suggestions for toolchains
 - Use modern TypeScript features (ES2023)
 - Follow best practices for Chrome Extensions
 - Keep code modular and reusable

@@ -8,7 +8,6 @@ const { exec } = require("child_process");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 dotenv.config();
-const manifestVersion = process.env.MANIFEST_VERSION;
 
 const getParentFolderName = () => {
   const parentDir = path.basename(path.resolve(__dirname, "."));
@@ -70,15 +69,14 @@ const config = (env) => {
   const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
   const isProduction = env.EXTENSION_BUILD === 'prod';
   const shouldAnalyze = process.env.ANALYZE === 'true';
-
   const copyPluginOptions = {
     patterns: [
       {
-        from: path.resolve(`./src/manifest/v${manifestVersion}/manifest.json`),
+        from: path.resolve(`./src/manifest/manifest.json`),
         to: path.resolve(`${outputPath}/manifest.json`),
       },
       {
-        from: path.resolve(`./src/manifest/v${manifestVersion}/manifest.xml`),
+        from: path.resolve(`./src/manifest/manifest.xml`),
         to: path.resolve(`${basePath}/manifest.xml`),
       },
       {
@@ -95,6 +93,7 @@ const config = (env) => {
       "popup/popup": path.resolve("./src/popup/index.tsx"),
       "options/options": path.resolve("./src/options/index.tsx"),
       "sidepanel/sidepanel": path.resolve("./src/sidepanel/index.tsx"),
+      "offscreen/offscreen": path.resolve("./src/offscreen/index.tsx"),
       background: path.resolve("./src/background/background.ts"),
     },
     output: {
@@ -177,6 +176,7 @@ const config = (env) => {
         { path: "popup/", fileName: "popup" },
         { path: "options/", fileName: "options" },
         { path: "sidepanel/", fileName: "sidepanel" },
+        { path: "offscreen/", fileName: "offscreen" },
       ]),
       ...(shouldAnalyze ? [new BundleAnalyzerPlugin()] : []),
       //new AfterDonePlugin(),

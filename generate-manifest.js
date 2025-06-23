@@ -10,20 +10,18 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 // Load the appropriate .env file
 dotenv.config({ path: path.resolve(__dirname, `.env.${env}`) });
 
-const manifestVersion = process.env.MANIFEST_VERSION === "2" ? "2" : "3";
-
 // Paths to the manifest and XML files
 const manifestPath = path.resolve(
   __dirname,
   "src",
-  `manifest/v${manifestVersion}/manifest.json`
+  "manifest/manifest.json"
 );
 const xmlFilePath = path.resolve(
   __dirname,
   "src",
-  `manifest/v${manifestVersion}/manifest.xml`
+  "manifest/manifest.xml"
 );
-const configFilePath = path.resolve(__dirname, "src", `manifest/config.json`);
+const configFilePath = path.resolve(__dirname, "src", "manifest/config.json");
 
 // Read the existing manifest file
 const manifest = JSON.parse(
@@ -76,26 +74,24 @@ fs.readFile(xmlFilePath, "utf8", (err, data) => {
 
 // Function to get the version
 function getIncreamentedVersion() {
-  const versionKey = `v${manifestVersion}`;
   const envKey = env;
 
-  console.log(`Version Key: ${versionKey}, Environment Key: ${envKey}`);
-  if (config[versionKey] && config[versionKey][envKey]) {
-    const currentVersion = config[versionKey][envKey].version;
+  console.log(`Environment Key: ${envKey}`);
+  if (config[envKey]) {
+    const currentVersion = config[envKey].version;
     const versionParts = currentVersion.split(".");
     versionParts[2] = (parseInt(versionParts[2], 10) + 1).toString();
-    config[versionKey][envKey].version = versionParts.join(".");
-    return config[versionKey][envKey].version;
+    config[envKey].version = versionParts.join(".");
+    return config[envKey].version;
   } else {
-    throw new Error(`Invalid version or environment: ${versionKey}, ${envKey}`);
+    throw new Error(`Invalid environment: ${envKey}`);
   }
 }
 
 function getExtensionId() {
-  const versionKey = `v${manifestVersion}`;
   const envKey = env;
-  if (config[versionKey] && config[versionKey][envKey]) {
-    return config[versionKey][envKey].extensionId;
+  if (config[envKey]) {
+    return config[envKey].extensionId;
   } else {
     throw new Error("Invalid extensionId or environment");
   }

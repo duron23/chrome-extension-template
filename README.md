@@ -86,11 +86,11 @@ Before building and running the extension, customize it by editing the `.env` fi
 
 - **Extension Name**: `EXTENSION_NAME=YourExtensionName`
 - **Extension Description**: `EXTENSION_DESCRIPTION=A brief description of your extension.`
-- **Manifest Version**: Set this to either 2 or 3, depending on the version of the manifest you want to use. Based on this configuration, the corresponding manifest file (`src/manifest/v2/manifest.json` or `src/manifest/v3/manifest.json`) will be used.
+- **Manifest Version**: This template exclusively uses Manifest V3, which is the latest version of the Chrome Extension manifest format. The manifest file is located at `src/manifest/manifest.json`.
 
 #### Webpack Configuration
 
-- **webpack.common.config.ts**: Use this file to select which parts of the extension you want to include (e.g., Popup, SidePanel, etc.). Ensure that the appropriate manifest file under `src/manifest/v2/manifest.json` or `src/manifest/v3/manifest.json` is updated accordingly.
+- **webpack.common.config.ts**: Use this file to select which parts of the extension you want to include (e.g., Popup, SidePanel, etc.). Ensure that the manifest file under `src/manifest/manifest.json` is updated accordingly.
 
 ### 3. Development
 
@@ -176,9 +176,10 @@ chrome-extension-template/
 │   ├── sidepanel/              # Side panel interface (React)
 │   ├── static/                  # Static assets
 │   ├── style/                   # Global styles and CSS
-│   ├── manifest/                # Extension manifests
-│   │   ├── v2/                 # Manifest V2 files
-│   │   └── v3/                 # Manifest V3 files
+│   ├── manifest/                # Extension manifest
+│   │   ├── config.json         # Extension configuration file
+│   │   ├── manifest.json       # The manifest file (Manifest V3)
+│   │   └── manifest.xml        # Update manifest for the Chrome Web Store
 │   └── index.html              # HTML template
 ├── tests/                       # Test files
 │   ├── setup.ts                # Test setup and configuration
