@@ -1,14 +1,16 @@
 {
   "dev": {
-    "extensionId": "",
-    "version": "0.0.0"
+    "extensionId": "bflgmgjmenodeacejojifnopehgncldi",
+    "version": "0.0.1",
+    "calculatedId": "bflgmgjmenodeacejojifnopehgncldi"
   },
   "uat": {
     "extensionId": "",
     "version": "0.0.0"
   },
   "prod": {
-    "extensionId": "",
-    "version": "0.0.0"
+    "extensionId": "olhhoidkjpdinpdnmaahabngfbhojenc",
+    "version": "0.0.1",
+    "calculatedId": "olhhoidkjpdinpdnmaahabngfbhojenc"
   }
 }

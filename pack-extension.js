@@ -31,7 +31,7 @@ if (!fs.existsSync(keysDirectory)) {
 
 const extensionPath = path.join(
   __dirname,
-  `dist/${process.env.EXTENSION_BUILD}/${parentDir}${process.env.EXTENSION_BUILD}`
+  `dist/${process.env.EXTENSION_BUILD}/${parentDir}-${process.env.EXTENSION_BUILD}`
 );
 
 console.log("...............................Extension Path", extensionPath);
