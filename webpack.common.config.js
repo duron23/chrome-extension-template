@@ -68,25 +68,6 @@ class AfterDonePlugin {
   }
 }
 
-/* class AfterEmitPlugin {
-  apply(compiler) {
-    compiler.hooks.afterEmit.tapAsync(
-      "AfterEmitPlugin",
-      (compilation, callback) => {
-        console.log("============================");
-        exec("node pack-extension.js", (err, stdout, stderr) => {
-          if (err) {
-            console.error(`Error during packing: ${stderr}`);
-          } else {
-            console.log(`Packing output: ${stdout}`);
-          }
-          callback(); // Ensure Webpack continues after the command execution
-        });
-      }
-    );
-  }
-} */
-
 const getHtmlPlugins = (chunks) => {
   return chunks.map(
     (chunk) =>
