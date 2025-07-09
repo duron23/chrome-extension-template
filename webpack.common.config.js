@@ -1,8 +1,6 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const tailwindcss = require("@tailwindcss/postcss");
-const autoprefixer = require("autoprefixer");
 const dotenv = require("dotenv");
 const fs = require("fs");
 const { exec } = require("child_process");
@@ -33,7 +31,6 @@ const loadFeaturesConfig = () => {
   // Return default config if features.json doesn't exist or has errors
   return {
     features: {
-      background: { enabled: true },
       popup: { enabled: true },
       options: { enabled: true },
       sidepanel: { enabled: true },
@@ -116,7 +113,10 @@ const config = (env) => {
   // Build entry points based on enabled features
   const entries = {};
   
-  // Only include entries for enabled features
+  // Background script is always included (not customizable)
+  entries.background = path.resolve("./src/background/background.ts");
+  
+  // Only include entries for enabled features (the 5 customizable components)
   if (features.features.contentScripts?.enabled) {
     entries["content/content"] = path.resolve("./src/content/content.ts");
   }
@@ -136,10 +136,6 @@ const config = (env) => {
   if (features.features.offscreen?.enabled) {
     entries["offscreen/offscreen"] = path.resolve("./src/offscreen/index.tsx");
   }
-  
-  if (features.features.background?.enabled) {
-    entries.background = path.resolve("./src/background/background.ts");
-  }
 
   return {
     target: ["web", "es2023"],
@@ -148,11 +144,19 @@ const config = (env) => {
       clean: true,
       path: path.resolve(__dirname, `${outputPath}`),
       filename: "[name].bundle.js",
-      libraryTarget: "module",
+      // Enable ES module output for Chrome extension compatibility with type: "module"
+      library: {
+        type: "module",
+      },
+      environment: {
+        module: true,
+        dynamicImport: false,
+      },
     },
     experiments: {
       outputModule: true,
-    },    module: {
+    },
+    module: {
       rules: [
         {
           use: {
@@ -177,47 +181,18 @@ const config = (env) => {
           exclude: /node_modules/,
         },
         {
-          use: isProduction 
-            ? [
-                "style-loader",
-                {
-                  loader: "css-loader",
-                  options: {
-                    importLoaders: 1,
-                    modules: false,
-                  },
-                },
-                {
-                  loader: "postcss-loader",
-                  options: {
-                    postcssOptions: {
-                      plugins: [
-                        tailwindcss,
-                        autoprefixer,
-                        ...(isProduction ? [require('cssnano')({ preset: 'default' })] : []),
-                      ],
-                    },
-                  },
-                },
-              ]
-            : [
-                "style-loader",
-                "css-loader",
-                {
-                  loader: "postcss-loader",
-                  options: {
-                    postcssOptions: {
-                      plugins: [tailwindcss, autoprefixer],
-                    },
-                  },
-                },
-              ],
-          test: /\.css$/i,        },
+          // Inject CSS directly into the page
+          use: ["style-loader", "css-loader"],
+          test: /\.css$/i,
+        },
       ],
     },
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
-    },    plugins: [
+      fullySpecified: false,
+    },
+    plugins: [
+      // CSS is now inlined via style-loader
       new CopyPlugin(copyPluginOptions),
       ...getHtmlPlugins([
         ...(features.features.popup?.enabled ? [{ path: "popup/", fileName: "popup" }] : []),

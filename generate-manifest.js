@@ -171,6 +171,8 @@ fs.readFile(xmlFilePath, "utf8", (err, data) => {
   });
 });
 
+console.log("=== Starting manifest generation ===");
+
 // Function to get the version
 function getIncreamentedVersion() {
   const envKey = env;
@@ -221,100 +223,80 @@ function getExtensionId() {
 
 /**
  * Apply feature toggles from features.json to the manifest
+ * Only adds features if they are enabled and not already present in manifest
  * @param {Object} manifest - The manifest object to modify
  * @param {Object} featureConfig - The feature configuration object
  */
 function applyFeatureToggles(manifest, featureConfig) {
   console.log("Applying feature toggles to manifest...");
   
-  // Handle component features
+  // Handle component features - only add if enabled and not already present
   if (featureConfig.features) {
-    // Background script
-    if (featureConfig.features.background && !featureConfig.features.background.enabled) {
-      delete manifest.background;
-      console.log("- Disabled background service worker");
-    }
     
-    // Popup
-    if (featureConfig.features.popup && !featureConfig.features.popup.enabled) {
-      delete manifest.action;
-      console.log("- Disabled popup UI");
-    }
-    
-    // Options page
-    if (featureConfig.features.options && !featureConfig.features.options.enabled) {
-      delete manifest.options_page;
-      console.log("- Disabled options page");
+    // Popup (action)
+    if (featureConfig.features.popup && featureConfig.features.popup.enabled) {
+      if (!manifest.action) {
+        manifest.action = {
+          "default_popup": "popup/popup.html"
+        };
+        console.log("- Added popup action to manifest");
+      } else {
+        console.log("- Popup action already exists in manifest, skipping");
+      }
     }
     
     // Side panel
-    if (featureConfig.features.sidepanel && !featureConfig.features.sidepanel.enabled) {
-      delete manifest.side_panel;
-      console.log("- Disabled side panel");
+    if (featureConfig.features.sidepanel && featureConfig.features.sidepanel.enabled) {
+      if (!manifest.side_panel) {
+        manifest.side_panel = {
+          "default_path": "sidepanel/sidepanel.html"
+        };
+        console.log("- Added side panel to manifest");
+      } else {
+        console.log("- Side panel already exists in manifest, skipping");
+      }
+    }
+    
+    // Options page
+    if (featureConfig.features.options && featureConfig.features.options.enabled) {
+      if (!manifest.options_page) {
+        manifest.options_page = "options/options.html";
+        console.log("- Added options page to manifest");
+      } else {
+        console.log("- Options page already exists in manifest, skipping");
+      }
     }
     
     // Content scripts
-    if (featureConfig.features.contentScripts) {
-      if (!featureConfig.features.contentScripts.enabled) {
-        manifest.content_scripts = [];
-        console.log("- Disabled content scripts");
-      } else if (featureConfig.features.contentScripts.matches) {
-        // Update content script matches if specified
-        if (manifest.content_scripts && manifest.content_scripts.length > 0) {
-          manifest.content_scripts[0].matches = featureConfig.features.contentScripts.matches;
-          console.log(`- Updated content script matches: ${JSON.stringify(featureConfig.features.contentScripts.matches)}`);
-        }
+    if (featureConfig.features.contentScripts && featureConfig.features.contentScripts.enabled) {
+      if (!manifest.content_scripts || manifest.content_scripts.length === 0) {
+        const matches = featureConfig.features.contentScripts.matches || ["http://localhost/*"];
+        manifest.content_scripts = [
+          {
+            "js": ["content/content.bundle.js"],
+            "matches": matches
+          }
+        ];
+        console.log(`- Added content scripts to manifest with matches: ${JSON.stringify(matches)}`);
+      } else {
+        console.log("- Content scripts already exist in manifest, skipping");
       }
+    }
+    
+    // Offscreen (Note: Offscreen functionality is controlled via permissions, not manifest entries)
+    if (featureConfig.features.offscreen && featureConfig.features.offscreen.enabled) {
+      console.log("- Offscreen feature enabled (controlled via permissions, no manifest changes needed)");
     }
   }
   
-  // Handle permissions
-  if (featureConfig.permissions) {
-    const enabledPermissions = [];
-    
-    // Process each permission
-    Object.keys(featureConfig.permissions).forEach(permKey => {
-      const permConfig = featureConfig.permissions[permKey];
-      if (permConfig.enabled) {
-        enabledPermissions.push(permKey);
-      } else {
-        console.log(`- Removed permission: ${permKey}`);
-      }
-    });
-    
-    // Only update if we have permissions to set
-    if (enabledPermissions.length > 0) {
-      manifest.permissions = enabledPermissions;
-      console.log(`- Set permissions to: ${JSON.stringify(enabledPermissions)}`);
-    } else {
-      delete manifest.permissions;
-      console.log("- Removed all permissions");
-    }
-  }
-  
-  // Handle host permissions
-  if (featureConfig.hostPermissions) {
-    const enabledHostPermissions = [];
-    
-    // Process each host permission
-    Object.keys(featureConfig.hostPermissions).forEach(hostKey => {
-      const hostConfig = featureConfig.hostPermissions[hostKey];
-      if (hostConfig.enabled && hostConfig.pattern) {
-        enabledHostPermissions.push(hostConfig.pattern);
-      } else {
-        console.log(`- Removed host permission: ${hostKey}`);
-      }
-    });
-    
-    // Only update if we have host permissions to set
-    if (enabledHostPermissions.length > 0) {
-      manifest.host_permissions = enabledHostPermissions;
-      console.log(`- Set host permissions to: ${JSON.stringify(enabledHostPermissions)}`);
-    } else {
-      delete manifest.host_permissions;
-      console.log("- Removed all host permissions");
-    }
-  }
+  // NOTE: Feature management only adds the following components if enabled and not present:
+  // 1. popup - adds action to manifest
+  // 2. options - adds options_page to manifest  
+  // 3. sidepanel - adds side_panel to manifest
+  // 4. offscreen - feature availability (no direct manifest changes)
+  // 5. contentScripts - adds content_scripts to manifest
+  //
+  // Existing properties in manifest.json are never overridden
   
   console.log("Feature toggles applied successfully");
 }

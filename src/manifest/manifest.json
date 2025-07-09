@@ -17,6 +17,9 @@
       ]
     }
   ],
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
   "action": {
     "default_popup": "popup/popup.html"
   },
@@ -26,10 +29,22 @@
   "permissions": [
     "storage",
     "sidePanel",
-    "offscreen"
+    "offscreen",
+    "downloads"
   ],
-  "side_panel": {
-    "default_path": "sidepanel/sidepanel.html"
-  },
-  "options_page": "options/options.html"
+  "options_page": "options/options.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "options.css",
+        "popup.css",
+        "sidepanel.css",
+        "offscreen.css",
+        "content/content.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }
