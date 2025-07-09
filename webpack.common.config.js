@@ -181,9 +181,26 @@ const config = (env) => {
           exclude: /node_modules/,
         },
         {
-          // Inject CSS directly into the page
-          use: ["style-loader", "css-loader"],
-          test: /\.css$/i,
+          // Process CSS with PostCSS and Tailwind
+          test: /\.(css)$/i,
+          use: [
+            'style-loader',
+            {
+              loader: 'css-loader',
+              options: { importLoaders: 1 }
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                postcssOptions: {
+                  plugins: [
+                    'tailwindcss',
+                    'autoprefixer'
+                  ]
+                }
+              }
+            }
+          ]
         },
       ],
     },

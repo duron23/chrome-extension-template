@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import "../style/tailwind.css";
 import "../style/main.css";
 import SidePanel from "./sidepanel";
 
