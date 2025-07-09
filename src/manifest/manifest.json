@@ -13,7 +13,7 @@
         "content/content.bundle.js"
       ],
       "matches": [
-        "http://localhost/*"
+        "http://*/*"
       ]
     }
   ],
@@ -24,27 +24,11 @@
     "default_popup": "popup/popup.html"
   },
   "host_permissions": [
-    "http://localhost/*"
+    "http://*/*"
   ],
   "permissions": [
-    "storage",
     "sidePanel",
-    "offscreen",
-    "downloads"
+    "offscreen"
   ],
-  "options_page": "options/options.html",
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "options.css",
-        "popup.css",
-        "sidepanel.css",
-        "offscreen.css",
-        "content/content.css"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+  "options_page": "options/options.html"
 }

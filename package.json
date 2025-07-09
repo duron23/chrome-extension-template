@@ -4,9 +4,7 @@
   "author": "Farooq Hussain M",
   "license": "ISC",
   "description": "",
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "sideEffects": false,
   "scripts": {
     "ensure-pem": "node ensure-pem.js",
     "prebuild:dev": "cross-env NODE_ENV=dev npm run ensure-pem && cross-env NODE_ENV=dev node generate-manifest.js",
