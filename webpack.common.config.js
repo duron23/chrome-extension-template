@@ -13,23 +13,23 @@ const getParentFolderName = () => {
   return parentDir;
 };
 
+// Cache the features config to avoid race conditions and multiple file reads
+let cachedFeaturesConfig = null;
+
 /**
  * Load the features configuration file if it exists
  * @returns {Object} The features configuration
  */
 const loadFeaturesConfig = () => {
+  // Return cached config if already loaded to prevent race conditions
+  if (cachedFeaturesConfig !== null) {
+    return cachedFeaturesConfig;
+  }
+
   const featuresPath = path.resolve(__dirname, "src", "manifest", "features.json");
   
-  if (fs.existsSync(featuresPath)) {
-    try {
-      return JSON.parse(fs.readFileSync(featuresPath, "utf8"));
-    } catch (error) {
-      console.error(`Error loading features.json: ${error.message}`);
-    }
-  }
-  
-  // Return default config if features.json doesn't exist or has errors
-  return {
+  // Default configuration
+  const defaultConfig = {
     features: {
       popup: { enabled: true },
       options: { enabled: true },
@@ -38,27 +38,83 @@ const loadFeaturesConfig = () => {
       contentScripts: { enabled: true }
     }
   };
+
+  try {
+    // Check if file exists and is readable
+    if (fs.existsSync(featuresPath)) {
+      const stats = fs.statSync(featuresPath);
+      if (stats.isFile()) {
+        const configData = fs.readFileSync(featuresPath, "utf8");
+        const parsedConfig = JSON.parse(configData);
+        
+        // Validate that the config has the expected structure
+        if (parsedConfig && parsedConfig.features && typeof parsedConfig.features === 'object') {
+          cachedFeaturesConfig = parsedConfig;
+          return cachedFeaturesConfig;
+        } else {
+          console.warn("Invalid features.json structure, using default configuration");
+        }
+      }
+    }
+  } catch (error) {
+    console.error(`Error loading features.json: ${error.message}, using default configuration`);
+  }
+  
+  // Cache and return default config
+  cachedFeaturesConfig = defaultConfig;
+  return cachedFeaturesConfig;
 };
 
 class AfterDonePlugin {
+  constructor() {
+    // Track running processes to prevent overlapping executions
+    this.isRunning = false;
+  }
+
   apply(compiler) {
     compiler.hooks.done.tap("AfterDonePlugin", (stats) => {
-      // Get the current environment from compiler options
+      // Prevent race conditions by checking if already running
+      if (this.isRunning) {
+        console.log("⏭️  Extension packaging already in progress, skipping...");
+        return;
+      }
+
+      this.isRunning = true;
+      
+      // Capture environment variables at execution time to prevent race conditions
       const env = process.env.NODE_ENV || "dev";
       const extensionBuild = process.env.EXTENSION_BUILD || env;
       
       // Execute pack-extension.js with the correct environment variables
+      const childEnv = { 
+        ...process.env, 
+        NODE_ENV: env, 
+        EXTENSION_BUILD: extensionBuild 
+      };
+
       exec(`node pack-extension.js`, {
-        env: { ...process.env, NODE_ENV: env, EXTENSION_BUILD: extensionBuild }
+        env: childEnv,
+        timeout: 30000, // 30 second timeout
+        maxBuffer: 1024 * 1024 // 1MB buffer
       }, (err, stdout, stderr) => {
+        // Reset running flag regardless of outcome
+        this.isRunning = false;
+        
         if (err) {
-          console.error(`Error during packing: ${stderr}`);
+          console.error(`❌ Extension packaging failed: ${err.message}`);
+          if (stderr) {
+            console.error(`📋 Details: ${stderr}`);
+          }
         } else {
-          console.log(
-            "!============================!",
-            stats.endTime - stats.startTime
-          );
-          console.log(`Packing output: ${stdout}`);
+          const buildTime = stats.endTime - stats.startTime;
+          console.log(`✅ Build completed successfully in ${buildTime}ms`);
+          if (stdout && stdout.trim()) {
+            // Only log packing output if it contains meaningful information
+            const output = stdout.trim();
+            if (!output.includes('injecting env') && output.length > 0) {
+              console.log(`📦 ${output}`);
+            }
+          }
         }
       });
     });
@@ -78,20 +134,29 @@ const getHtmlPlugins = (chunks) => {
 };
 
 const config = (env) => {
-  const extensionName = `${getParentFolderName()}`;
-  const basePath = `./dist/${env.EXTENSION_BUILD}`;
-  const outputPath = `${basePath}/${extensionName}${env.EXTENSION_BUILD}`;
-  const isProduction = env.EXTENSION_BUILD === 'prod';
+  // Validate environment parameter
+  if (!env || typeof env !== 'object') {
+    throw new Error("Environment configuration is required and must be an object");
+  }
+
+  // Capture environment variables at config time to prevent race conditions
+  const extensionBuild = env.EXTENSION_BUILD || process.env.EXTENSION_BUILD || "dev";
   const shouldAnalyze = process.env.ANALYZE === 'true';
   
-  // Load feature configuration
+  const extensionName = `${getParentFolderName()}`;
+  const basePath = `./dist/${extensionBuild}`;
+  const outputPath = `${basePath}/${extensionName}${extensionBuild}`;
+  
+  // Load feature configuration once at the beginning
   const features = loadFeaturesConfig();
-  console.log("Building with features:", 
-    Object.entries(features.features)
-      .filter(([_, val]) => val.enabled)
-      .map(([key]) => key)
-      .join(", ")
-  );
+  
+  const enabledFeatures = Object.entries(features.features)
+    .filter(([_, val]) => val && val.enabled)
+    .map(([key]) => key);
+  
+  if (enabledFeatures.length > 0) {
+    console.log(`📦 Building extension with features: ${enabledFeatures.join(', ')}`);
+  }
   
   const copyPluginOptions = {
     patterns: [
@@ -104,47 +169,47 @@ const config = (env) => {
         to: path.resolve(`${basePath}/manifest.xml`),
       },
       {
-        from: path.resolve("./src/static"),
-        to: path.resolve(`${outputPath}/static/`),
+        from: path.resolve("./src/root"),
+        to: path.resolve(`${outputPath}/`),
       },
     ],
   };
 
-  // Build entry points based on enabled features
+  // Build entry points based on enabled features with safety checks
   const entries = {};
   
   // Background script is always included (not customizable)
   entries.background = path.resolve("./src/background/background.ts");
   
   // Only include entries for enabled features (the 5 customizable components)
-  if (features.features.contentScripts?.enabled) {
+  // Use optional chaining and explicit boolean checks to prevent race conditions
+  if (features.features?.contentScripts?.enabled === true) {
     entries["content/content"] = path.resolve("./src/content/content.ts");
   }
   
-  if (features.features.popup?.enabled) {
+  if (features.features?.popup?.enabled === true) {
     entries["popup/popup"] = path.resolve("./src/popup/index.tsx");
   }
   
-  if (features.features.options?.enabled) {
+  if (features.features?.options?.enabled === true) {
     entries["options/options"] = path.resolve("./src/options/index.tsx");
   }
   
-  if (features.features.sidepanel?.enabled) {
+  if (features.features?.sidepanel?.enabled === true) {
     entries["sidepanel/sidepanel"] = path.resolve("./src/sidepanel/index.tsx");
   }
   
-  if (features.features.offscreen?.enabled) {
+  if (features.features?.offscreen?.enabled === true) {
     entries["offscreen/offscreen"] = path.resolve("./src/offscreen/index.tsx");
   }
 
   return {
-    target: ["web", "es2023"],
+    target: ["web", "es2024"],
     entry: entries,
     output: {
       clean: true,
       path: path.resolve(__dirname, `${outputPath}`),
       filename: "[name].bundle.js",
-      // Enable ES module output for Chrome extension compatibility with type: "module"
       library: {
         type: "module",
       },
@@ -165,18 +230,6 @@ const config = (env) => {
               configFile: "tsconfig.json",
             },
           },
-          /* use: [
-            {
-              loader: "babel-loader",
-              options: {
-                presets: [
-                  "@babel/preset-typescript",
-                  "@babel/preset-env",
-                  "@babel/preset-react",
-                ],
-              },
-            },
-          ], */
           test: /\.tsx?$/,
           exclude: /node_modules/,
         },
@@ -212,13 +265,14 @@ const config = (env) => {
       // CSS is now inlined via style-loader
       new CopyPlugin(copyPluginOptions),
       ...getHtmlPlugins([
-        ...(features.features.popup?.enabled ? [{ path: "popup/", fileName: "popup" }] : []),
-        ...(features.features.options?.enabled ? [{ path: "options/", fileName: "options" }] : []),
-        ...(features.features.sidepanel?.enabled ? [{ path: "sidepanel/", fileName: "sidepanel" }] : []),
-        ...(features.features.offscreen?.enabled ? [{ path: "offscreen/", fileName: "offscreen" }] : []),
+        ...(features.features?.popup?.enabled === true ? [{ path: "popup/", fileName: "popup" }] : []),
+        ...(features.features?.options?.enabled === true ? [{ path: "options/", fileName: "options" }] : []),
+        ...(features.features?.sidepanel?.enabled === true ? [{ path: "sidepanel/", fileName: "sidepanel" }] : []),
+        ...(features.features?.offscreen?.enabled === true ? [{ path: "offscreen/", fileName: "offscreen" }] : []),
       ]),
       ...(shouldAnalyze ? [new BundleAnalyzerPlugin()] : []),
-      new AfterDonePlugin(),
+      // AfterDonePlugin is added by environment-specific configs (dev, prod, uat)
+      // to prevent duplicate executions
     ],
   };
 };

@@ -1,103 +1,111 @@
 import React, { useEffect, useState } from "react";
 
-// Define types for message structure
-interface OffscreenMessage {
+// Define minimal types for web worker creation
+interface WorkerMessage {
   target: string;
   action: string;
-  data: unknown;
-}
-
-interface AudioData {
-  src: string;
-}
-
-interface ClipboardData {
-  text: string;
+  data: {
+    scriptUrl: string;
+  };
 }
 
 /**
- * Offscreen Component for handling tasks that require a DOM but no visible UI
- * Examples include audio playback, clipboard access, etc.
+ * Minimal Offscreen Component for Web Worker creation
  */
 const Offscreen: React.FC = () => {
-  const [initialized, setInitialized] = useState(false);
+  const [worker, setWorker] = useState<Worker | null>(null);
 
   useEffect(() => {
-    // Listen for messages from the background script
-    chrome.runtime.onMessage.addListener((message: OffscreenMessage, sender, sendResponse) => {
-      if (message.target === "offscreen") {
-        console.log("Offscreen received message:", message);
-        
-        // Handle different offscreen tasks
-        switch (message.action) {
-          case "playAudio":
-            handlePlayAudio(message.data as AudioData);
-            break;
-          case "copyToClipboard":
-            handleCopyToClipboard(message.data as ClipboardData);
-            break;
-          // Add other offscreen tasks as needed
-          default:
-            console.warn("Unknown offscreen action:", message.action);
-        }
-        
-        // Always send a response to avoid "The message port closed" error
+    // Listen for worker creation requests
+    chrome.runtime.onMessage.addListener((message: WorkerMessage, sender, sendResponse) => {
+      if (message.target === "offscreen" && message.action === "createWorker") {
+        createWorker(message.data.scriptUrl);
         sendResponse({ success: true });
-        return true; // Important: indicates async response
       }
     });
 
-    setInitialized(true);
-    console.log("Offscreen page initialized");
+    console.log("Offscreen page ready for worker creation");
     
-    // Notify background script that offscreen is ready
+    // Signal to background that offscreen is ready
     chrome.runtime.sendMessage({
       target: "background",
       action: "offscreenReady"
-    }).catch(err => {
-      // Handle potential errors when background is not available
-      console.error("Failed to notify background:", err);
+    }).catch(error => {
+      console.error("Failed to signal offscreen ready:", error);
     });
-
-    // Cleanup function
-    return () => {
-      console.log("Offscreen page cleanup");
-    };
   }, []);
 
   /**
-   * Handles playing audio via offscreen document
+   * Creates a Web Worker
    */
-  const handlePlayAudio = (data: { src: string }) => {
+  const createWorker = (scriptUrl: string) => {
     try {
-      const audio = new Audio(data.src);
-      audio.play().catch(error => {
-        console.error("Failed to play audio:", error);
-      });
-    } catch (error) {
-      console.error("Error playing audio:", error);
-    }
-  };
+      console.log("Creating worker with script URL:", scriptUrl);
+      
+      // Terminate existing worker if any
+      if (worker) {
+        console.log("Terminating existing worker");
+        worker.terminate();
+      }
 
-  /**
-   * Handles copying text to clipboard
-   */
-  const handleCopyToClipboard = (data: { text: string }) => {
-    try {
-      navigator.clipboard.writeText(data.text).then(() => {
-        console.log("Text copied to clipboard");
-      }).catch(err => {
-        console.error("Failed to copy text:", err);
-      });
+      // Create new worker
+      const newWorker = new Worker(scriptUrl);
+      
+      // Enhanced message handling
+      newWorker.onmessage = (event) => {
+        console.log("Worker message received:", event.data);
+      };
+
+      // Enhanced error handling
+      newWorker.onerror = (error) => {
+        console.error("Worker error occurred:");
+        console.error("Error event:", error);
+        console.error("Error details:", {
+          message: error.message,
+          filename: error.filename,
+          lineno: error.lineno,
+          colno: error.colno,
+          error: error.error
+        });
+        
+        // Also log the worker state
+        console.error("Worker state when error occurred:", {
+          scriptUrl: scriptUrl,
+          workerExists: !!newWorker
+        });
+      };
+
+      // Handle worker termination
+      newWorker.onmessageerror = (error) => {
+        console.error("Worker message error:", error);
+      };
+
+      setWorker(newWorker);
+      console.log("Web Worker created successfully with URL:", scriptUrl);
+      
+      // Test the worker with a simple message
+      setTimeout(() => {
+        if (newWorker) {
+          console.log("Sending test message to worker");
+          newWorker.postMessage("Hello from offscreen");
+        }
+      }, 100);
+      
     } catch (error) {
-      console.error("Error copying to clipboard:", error);
+      console.error("Failed to create worker:", error);
+      if (error instanceof Error) {
+        console.error("Error details:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+      }
     }
   };
 
   return (
-    <div className="offscreen-container">
-      {/* This is an invisible page, no visible UI needed */}
-      <div id="status">{initialized ? "Offscreen page ready" : "Initializing..."}</div>
+    <div>
+      <div>Offscreen: {worker ? "Worker active" : "No worker"}</div>
     </div>
   );
 };

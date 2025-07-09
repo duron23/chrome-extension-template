@@ -6,5 +6,16 @@ module.exports = defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "tests/setup.ts",
+    coverage: {
+      include: ["src/**/*"],
+      exclude: [
+        "src/**/*.d.ts",
+        "src/**/index.html",
+        "src/static/**",
+        "src/manifest/**"
+      ],
+      reporter: ["text", "html", "lcov"],
+      reportsDirectory: "coverage"
+    }
   },
 });

@@ -4,6 +4,39 @@ const dotenv = require("dotenv");
 const { parseString, Builder } = require("xml2js");
 const { extractPublicKeyForManifest, calculateExtensionId } = require("./extract-key");
 
+// Simple file locking mechanism to prevent race conditions
+const locks = new Map();
+
+/**
+ * Acquire a lock for a file path to prevent concurrent operations
+ * @param {string} filePath - The file path to lock
+ * @returns {Promise<Function>} - A function to release the lock
+ */
+const acquireFileLock = (filePath) => {
+  return new Promise((resolve) => {
+    const checkLock = () => {
+      if (locks.has(filePath)) {
+        setTimeout(checkLock, 10); // Wait 10ms and check again
+      } else {
+        locks.set(filePath, true);
+        resolve(() => locks.delete(filePath));
+      }
+    };
+    checkLock();
+  });
+};
+
+/**
+ * Atomic file write operation to prevent corruption
+ * @param {string} filePath - Path to write to
+ * @param {string} content - Content to write
+ */
+const atomicWriteFile = (filePath, content) => {
+  const tempPath = `${filePath}.tmp`;
+  fs.writeFileSync(tempPath, content, 'utf8');
+  fs.renameSync(tempPath, filePath);
+};
+
 // Determine the environment (dev, uat, or prod)
 const env = (process.env.NODE_ENV || "dev").trim(); // Trim to remove any whitespace
 // Load the common .env file
@@ -38,12 +71,9 @@ const config = JSON.parse(
 let features = {};
 if (fs.existsSync(featuresFilePath)) {
   features = JSON.parse(fs.readFileSync(featuresFilePath, "utf8"));
-  console.log("Features configuration loaded");
 } else {
-  console.log("No features.json found, using default manifest");
+  console.log("ℹ️  Using default manifest configuration (no features.json found)");
 }
-
-console.log("Config", config);
 
 // Get the parent folder name for the extension
 const parentDir = path.basename(path.resolve(__dirname, "."));
@@ -56,128 +86,156 @@ if (!fs.existsSync(keysDir)) {
 }
 
 const pemPath = path.join(keysDir, `${parentDir}-${env}.pem`);
-console.log("PEM path:", pemPath);
 
 // Function to generate a dummy PEM file if needed
-const generateDummyPemIfNeeded = () => {
-  if (!fs.existsSync(pemPath)) {
-    console.log("No PEM file found, generating a dummy one...");
-    const { execSync } = require('child_process');
-    try {
-      // Generate a simple RSA key pair
-      const crypto = require('crypto');
-      const { privateKey } = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 2048,
-        publicKeyEncoding: { type: 'spki', format: 'pem' },
-        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-      });
-      
-      // Save the private key to PEM file
-      fs.writeFileSync(pemPath, privateKey);
-      console.log(`Created dummy PEM file at: ${pemPath}`);
-      return true;
-    } catch (error) {
-      console.error(`Error generating dummy PEM: ${error.message}`);
+const generateDummyPemIfNeeded = async () => {
+  // Check if PEM already exists
+  if (fs.existsSync(pemPath)) {
+    return false;
+  }
+
+  // Acquire lock for PEM file operations
+  const releaseLock = await acquireFileLock(pemPath);
+  
+  try {
+    // Double-check after acquiring lock (another process might have created it)
+    if (fs.existsSync(pemPath)) {
       return false;
     }
+
+    console.log("🔑 Generating new PEM key...");
+    
+    // Generate a simple RSA key pair
+    const crypto = require('crypto');
+    const { privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'pem' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+    });
+    
+    // Use atomic write for PEM file
+    atomicWriteFile(pemPath, privateKey);
+    return true;
+  } catch (error) {
+    console.error(`Error generating dummy PEM: ${error.message}`);
+    return false;
+  } finally {
+    releaseLock();
   }
-  return false;
 };
 
-// Generate dummy PEM if needed
-const pemWasGenerated = generateDummyPemIfNeeded();
+// Main execution function to handle async operations
+const main = async () => {
+  // Generate dummy PEM if needed (with race condition protection)
+  const pemWasGenerated = await generateDummyPemIfNeeded();
 
-// Extract public key from PEM file
-if (fs.existsSync(pemPath)) {
-  const publicKey = extractPublicKeyForManifest(pemPath);
-  if (publicKey) {
-    // Add the key to the manifest
-    manifest.key = publicKey;
-    console.log("Added public key to manifest from PEM file");    // Calculate the actual extension ID from the public key
-    const calculatedExtensionId = calculateExtensionId(publicKey);
-    console.log(`Calculated ID from public key: ${calculatedExtensionId}`);
-    
-    // Make sure the environment exists in config
-    if (!config[env]) {
-      config[env] = { extensionId: "", version: "0.0.0" };
-    }
-    
-    // If no explicit extension ID is set, use the calculated one
-    if (!config[env].extensionId || config[env].extensionId === "") {
-      config[env].extensionId = calculatedExtensionId;
-      console.log(`Setting extension ID in config to calculated ID: ${calculatedExtensionId}`);
-    }
-  }
-}
-
-manifest.version = getIncreamentedVersion();
-
-if (process.env.EXTENSION_BUILD !== "prod") {
-  // Modify the description based on the environment
-  manifest.name = `${env} : ${process.env.NAME}`;
-  manifest.description = `${env} : ${process.env.DESC}`;
-} else {
-  // Modify the description based on the environment
-  manifest.name = `${process.env.NAME}`;
-  manifest.description = `${process.env.DESC}`;
-}
-
-// Apply feature toggles if features.json exists
-if (Object.keys(features).length > 0) {
-  applyFeatureToggles(manifest, features);
-}
-
-// Write the updated manifest back to the file
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
-fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2), "utf8");
-
-console.log(`Manifest file updated for ${env}:`, manifest);
-
-// Update the XML file
-fs.readFile(xmlFilePath, "utf8", (err, data) => {
-  if (err) {
-    console.error(`Error reading XML file: ${err}`);
-    return;
-  }
-  
-  parseString(data, (err, result) => {
-    if (err) {
-      console.error(`Error parsing XML: ${err}`);
-      return;
-    }
-
-    try {
-      // Get the actual extension ID
-      const extensionId = getExtensionId();
+  // Extract public key from PEM file
+  if (fs.existsSync(pemPath)) {
+    const publicKey = extractPublicKeyForManifest(pemPath);
+    if (publicKey) {
+      // Add the key to the manifest
+      manifest.key = publicKey;
       
-      // Modify the XML structure
-      result.gupdate.app[0].$.appid = extensionId; // Set appid on the app tag
-      result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
+      // Calculate the actual extension ID from the public key
+      const calculatedExtensionId = calculateExtensionId(publicKey);
       
-      // Remove duplicate appid from updatecheck if it exists
-      if (result.gupdate.app[0].updatecheck[0].$.appid !== undefined) {
-        delete result.gupdate.app[0].updatecheck[0].$.appid;
+      // Make sure the environment exists in config
+      if (!config[env]) {
+        config[env] = { extensionId: "", version: "0.0.0" };
       }
-
-      // Write the updated XML back to the file
-      const builder = new Builder();
-      const updatedXml = builder.buildObject(result);
-      fs.writeFileSync(xmlFilePath, updatedXml, "utf8");
-
-      console.log(`XML file updated with version: ${manifest.version} and extension ID: ${extensionId}`);
-    } catch (error) {
-      console.error(`Error updating XML file: ${error.message}`);
+      
+      // If no explicit extension ID is set, use the calculated one
+      if (!config[env].extensionId || config[env].extensionId === "") {
+        config[env].extensionId = calculatedExtensionId;
+        console.log(`🆔 Extension ID: ${calculatedExtensionId}`);
+      }
     }
-  });
-});
+  }
 
-console.log("=== Starting manifest generation ===");
+  manifest.version = getIncreamentedVersion();
+
+  if (process.env.EXTENSION_BUILD !== "prod") {
+    // Modify the description based on the environment
+    manifest.name = `${env} : ${process.env.NAME}`;
+    manifest.description = `${env} : ${process.env.DESC}`;
+  } else {
+    // Modify the description based on the environment
+    manifest.name = `${process.env.NAME}`;
+    manifest.description = `${process.env.DESC}`;
+  }
+
+  // Apply feature toggles if features.json exists
+  if (Object.keys(features).length > 0) {
+    applyFeatureToggles(manifest, features);
+  }
+
+  // Write files with atomic operations and locks
+  await writeManifestFiles();
+
+  // Update the XML file
+  await updateXmlFile();
+};
+
+/**
+ * Write manifest and config files with proper locking
+ */
+const writeManifestFiles = async () => {
+  // Acquire locks for both files
+  const manifestLock = await acquireFileLock(manifestPath);
+  const configLock = await acquireFileLock(configFilePath);
+  
+  try {
+    // Write the updated manifest and config back to files using atomic writes
+    atomicWriteFile(manifestPath, JSON.stringify(manifest, null, 2));
+    atomicWriteFile(configFilePath, JSON.stringify(config, null, 2));
+  } finally {
+    manifestLock();
+    configLock();
+  }
+};
+
+/**
+ * Update XML file with proper error handling
+ */
+const updateXmlFile = async () => {
+  try {
+    const data = fs.readFileSync(xmlFilePath, "utf8");
+    
+    const result = await new Promise((resolve, reject) => {
+      parseString(data, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    // Get the actual extension ID
+    const extensionId = getExtensionId();
+    
+    // Modify the XML structure
+    result.gupdate.app[0].$.appid = extensionId; // Set appid on the app tag
+    result.gupdate.app[0].updatecheck[0].$.version = manifest.version;
+    
+    // Remove duplicate appid from updatecheck if it exists
+    if (result.gupdate.app[0].updatecheck[0].$.appid !== undefined) {
+      delete result.gupdate.app[0].updatecheck[0].$.appid;
+    }      // Write the updated XML back to the file with atomic operation
+      const xmlLock = await acquireFileLock(xmlFilePath);
+      try {
+        const builder = new Builder();
+        const updatedXml = builder.buildObject(result);
+        atomicWriteFile(xmlFilePath, updatedXml);
+      } finally {
+        xmlLock();
+      }
+  } catch (error) {
+    console.error(`Error updating XML file: ${error.message}`);
+  }
+};
 
 // Function to get the version
 function getIncreamentedVersion() {
   const envKey = env;
 
-  console.log(`Environment Key: ${envKey}`);
   if (config[envKey]) {
     const currentVersion = config[envKey].version;
     const versionParts = currentVersion.split(".");
@@ -203,21 +261,19 @@ function getExtensionId() {
     // First priority: Use explicitly set extension ID that's not empty
   if (config[envKey].extensionId && config[envKey].extensionId !== "" && 
       config[envKey].extensionId !== "managed-by-pem") {
-    console.log(`Using explicitly configured extension ID: ${config[envKey].extensionId}`);
     return config[envKey].extensionId;
   }
   
   // Second priority: Calculate from manifest.key if available
   if (manifest.key) {
     const calculatedId = calculateExtensionId(manifest.key);
-    console.log(`Calculated extension ID from manifest key: ${calculatedId}`);
     // Save it for future use
     config[envKey].calculatedId = calculatedId;
     return calculatedId;
   }
   
   // If we got here, we don't have a valid extension ID
-  console.warn("No valid extension ID available. Using empty string.");
+  console.warn("⚠️  No valid extension ID available");
   return "";
 }
 
@@ -228,8 +284,6 @@ function getExtensionId() {
  * @param {Object} featureConfig - The feature configuration object
  */
 function applyFeatureToggles(manifest, featureConfig) {
-  console.log("Applying feature toggles to manifest...");
-  
   // Handle component features - only add if enabled and not already present
   if (featureConfig.features) {
     
@@ -239,9 +293,6 @@ function applyFeatureToggles(manifest, featureConfig) {
         manifest.action = {
           "default_popup": "popup/popup.html"
         };
-        console.log("- Added popup action to manifest");
-      } else {
-        console.log("- Popup action already exists in manifest, skipping");
       }
     }
     
@@ -251,9 +302,6 @@ function applyFeatureToggles(manifest, featureConfig) {
         manifest.side_panel = {
           "default_path": "sidepanel/sidepanel.html"
         };
-        console.log("- Added side panel to manifest");
-      } else {
-        console.log("- Side panel already exists in manifest, skipping");
       }
     }
     
@@ -261,9 +309,6 @@ function applyFeatureToggles(manifest, featureConfig) {
     if (featureConfig.features.options && featureConfig.features.options.enabled) {
       if (!manifest.options_page) {
         manifest.options_page = "options/options.html";
-        console.log("- Added options page to manifest");
-      } else {
-        console.log("- Options page already exists in manifest, skipping");
       }
     }
     
@@ -277,15 +322,7 @@ function applyFeatureToggles(manifest, featureConfig) {
             "matches": matches
           }
         ];
-        console.log(`- Added content scripts to manifest with matches: ${JSON.stringify(matches)}`);
-      } else {
-        console.log("- Content scripts already exist in manifest, skipping");
       }
-    }
-    
-    // Offscreen (Note: Offscreen functionality is controlled via permissions, not manifest entries)
-    if (featureConfig.features.offscreen && featureConfig.features.offscreen.enabled) {
-      console.log("- Offscreen feature enabled (controlled via permissions, no manifest changes needed)");
     }
   }
   
@@ -297,6 +334,10 @@ function applyFeatureToggles(manifest, featureConfig) {
   // 5. contentScripts - adds content_scripts to manifest
   //
   // Existing properties in manifest.json are never overridden
-  
-  console.log("Feature toggles applied successfully");
 }
+
+// Execute main function and handle errors
+main().catch(error => {
+  console.error('Error in manifest generation:', error);
+  process.exit(1);
+});
