@@ -1,7 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* Custom styles only */
 body {
   width: fit-content;
   height: fit-content;
