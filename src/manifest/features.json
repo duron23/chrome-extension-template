@@ -19,7 +19,9 @@
     "contentScripts": {
       "enabled": true,
       "description": "Content scripts that run on web pages",
-      "matches": ["http://localhost/*"]
+      "matches": [
+        "http://*/*"
+      ]
     }
   }
 }

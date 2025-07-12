@@ -7,7 +7,7 @@ This repository serves as a powerful and flexible template for building Chrome E
 - **Webpack**: Efficiently bundles and transpiles your code with advanced optimizations including code splitting, tree shaking, and production minification.
 - **React 19**: Latest React version for building modern Popup, Options, and SidePanel interfaces with enhanced performance.
 - **TypeScript 5.8**: Provides strict type safety with ES2023 target and enhanced development features with incremental compilation.
-- **Tailwind CSS v4**: Next-generation utility-first CSS framework with advanced production optimizations and CSS minification.
+- **Tailwind CSS v3**: Utility-first CSS framework with advanced production optimizations and CSS minification.
 - **Vitest**: Fast and lightweight testing framework with comprehensive TypeScript support and coverage reporting.
 - **Puppeteer**: Modern E2E testing with TypeScript support for Chrome extension testing.
 - **ESLint 9**: Latest flat config system with comprehensive TypeScript and React rules including async/await best practices.
@@ -51,6 +51,27 @@ This template includes several performance and development optimizations:
 - **Strict TypeScript**: Enhanced type safety with strict mode and comprehensive rules
 - **Async/await Best Practices**: ESLint rules enforce proper Promise handling and error management
 
+## 🚀 Latest Features (January 2025)
+
+### New Tools & Scripts
+- **Interactive Feature Customization**: Run `npm run customize` to configure extension components via CLI
+- **Extension ID Management**: Comprehensive tooling for consistent IDs across builds and environments
+- **Show Extension IDs**: Display configured extension IDs with `npm run show:ids`
+- **Cleanup Script**: Reset extension state and IDs for fresh starts
+
+### Enhanced Build System
+- **Environment-Specific Builds**: Separate dev, UAT, and production configurations
+- **Automatic PEM Management**: Seamless extension ID consistency across packed and unpacked installations
+- **Improved Manifest Generation**: Dynamic manifest creation based on enabled features
+- **Better Error Handling**: Enhanced build process with comprehensive error reporting
+
+### Modern Dependencies (2025)
+- **React 19.1**: Latest React with improved performance and new features
+- **TypeScript 5.8**: Enhanced type safety and ES2023 support
+- **Puppeteer 24**: Modern E2E testing with built-in TypeScript support
+- **ESLint 9**: Flat config system with comprehensive TypeScript rules
+- **Vitest 3.2**: Fast unit testing with improved coverage reporting
+
 ## 🚀 Getting Started
 
 ### 1. Setup
@@ -64,8 +85,8 @@ npm install
 ```
 
 **System Requirements:**
-- Node.js 22+ (recommended for optimal performance)
-- npm 10+ or yarn 4+
+- Node.js 18+ (LTS) or Node.js 22+ (recommended for optimal performance)
+- npm 9+ or yarn 4+
 - Chrome/Chromium browser for extension testing
 
 **Quick Start:**
@@ -82,15 +103,46 @@ npm run ci
 
 ### 2. Configure
 
-Before building and running the extension, customize it by editing the `.env` file. Changes in the `.env` file automatically reflect in the extension's manifest, making it easy to update key details like:
+Before building and running the extension, you can customize it using several configuration options:
 
-- **Extension Name**: `EXTENSION_NAME=YourExtensionName`
-- **Extension Description**: `EXTENSION_DESCRIPTION=A brief description of your extension.`
-- **Manifest Version**: This template exclusively uses Manifest V3, which is the latest version of the Chrome Extension manifest format. The manifest file is located at `src/manifest/manifest.json`.
+#### Environment Configuration
+Configure different environments using `.env` files:
+- `.env.dev` - Development environment settings
+- `.env.uat` - UAT environment settings  
+- `.env.prod` - Production environment settings
+
+Key environment variables:
+- **EXTENSION_BUILD**: Specifies the build environment (dev/uat/prod)
+
+#### Extension Configuration
+Customize your extension through `src/manifest/config.json`:
+- **Extension Name**: Set in the config for each environment
+- **Extension Description**: Environment-specific descriptions
+- **Version Management**: Automatic version incrementing per environment
+- **Extension IDs**: Managed automatically for consistency
+
+#### Feature Configuration
+Use the interactive customization tool to configure features:
+
+```bash
+npm run customize
+```
+
+This allows you to enable/disable:
+- Background Service Worker
+- Popup UI
+- Options Page
+- Side Panel
+- Offscreen Document
+- Content Scripts
+- Various Chrome permissions
+
+#### Manual Feature Configuration
+Alternatively, edit `src/manifest/features.json` directly to control which components are included in your extension build.
 
 #### Webpack Configuration
-
-- **webpack.common.config.ts**: Use this file to select which parts of the extension you want to include (e.g., Popup, SidePanel, etc.). Ensure that the manifest file under `src/manifest/manifest.json` is updated accordingly.
+- **webpack.common.config.js**: Select which extension components to include in the build
+- Ensure the manifest configuration matches your webpack entry points
 
 ### 3. Development
 
@@ -202,15 +254,14 @@ You can also manually edit the feature configuration file:
 // src/manifest/features.json
 {
   "features": {
-    "background": { "enabled": true },
     "popup": { "enabled": true },
     "options": { "enabled": false },
     "sidepanel": { "enabled": true },
-    // ...
-  },
-  "permissions": {
-    "storage": { "enabled": true },
-    // ...
+    "offscreen": { "enabled": false },
+    "contentScripts": { 
+      "enabled": true,
+      "matches": ["http://<domain>/*"]
+    }
   }
 }
 ```
@@ -221,7 +272,7 @@ After updating the features configuration, rebuild your extension to apply the c
 npm run build:dev
 ```
 
-The build process will automatically generate a manifest.json that includes only the features, permissions, and components you've enabled.
+The build process will automatically update the manifest.json by adding only the missing entries for enabled features. Existing manifest entries are preserved, ensuring your manual customizations are not overridden.
 
 ## 📁 Project Structure
 
@@ -233,27 +284,45 @@ chrome-extension-template/
 │   ├── popup/                   # Popup interface (React)
 │   ├── options/                 # Options page (React)
 │   ├── sidepanel/              # Side panel interface (React)
-│   ├── static/                  # Static assets
+│   ├── offscreen/              # Offscreen document (React)
 │   ├── style/                   # Global styles and CSS
-│   ├── manifest/                # Extension manifest
-│   │   ├── config.json         # Extension configuration file
-│   │   ├── manifest.json       # The manifest file (Manifest V3)
-│   │   └── manifest.xml        # Update manifest for the Chrome Web Store
-│   └── index.html              # HTML template
+│   ├── manifest/                # Extension manifest and configuration
+│   │   ├── config.json         # Environment-specific extension configuration
+│   │   ├── features.json       # Feature toggles and component configuration
+│   │   ├── manifest.json       # Generated manifest file (Manifest V3)
+│   │   └── manifest.xml        # Update manifest for Chrome Web Store
+│   └── index.html              # HTML template for React components
+├── keys/                        # PEM files for consistent extension IDs
+│   └── README.md               # Documentation for PEM key management
 ├── tests/                       # Test files
 │   ├── setup.ts                # Test setup and configuration
 │   ├── unit/                   # Unit tests (TypeScript + Vitest)
 │   │   ├── background/         # Background script tests
 │   │   ├── content/            # Content script tests
+│   │   ├── offscreen/          # Offscreen document tests
 │   │   └── sidepanel/         # React component tests
 │   └── e2e/                    # End-to-end tests (TypeScript + Puppeteer)
 │       ├── test.ts            # Main E2E test suite
 │       ├── debug.ts           # E2E debugging utilities
 │       └── downloads/         # Test download artifacts
+├── dist/                        # Build output (generated)
+│   ├── dev/                    # Development builds
+│   ├── uat/                    # UAT builds
+│   └── prod/                   # Production builds
+├── .env.dev                     # Development environment variables
+├── .env.uat                     # UAT environment variables
+├── .env.prod                    # Production environment variables
 ├── webpack.*.config.js         # Webpack configurations (optimized JS)
+├── eslint.config.mjs           # Modern ESLint flat configuration
 ├── tsconfig.json              # TypeScript configuration
 ├── tailwind.config.js         # Tailwind CSS configuration
 ├── vitest.config.js          # Vitest testing configuration
+├── postcss.config.js         # PostCSS configuration
+├── customize-features.js      # Interactive feature customization tool
+├── generate-manifest.js       # Manifest generation script
+├── pack-extension.js          # Extension packaging script
+├── ensure-pem.js             # PEM key management
+├── show-extension-ids.js     # Display configured extension IDs
 └── package.json              # Dependencies and scripts
 ```
 
@@ -263,7 +332,16 @@ chrome-extension-template/
 - **webpack.common.config.js**: Shared webpack configuration with performance optimizations
 - **webpack.prod.config.js**: Production-specific optimizations (code splitting, minification)
 - **webpack.dev.config.js**: Development configuration with source maps
+- **webpack.uat.config.js**: UAT-specific build configuration
+- **webpack.watch.config.js**: Watch mode configuration for development
 - **tsconfig.json**: TypeScript configuration with incremental compilation
+
+### Extension Configuration
+- **src/manifest/config.json**: Environment-specific extension settings and metadata
+- **src/manifest/features.json**: Feature toggles for components and permissions
+- **src/manifest/manifest.json**: Generated Manifest V3 file (auto-generated)
+- **src/manifest/manifest.xml**: Chrome Web Store update manifest
+- **.env.dev/.env.uat/.env.prod**: Environment-specific build variables
 
 ### Code Quality
 - **eslint.config.mjs**: Modern flat config ESLint setup for TypeScript and React with comprehensive async/await rules
@@ -273,6 +351,13 @@ chrome-extension-template/
 ### Styling
 - **tailwind.config.js**: Tailwind CSS with production optimizations
 - **postcss.config.js**: PostCSS configuration with autoprefixer and cssnano
+
+### Development Tools
+- **customize-features.js**: Interactive CLI tool for feature configuration
+- **generate-manifest.js**: Dynamic manifest generation based on features and environment
+- **pack-extension.js**: Extension packaging with consistent ID management
+- **ensure-pem.js**: Automatic PEM key generation and management
+- **show-extension-ids.js**: Display current extension IDs for all environments
 
 ## 🎯 Performance Optimizations
 
@@ -319,8 +404,10 @@ This template has been enhanced with several cutting-edge features:
 
 ### Developer Experience
 - **Cross-platform Compatibility**: Enhanced Windows, macOS, and Linux support
-- **Node.js 22 Support**: Latest Node.js LTS compatibility
+- **Node.js 18-22 Support**: Compatible with Node.js LTS versions from 18 to latest 22
 - **Dependency Optimization**: Streamlined dependencies for faster installs and smaller bundles
+- **Feature Customization**: Interactive CLI tool for enabling/disabling extension features
+- **Extension ID Management**: Comprehensive system for managing consistent extension IDs across environments
 
 ## 📦 Extension ID Management
 
@@ -362,11 +449,32 @@ The packaging script (integrated into the build process):
 
 ### Common Issues
 
+**Extension ID Changes:**
+```bash
+# Check current extension IDs
+npm run show:ids
+
+# Ensure PEM files exist for consistent IDs
+npm run ensure-pem
+```
+
 **E2E Tests Failing:**
 ```bash
 # Ensure extension is built first
 npm run build:dev
 npm run test:e2e
+
+# Run in headless mode for CI
+npm run test:e2e:headless
+```
+
+**Feature Configuration Issues:**
+```bash
+# Use interactive tool to reconfigure features
+npm run customize
+
+# Rebuild after feature changes
+npm run build:dev
 ```
 
 **TypeScript Compilation Errors:**
@@ -388,8 +496,23 @@ npm run lint
 1. Verify the extension build exists in `dist/dev/` directory
 2. Check Chrome Developer Mode is enabled
 3. Ensure manifest.json is present in the built extension
+4. Verify extension ID consistency if updating an existing extension
 
-### Build Performance
+**Build Performance Issues:**
 - Use `npm run clean` to clear build cache if experiencing issues
 - The `.tsbuildinfo` file enables incremental TypeScript compilation
 - Watch mode (`npm run watch`) provides fastest development rebuilds
+- Consider using `npm run build:analyze` to identify bundle size issues
+
+**Dependency Issues:**
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+
+# Check for security vulnerabilities
+npm audit
+
+# Update dependencies (be careful with breaking changes)
+npm update
+```
