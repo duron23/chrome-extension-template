@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
-import tseslint from "typescript-eslint";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,11 +13,6 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
 });
-
-/* 
- "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended-type-checked",
-*/
 
 export default [
   // Global ignores
@@ -57,13 +53,14 @@ export default [
   {
     files: ["src/**/*.ts", "src/**/*.tsx"],
     plugins: {
-      "@typescript-eslint": tseslint.plugin,
+      "@typescript-eslint": tsPlugin,
     },
     languageOptions: {
       globals: {
         ...globals.browser,
         chrome: "readonly",
-      },      parser: tseslint.parser,
+      },
+      parser: tsParser,
       parserOptions: {
         project: "./tsconfig.json",
         ecmaFeatures: {

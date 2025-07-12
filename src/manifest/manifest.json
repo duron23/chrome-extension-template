@@ -7,28 +7,5 @@
     "service_worker": "background.bundle.js",
     "type": "module"
   },
-  "content_scripts": [
-    {
-      "js": [
-        "content/content.bundle.js"
-      ],
-      "matches": [
-        "http://*/*"
-      ]
-    }
-  ],
-  "side_panel": {
-    "default_path": "sidepanel/sidepanel.html"
-  },
-  "action": {
-    "default_popup": "popup/popup.html"
-  },
-  "host_permissions": [
-    "http://*/*"
-  ],
-  "permissions": [
-    "sidePanel",
-    "offscreen"
-  ],
-  "options_page": "options/options.html"
+  "permissions": []
 }
