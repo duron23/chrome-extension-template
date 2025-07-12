@@ -5,7 +5,7 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 ## Tech Stack
 - **Toolchain**: JavaScript (to avoid circular dependencies with extension TypeScript code)
 - **Webpack**: Module bundling with environment-specific optimizations
-- **TypeScript 5.8**: All extension logic with ES2023 target
+- **TypeScript 5.8**: All extension logic with ES2024 target
 - **React 19**: Modern UI components for popup, options, and side panel
 - **Tailwind CSS v3**: Utility-first styling framework
 - **ESLint 9**: Flat config with comprehensive TypeScript and React rules
@@ -100,7 +100,7 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 - Configure URL patterns in `features.json` for content script injection
 
 ### TypeScript Guidelines
-- Use TypeScript 5.8 features with ES2023 target
+- Use TypeScript 5.8 features with ES2024 target
 - Follow functional programming principles where possible
 - Use interfaces for data structures and type definitions
 - Prefer immutable data (const, readonly)

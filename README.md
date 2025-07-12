@@ -6,7 +6,7 @@ This repository serves as a powerful and flexible template for building Chrome E
 
 - **Webpack**: Efficiently bundles and transpiles your code with advanced optimizations including code splitting, tree shaking, and production minification.
 - **React 19**: Latest React version for building modern Popup, Options, and SidePanel interfaces with enhanced performance.
-- **TypeScript 5.8**: Provides strict type safety with ES2023 target and enhanced development features with incremental compilation.
+- **TypeScript 5.8**: Provides strict type safety with ES2024 target and enhanced development features with incremental compilation.
 - **Tailwind CSS v3**: Utility-first CSS framework with advanced production optimizations and CSS minification.
 - **Vitest**: Fast and lightweight testing framework with comprehensive TypeScript support and coverage reporting.
 - **Puppeteer**: Modern E2E testing with TypeScript support for Chrome extension testing.
@@ -67,7 +67,7 @@ This template includes several performance and development optimizations:
 
 ### Modern Dependencies (2025)
 - **React 19.1**: Latest React with improved performance and new features
-- **TypeScript 5.8**: Enhanced type safety and ES2023 support
+- **TypeScript 5.8**: Enhanced type safety and ES2024 support
 - **Puppeteer 24**: Modern E2E testing with built-in TypeScript support
 - **ESLint 9**: Flat config system with comprehensive TypeScript rules
 - **Vitest 3.2**: Fast unit testing with improved coverage reporting
@@ -376,7 +376,7 @@ chrome-extension-template/
 
 ### Security & Best Practices
 1. **Minimal Permissions**: Only essential Chrome extension permissions
-2. **Modern ES Targets**: ES2023 compilation for modern Chrome versions
+2. **Modern ES Targets**: ES2024 compilation for modern Chrome versions
 3. **Strict TypeScript**: Enhanced type safety and error catching
 4. **Async/await Excellence**: Comprehensive ESLint rules for Promise handling and error management
 
@@ -397,7 +397,7 @@ This template has been enhanced with several cutting-edge features:
 - **Zero-warning Policy**: Strict enforcement for production-ready code quality
 
 ### TypeScript Excellence
-- **ES2023 Target**: Latest JavaScript features for modern Chrome compatibility
+- **ES2024 Target**: Latest JavaScript features for modern Chrome compatibility
 - **Incremental Compilation**: Faster builds with TypeScript build caching
 - **Strict Type Safety**: Enhanced type checking with comprehensive compiler options
 - **Chrome API Integration**: Perfect integration with @types/chrome for extension development
