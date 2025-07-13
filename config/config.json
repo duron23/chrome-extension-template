@@ -1,15 +1,20 @@
 {
+  "name": "Chrome Extension Template",
+  "description": "A modern Chrome extension template with comprehensive tooling",
   "dev": {
     "extensionId": "nkieppodppbdifgphkampmffgoogpecf",
-    "version": "0.0.5",
-    "calculatedId": "nkieppodppbdifgphkampmffgoogpecf"
+    "version": "0.0.13",
+    "calculatedId": "nkieppodppbdifgphkampmffgoogpecf",
+    "prefix": "DEV"
   },
   "uat": {
-    "extensionId": "",
-    "version": "0.0.0"
+    "extensionId": "bcbnbdlmpbijpapjanhpgongenbligio",
+    "version": "0.0.2",
+    "prefix": "UAT"
   },
   "prod": {
-    "extensionId": "",
-    "version": "0.0.0"
+    "extensionId": "amhaghmjpmfcgamooniljkbcbfojldmp",
+    "version": "0.0.3",
+    "prefix": null
   }
 }

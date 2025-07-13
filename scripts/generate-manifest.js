@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const dotenv = require("dotenv");
 const { parseString, Builder } = require("xml2js");
 const {
   extractPublicKeyForManifest,
@@ -42,10 +41,6 @@ const atomicWriteFile = (filePath, content) => {
 
 // Determine the environment (dev, uat, or prod)
 const env = (process.env.NODE_ENV || "dev").trim(); // Trim to remove any whitespace
-// Load the common .env file
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
-// Load the appropriate .env file
-dotenv.config({ path: path.resolve(__dirname, "..", `.env.${env}`) });
 
 // Paths to the manifest and XML files
 const manifestPath = path.resolve(
@@ -157,14 +152,19 @@ const main = async () => {
 
   manifest.version = getIncreamentedVersion();
 
-  if (process.env.EXTENSION_BUILD !== "prod") {
-    // Modify the description based on the environment
-    manifest.name = `${env} : ${process.env.NAME}`;
-    manifest.description = `${env} : ${process.env.DESC}`;
+  // Set name and description based on environment
+  const envConfig = config[env];
+  const baseName = config.name || "Chrome Extension";
+  const baseDescription = config.description || "A Chrome extension";
+
+  if (envConfig && envConfig.prefix) {
+    // Add environment prefix for non-production builds
+    manifest.name = `${envConfig.prefix} : ${baseName}`;
+    manifest.description = `${envConfig.prefix} : ${baseDescription}`;
   } else {
-    // Modify the description based on the environment
-    manifest.name = `${process.env.NAME}`;
-    manifest.description = `${process.env.DESC}`;
+    // Production build or no prefix specified
+    manifest.name = baseName;
+    manifest.description = baseDescription;
   }
 
   // Apply feature toggles if features.json exists

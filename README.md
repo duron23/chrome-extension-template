@@ -4,7 +4,14 @@ This repository serves as a powerful and flexible template for building Chrome E
 
 ## 🛠 Tech Stack
 
-- **Webpack**: Efficiently bundles and transpiles your code with advanced optimizations including code splitting, tree shaking, and production minification.
+- **Webpack**: Efficiently bundles and tran├── dist/                        # Build output (generated)
+│   ├── dev/                    # Development builds
+│   ├── uat/                    # UAT builds
+│   └── prod/                   # Production builds
+├── eslint.config.mjs           # Modern ESLint flat configuration
+├── tsconfig.json              # TypeScript configuration
+├── tailwind.config.js         # Tailwind CSS configuration
+├── vitest.config.js          # Vitest testing configurationr code with advanced optimizations including code splitting, tree shaking, and production minification.
 - **React 19**: Latest React version for building modern Popup, Options, and SidePanel interfaces with enhanced performance.
 - **TypeScript 5.8**: Provides strict type safety with ES2024 target and enhanced development features with incremental compilation.
 - **Tailwind CSS v3**: Utility-first CSS framework with advanced production optimizations and CSS minification.
@@ -105,48 +112,30 @@ npm run ci
 
 Before building and running the extension, you can customize it using several configuration options:
 
-#### Environment Configuration
-Configure different environments using `.env` files:
-- `.env.dev` - Development environment settings
-- `.env.uat` - UAT environment settings  
-- `.env.prod` - Production environment settings
-
-Key environment variables:
-- **EXTENSION_BUILD**: Specifies the build environment (dev/uat/prod)
-
-#### Extension Configuration
-Customize your extension through `src/manifest/config.json`:
-- **Extension Name**: Set in the config for each environment
-- **Extension Description**: Environment-specific descriptions
-- **Version Management**: Automatic version incrementing per environment
-- **Extension IDs**: Managed automatically for consistency
-
-#### Feature Configuration
-Use the interactive customization tool to configure features:
+#### Extension Customization
+Use the interactive customization tool to configure your extension:
 
 ```bash
 npm run customize
 ```
 
-This allows you to enable/disable:
-- Background Service Worker
-- Popup UI
-- Options Page
-- Side Panel
-- Offscreen Document
-- Content Scripts
-- Various Chrome permissions
+This allows you to:
+- **Set Extension Name & Description**: Update project identity across all files
+- **Enable/Disable Components**: Toggle popup, options, sidepanel, offscreen, and content scripts
+- **Configure Content Script Patterns**: Set URL patterns for content script injection
 
-#### Manual Feature Configuration
-Alternatively, edit `src/manifest/features.json` directly to control which components are included in your extension build.
-
-#### Webpack Configuration
-- **webpack.common.config.js**: Select which extension components to include in the build
-- Ensure the manifest configuration matches your webpack entry points
+#### Environment Configuration
+Configure different environments through `config/config.json`:
+- **Extension Name**: Shared across all environments
+- **Extension Description**: Shared across all environments  
+- **Version Management**: Automatic version incrementing per environment (dev/uat/prod)
+- **Extension IDs**: Managed automatically for consistency with PEM keys
 
 ### 3. Development
 
 Use the following scripts to manage different environments and development processes:
+
+**Note:** The `maintainer/` directory contains tools used only by the template maintainer for preparing clean distributions. End users can ignore this directory.
 
 - **Generate Manifest**: Customize the manifest based on the environment.
   - Development: `npm run prebuild:dev`
@@ -286,12 +275,33 @@ chrome-extension-template/
 │   ├── sidepanel/              # Side panel interface (React)
 │   ├── offscreen/              # Offscreen document (React)
 │   ├── style/                   # Global styles and CSS
-│   ├── manifest/                # Extension manifest and configuration
-│   │   ├── config.json         # Environment-specific extension configuration
-│   │   ├── features.json       # Feature toggles and component configuration
+│   ├── manifest/                # Extension manifest files
 │   │   ├── manifest.json       # Generated manifest file (Manifest V3)
 │   │   └── manifest.xml        # Update manifest for Chrome Web Store
 │   └── index.html              # HTML template for React components
+├── config/                      # Configuration files
+│   ├── config.json             # Extension identity and environment settings
+│   └── features.json           # Feature toggles and component configuration
+├── docs/                        # Documentation
+│   ├── RESET-SCRIPT.md         # Reset script documentation
+│   ├── EXTENSION-ID-MANAGEMENT.md  # PEM key management guide
+│   └── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
+├── maintainer/                  # 🔧 Maintainer-only tools (not for end users)
+│   ├── README.md               # Maintainer tools documentation
+│   ├── reset-extension.js      # Template reset script
+│   ├── reset-extension.bat     # Windows reset wrapper
+│   └── reset-extension.sh      # Linux/Unix reset wrapper
+├── scripts/                     # Build and utility scripts
+│   ├── customize-features.js   # Interactive feature customization
+│   ├── generate-manifest.js    # Dynamic manifest generation
+│   ├── ensure-pem.js          # PEM key management
+│   └── show-extension-ids.js  # Display current extension IDs
+├── webpack/                     # Webpack configurations
+│   ├── webpack.common.config.js    # Shared webpack configuration
+│   ├── webpack.dev.config.js      # Development builds
+│   ├── webpack.uat.config.js      # UAT builds
+│   ├── webpack.prod.config.js     # Production builds
+│   └── webpack.watch.config.js    # Watch mode configuration
 ├── keys/                        # PEM files for consistent extension IDs
 │   └── README.md               # Documentation for PEM key management
 ├── tests/                       # Test files
@@ -309,10 +319,8 @@ chrome-extension-template/
 │   ├── dev/                    # Development builds
 │   ├── uat/                    # UAT builds
 │   └── prod/                   # Production builds
-├── .env.dev                     # Development environment variables
-├── .env.uat                     # UAT environment variables
-├── .env.prod                    # Production environment variables
-├── webpack.*.config.js         # Webpack configurations (optimized JS)
+├── reset-extension.bat          # Windows reset script
+├── reset-extension.sh           # Linux/Unix reset script
 ├── eslint.config.mjs           # Modern ESLint flat configuration
 ├── tsconfig.json              # TypeScript configuration
 ├── tailwind.config.js         # Tailwind CSS configuration

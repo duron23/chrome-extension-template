@@ -1,7 +1,6 @@
 const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
-const dotenv = require("dotenv");
 
 // Simple file locking mechanism to prevent race conditions
 const locks = new Map();
@@ -38,9 +37,6 @@ const atomicWriteFile = (filePath, content) => {
 
 // Determine the environment (development or production)
 const env = process.env.NODE_ENV || "dev"; // Default to 'dev' instead of 'development'
-
-// Load the appropriate .env file
-dotenv.config({ path: path.resolve(__dirname, "..", `.env.${env}`) });
 
 // Make sure EXTENSION_BUILD is set
 if (!process.env.EXTENSION_BUILD) {

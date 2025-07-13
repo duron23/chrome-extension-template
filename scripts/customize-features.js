@@ -39,8 +39,11 @@ const atomicWriteFile = (filePath, content) => {
   fs.renameSync(tempPath, filePath);
 };
 
-// Path to the features configuration file
+// Path to the configuration files
 const featuresPath = path.resolve(__dirname, "..", "config", "features.json");
+const configPath = path.resolve(__dirname, "..", "config", "config.json");
+const packagePath = path.resolve(__dirname, "..", "package.json");
+const packageLockPath = path.resolve(__dirname, "..", "package-lock.json");
 const baseManifestPath = path.resolve(
   __dirname,
   "..",
@@ -85,6 +88,34 @@ function loadFeaturesConfig() {
       `${colors.red}Error loading features configuration: ${error.message}${colors.reset}`
     );
     return createDefaultConfig();
+  }
+}
+
+/**
+ * Load the config.json file
+ */
+function loadConfig() {
+  try {
+    if (fs.existsSync(configPath)) {
+      return JSON.parse(fs.readFileSync(configPath, "utf8"));
+    } else {
+      console.log(
+        `${colors.yellow}No config.json found. Creating a default configuration.${colors.reset}`
+      );
+      return {
+        name: "Chrome Extension Template",
+        description:
+          "A modern Chrome extension template with comprehensive tooling",
+        dev: { extensionId: "", version: "0.0.1", prefix: "DEV" },
+        uat: { extensionId: "", version: "0.0.1", prefix: "UAT" },
+        prod: { extensionId: "", version: "0.0.1", prefix: null },
+      };
+    }
+  } catch (error) {
+    console.error(
+      `${colors.red}Error loading config: ${error.message}${colors.reset}`
+    );
+    return null;
   }
 }
 
@@ -169,21 +200,112 @@ async function saveFeaturesConfig(config) {
 }
 
 /**
+ * Save the config.json file with atomic operation and locking
+ */
+async function saveConfig(config) {
+  const releaseLock = await acquireFileLock(configPath);
+  try {
+    atomicWriteFile(configPath, JSON.stringify(config, null, 2));
+    console.log(
+      `${colors.green}✓ Config saved to ${configPath}${colors.reset}`
+    );
+  } catch (error) {
+    console.error(
+      `${colors.red}Error saving config: ${error.message}${colors.reset}`
+    );
+  } finally {
+    releaseLock();
+  }
+}
+
+/**
+ * Update package.json with new name and description
+ */
+async function updatePackageJson(name, description) {
+  const releaseLock = await acquireFileLock(packagePath);
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
+
+    // Convert name to package-friendly format (lowercase, hyphens)
+    const packageName = name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
+    packageJson.name = packageName;
+    packageJson.description = description;
+
+    atomicWriteFile(packagePath, JSON.stringify(packageJson, null, 2));
+    console.log(
+      `${colors.green}✓ Package.json updated with name: ${packageName}${colors.reset}`
+    );
+
+    return packageName;
+  } catch (error) {
+    console.error(
+      `${colors.red}Error updating package.json: ${error.message}${colors.reset}`
+    );
+    return null;
+  } finally {
+    releaseLock();
+  }
+}
+
+/**
+ * Update package-lock.json with new name
+ */
+async function updatePackageLockJson(packageName) {
+  const releaseLock = await acquireFileLock(packageLockPath);
+  try {
+    if (fs.existsSync(packageLockPath)) {
+      const packageLockJson = JSON.parse(
+        fs.readFileSync(packageLockPath, "utf8")
+      );
+
+      packageLockJson.name = packageName;
+      if (packageLockJson.packages && packageLockJson.packages[""]) {
+        packageLockJson.packages[""].name = packageName;
+      }
+
+      atomicWriteFile(
+        packageLockPath,
+        JSON.stringify(packageLockJson, null, 2)
+      );
+      console.log(`${colors.green}✓ Package-lock.json updated${colors.reset}`);
+    }
+  } catch (error) {
+    console.error(
+      `${colors.red}Error updating package-lock.json: ${error.message}${colors.reset}`
+    );
+  } finally {
+    releaseLock();
+  }
+}
+
+/**
  * Show menu to customize features
  */
-async function showMainMenu(config) {
+async function showMainMenu(featuresConfig, mainConfig) {
   console.log(
-    `\n${colors.bright}${colors.cyan}CHROME EXTENSION FEATURE CUSTOMIZER${colors.reset}`
+    `\n${colors.bright}${colors.cyan}CHROME EXTENSION CUSTOMIZER${colors.reset}`
+  );
+  console.log(`${colors.cyan}═══════════════════════════${colors.reset}\n`);
+  console.log(
+    `Current Extension: ${colors.bright}${mainConfig.name}${colors.reset}`
   );
   console.log(
-    `${colors.cyan}═══════════════════════════════════${colors.reset}\n`
+    `Description: ${colors.bright}${mainConfig.description}${colors.reset}\n`
   );
+
   console.log("Select an option:");
   console.log(
-    `${colors.bright}1. Customize Extension Components${colors.reset}`
+    `${colors.bright}1. Update Extension Name & Description${colors.reset}`
   );
-  console.log(`${colors.bright}2. Save and Exit${colors.reset}`);
-  console.log(`${colors.bright}3. Exit without Saving${colors.reset}`);
+  console.log(
+    `${colors.bright}2. Customize Extension Components${colors.reset}`
+  );
+  console.log(`${colors.bright}3. Save and Exit${colors.reset}`);
+  console.log(`${colors.bright}4. Exit without Saving${colors.reset}`);
   console.log(
     `\n${colors.yellow}Note: Only the 5 core components are customizable.${colors.reset}`
   );
@@ -194,17 +316,31 @@ async function showMainMenu(config) {
   rl.question("\nChoice: ", async (answer) => {
     switch (answer.trim()) {
       case "1":
-        await showFeaturesMenu(config);
+        await showNameDescriptionMenu(mainConfig, featuresConfig);
         break;
       case "2":
-        await saveFeaturesConfig(config);
+        await showFeaturesMenu(featuresConfig, mainConfig);
+        break;
+      case "3":
+        await saveFeaturesConfig(featuresConfig);
+        await saveConfig(mainConfig);
+
+        // Update package.json and package-lock.json
+        const packageName = await updatePackageJson(
+          mainConfig.name,
+          mainConfig.description
+        );
+        if (packageName) {
+          await updatePackageLockJson(packageName);
+        }
+
         console.log(
-          `\n${colors.bright}${colors.green}Configuration saved! Now run a build to apply changes:${colors.reset}`
+          `\n${colors.bright}${colors.green}All configurations saved! Now run a build to apply changes:${colors.reset}`
         );
         console.log(`npm run build:dev\n`);
         rl.close();
         break;
-      case "3":
+      case "4":
         console.log(`${colors.yellow}Exited without saving.${colors.reset}`);
         rl.close();
         break;
@@ -212,16 +348,63 @@ async function showMainMenu(config) {
         console.log(
           `${colors.red}Invalid choice. Please try again.${colors.reset}`
         );
-        await showMainMenu(config);
+        await showMainMenu(featuresConfig, mainConfig);
     }
   });
+}
+
+/**
+ * Show menu to update extension name and description
+ */
+async function showNameDescriptionMenu(mainConfig, featuresConfig) {
+  console.log(
+    `\n${colors.bright}${colors.cyan}EXTENSION NAME & DESCRIPTION${colors.reset}`
+  );
+  console.log(`${colors.cyan}══════════════════════════${colors.reset}\n`);
+  console.log(
+    `Current Name: ${colors.bright}${mainConfig.name}${colors.reset}`
+  );
+  console.log(
+    `Current Description: ${colors.bright}${mainConfig.description}${colors.reset}\n`
+  );
+
+  rl.question(
+    "Enter new extension name (or press Enter to keep current): ",
+    async (newName) => {
+      const name = newName.trim() || mainConfig.name;
+
+      rl.question(
+        "Enter new description (or press Enter to keep current): ",
+        async (newDescription) => {
+          const description = newDescription.trim() || mainConfig.description;
+
+          if (
+            name !== mainConfig.name ||
+            description !== mainConfig.description
+          ) {
+            mainConfig.name = name;
+            mainConfig.description = description;
+
+            console.log(
+              `\n${colors.green}✓ Extension name and description updated${colors.reset}`
+            );
+            console.log(
+              `${colors.yellow}Note: package.json and package-lock.json will be updated when you save${colors.reset}`
+            );
+          }
+
+          await showMainMenu(featuresConfig, mainConfig);
+        }
+      );
+    }
+  );
 }
 
 /**
  * Show menu to customize extension components
  * Only the 5 core components are customizable: popup, options, sidepanel, offscreen, contentScripts
  */
-async function showFeaturesMenu(config) {
+async function showFeaturesMenu(config, mainConfig) {
   console.log(
     `\n${colors.bright}${colors.cyan}EXTENSION COMPONENTS${colors.reset}`
   );
@@ -253,7 +436,7 @@ async function showFeaturesMenu(config) {
       answer.toLowerCase() === "back" ||
       answer === (options.length + 1).toString()
     ) {
-      await showMainMenu(config);
+      await showMainMenu(config, mainConfig);
       return;
     }
 
@@ -262,7 +445,7 @@ async function showFeaturesMenu(config) {
       console.log(
         `${colors.red}Invalid choice. Please try again.${colors.reset}`
       );
-      await showFeaturesMenu(config);
+      await showFeaturesMenu(config, mainConfig);
       return;
     }
 
@@ -277,11 +460,11 @@ async function showFeaturesMenu(config) {
           if (patterns.trim()) {
             features[key].matches = patterns.split(",").map((p) => p.trim());
           }
-          await showFeaturesMenu(config);
+          await showFeaturesMenu(config, mainConfig);
         }
       );
     } else {
-      await showFeaturesMenu(config);
+      await showFeaturesMenu(config, mainConfig);
     }
   });
 }
@@ -289,17 +472,26 @@ async function showFeaturesMenu(config) {
 // Main execution - wrapped in async function
 (async () => {
   console.log(
-    `${colors.bright}${colors.cyan}Chrome Extension Feature Customizer${colors.reset}`
+    `${colors.bright}${colors.cyan}Chrome Extension Customizer${colors.reset}`
   );
   console.log(
-    `${colors.cyan}This utility helps you customize which of the 5 core components your extension will include.${colors.reset}`
+    `${colors.cyan}This utility helps you customize your extension name, description, and components.${colors.reset}`
   );
   console.log(
     `${colors.yellow}Note: Permissions and host permissions must be managed directly in manifest.json${colors.reset}`
   );
 
   const featuresConfig = loadFeaturesConfig();
-  await showMainMenu(featuresConfig);
+  const mainConfig = loadConfig();
+
+  if (!mainConfig) {
+    console.error(
+      `${colors.red}Failed to load configuration. Exiting.${colors.reset}`
+    );
+    process.exit(1);
+  }
+
+  await showMainMenu(featuresConfig, mainConfig);
 })().catch((error) => {
   console.error("Error in customize-features:", error);
   process.exit(1);

@@ -1,15 +1,12 @@
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const dotenv = require("dotenv");
 const fs = require("fs");
 const { exec } = require("child_process");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
-dotenv.config();
-
 const getParentFolderName = () => {
-  const parentDir = path.basename(path.resolve(__dirname, "."));
+  const parentDir = path.basename(path.resolve(__dirname, ".."));
   return parentDir;
 };
 
@@ -106,7 +103,7 @@ class AfterDonePlugin {
       };
 
       exec(
-        `node pack-extension.js`,
+        `node scripts/pack-extension.js`,
         {
           env: childEnv,
           timeout: 30000, // 30 second timeout
@@ -164,8 +161,11 @@ const config = (env) => {
   const shouldAnalyze = process.env.ANALYZE === "true";
 
   const extensionName = `${getParentFolderName()}`;
-  const basePath = `./dist/${extensionBuild}`;
-  const outputPath = `${basePath}/${extensionName}${extensionBuild}`;
+  const basePath = path.resolve(__dirname, "..", "dist", extensionBuild);
+  const outputPath = path.resolve(
+    basePath,
+    `${extensionName}-${extensionBuild}`
+  );
 
   // Load feature configuration once at the beginning
   const features = loadFeaturesConfig();
@@ -183,16 +183,16 @@ const config = (env) => {
   const copyPluginOptions = {
     patterns: [
       {
-        from: path.resolve(`./src/manifest/manifest.json`),
-        to: path.resolve(`${outputPath}/manifest.json`),
+        from: path.resolve(__dirname, "..", "src/manifest/manifest.json"),
+        to: path.resolve(outputPath, "manifest.json"),
       },
       {
-        from: path.resolve(`../config/manifest.xml`),
-        to: path.resolve(`${basePath}/manifest.xml`),
+        from: path.resolve(__dirname, "../config/manifest.xml"),
+        to: path.resolve(basePath, "manifest.xml"),
       },
       {
-        from: path.resolve("./src/root"),
-        to: path.resolve(`${outputPath}/`),
+        from: path.resolve(__dirname, "..", "src/root"),
+        to: path.resolve(outputPath),
       },
     ],
   };
@@ -230,7 +230,7 @@ const config = (env) => {
     entry: entries,
     output: {
       clean: true,
-      path: path.resolve(__dirname, `${outputPath}`),
+      path: outputPath,
       filename: "[name].bundle.js",
       library: {
         type: "module",
