@@ -38,6 +38,28 @@ chmod +x maintainer/maintainer-reset.sh
 maintainer/maintainer-reset.sh
 ```
 
+### `setup-git-hooks.js`
+Git hooks configuration script for template maintainers.
+
+**Purpose:**
+- Set up automatic reset before commits
+- Ensure template stays clean for distribution
+- Configure pre-commit hooks for cross-platform support
+
+**⚠️ WARNING:** This is for template maintainers ONLY! End users should NOT use this as it will reset their extension to template defaults before every commit.
+
+**Usage:**
+```bash
+# From project root - MAINTAINER ONLY
+node maintainer/setup-git-hooks.js
+```
+
+**What it does:**
+- Configures Git to use `.githooks` directory
+- Sets up pre-commit hooks (Unix/Windows compatible)
+- Automatically runs reset script before each commit
+- Ensures template distribution readiness
+
 ## When to Use
 
 These tools should be used by the template maintainer when:

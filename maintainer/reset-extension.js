@@ -1,15 +1,8 @@
 #!/usr/bin/env node
 /**
  * reset-extension.js
- * 
- * This script resets theconsole.log('┌─────────────────────────────────────────────────┐');
-console.log('│               EXTENSION async function performCleanup(clearDistDir) {
-  console.log(colors.cyan + '\nStarting reset process...' + colors.reset);SET                   │');
-console.log('│                                                 │');
-console.log('│  This script will reset your extension         │');
-console.log('│  template to a clean state for distribution    │');
-console.log('│  or starting a new project.                    │');
-console.log('└─────────────────────────────────────────────────┘');extension template to a clean state by:
+ *
+ * This script resets the extension template to a clean state by:
  * 1. Resetting name and description to template defaults
  * 2. Resetting version numbers in config.json
  * 3. Clearing extension IDs in config.json
@@ -17,7 +10,7 @@ console.log('└─────────────────────�
  * 5. Removing the key from manifest.json
  * 6. Clearing appid in manifest.xml
  * 7. Optionally, clearing the dist directory
- * 
+ *
  * This script is designed for template distribution and fresh project starts.
  * Use this when preparing the template for sharing or starting a new project.
  */
@@ -30,11 +23,17 @@ const readline = require("readline");
 // File locking utilities
 const lockFile = require("proper-lockfile");
 
-// Create readline interface for user input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+// Check for command line arguments
+const args = process.argv.slice(2);
+const isAutoMode = args.includes("--auto") || args.includes("-a");
+
+// Create readline interface for user input (only if not in auto mode)
+const rl = !isAutoMode
+  ? readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    })
+  : null;
 
 // File paths
 const configPath = path.join(__dirname, "..", "config", "config.json");
@@ -45,13 +44,7 @@ const manifestJsonPath = path.join(
   "manifest",
   "manifest.json"
 );
-const manifestXmlPath = path.join(
-  __dirname,
-  "..",
-  "src",
-  "manifest",
-  "manifest.xml"
-);
+const manifestXmlPath = path.join(__dirname, "..", "config", "manifest.xml");
 const packagePath = path.join(__dirname, "..", "package.json");
 const packageLockPath = path.join(__dirname, "..", "package-lock.json");
 const keysDir = path.join(__dirname, "..", "keys");
@@ -80,31 +73,49 @@ console.log("│  name/description to defaults.                  │");
 console.log("└─────────────────────────────────────────────────┘");
 console.log(colors.reset);
 
-// Ask for confirmation
-rl.question(
-  colors.yellow +
-    "This will reset the template to clean defaults (name, IDs, versions, keys). Continue? (y/n): " +
-    colors.reset,
-  (answer) => {
-    if (answer.toLowerCase() !== "y") {
-      console.log(colors.blue + "Reset cancelled." + colors.reset);
-      rl.close();
-      return;
-    }
-
-    // Ask about clearing dist directory
-    rl.question(
-      colors.yellow +
-        "Do you also want to clear the dist directory? (y/n): " +
-        colors.reset,
-      async (clearDist) => {
-        const shouldClearDist = clearDist.toLowerCase() === "y";
-        await performCleanup(shouldClearDist);
+// If in auto mode, skip confirmation and directly perform cleanup
+if (isAutoMode) {
+  console.log(colors.cyan + "Running in automatic mode..." + colors.reset);
+  performCleanup(false)
+    .then(() => {
+      console.log(
+        colors.green + "✅ Reset completed automatically" + colors.reset
+      );
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error(
+        colors.red + "❌ Reset failed: " + error.message + colors.reset
+      );
+      process.exit(1);
+    });
+} else {
+  // Ask for confirmation
+  rl.question(
+    colors.yellow +
+      "This will reset the template to clean defaults (name, IDs, versions, keys). Continue? (y/n): " +
+      colors.reset,
+    (answer) => {
+      if (answer.toLowerCase() !== "y") {
+        console.log(colors.blue + "Reset cancelled." + colors.reset);
         rl.close();
+        return;
       }
-    );
-  }
-);
+
+      // Ask about clearing dist directory
+      rl.question(
+        colors.yellow +
+          "Do you also want to clear the dist directory? (y/n): " +
+          colors.reset,
+        async (clearDist) => {
+          const shouldClearDist = clearDist.toLowerCase() === "y";
+          await performCleanup(shouldClearDist);
+          rl.close();
+        }
+      );
+    }
+  );
+}
 
 /**
  * Safely write file content with atomic operation and locking

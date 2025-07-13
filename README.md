@@ -58,6 +58,7 @@ This template includes several performance and development optimizations:
 - **Extension ID Management**: Comprehensive tooling for consistent IDs across builds and environments
 - **Show Extension IDs**: Display configured extension IDs with `npm run show:ids`
 - **Cleanup Script**: Reset extension state and IDs for fresh starts
+- **Maintainer Git Hooks**: Template maintainer tools for automatic reset before commits (maintainer-only)
 
 ### Enhanced Build System
 - **Environment-Specific Builds**: Separate dev, UAT, and production configurations
@@ -154,6 +155,11 @@ Use the following scripts to manage different environments and development proce
   - Lint Fix: `npm run lint` - Automatically fix code style issues
   - Lint Check: `npm run lint:check` - Check for linting issues (zero-warning enforcement)
   - CI Pipeline: `npm run ci` - Complete validation (typecheck + lint + tests)
+
+- **Git Hooks Integration**:
+  - Setup Hooks: `npm run setup-hooks` - Configure automatic reset before commits
+  - Manual Reset: `npm run reset` - Run maintainer reset with prompts
+  - Auto Reset: `npm run reset:auto` - Run maintainer reset without prompts
 
 ### 4. Testing
 
@@ -275,15 +281,20 @@ chrome-extension-template/
 │   ├── config.json             # Extension identity and environment settings
 │   ├── features.json           # Feature toggles and component configuration
 │   └── manifest.xml            # Update manifest for Chrome Web Store
+├── .githooks/                   # Git hooks for automatic reset before commits
+│   ├── pre-commit              # Unix/Linux/macOS pre-commit hook
+│   └── pre-commit.bat          # Windows pre-commit hook
 ├── docs/                        # Documentation
 │   ├── RESET-SCRIPT.md         # Reset script documentation
 │   ├── EXTENSION-ID-MANAGEMENT.md  # PEM key management guide
-│   └── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
+│   ├── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
+│   └── GIT-HOOKS.md            # Git hooks integration guide
 ├── maintainer/                  # 🔧 Maintainer-only tools (not for end users)
 │   ├── README.md               # Maintainer tools documentation
 │   ├── reset-extension.js      # Template reset script
-│   ├── reset-extension.bat     # Windows reset wrapper
-│   └── reset-extension.sh      # Linux/Unix reset wrapper
+│   ├── setup-git-hooks.js      # Git hooks setup (maintainer-only)
+│   ├── maintainer-reset.bat    # Windows reset wrapper
+│   └── maintainer-reset.sh     # Linux/Unix reset wrapper
 ├── scripts/                     # Build and utility scripts
 │   ├── customize-features.js   # Interactive feature customization
 │   ├── generate-manifest.js    # Dynamic manifest generation

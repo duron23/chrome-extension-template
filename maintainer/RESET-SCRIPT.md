@@ -14,7 +14,7 @@ The reset script performs comprehensive reset across multiple areas:
 - **Resets all version numbers** to `0.0.0` in:
   - `config/config.json` (all environments: dev, uat, prod)
   - `src/manifest/manifest.json` 
-  - `src/manifest/manifest.xml`
+  - `config/manifest.xml`
 
 ### Extension Identity Reset *(NEW)*
 - **Resets extension name** to "Chrome Extension Template" in:

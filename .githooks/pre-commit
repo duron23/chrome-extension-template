@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# Pre-commit hook that automatically runs the maintainer reset script
+# This ensures the extension template is always in a clean state before commits
+#
+
+echo "🔧 Running maintainer reset before commit..."
+
+# Change to the project root directory
+cd "$(git rev-parse --show-toplevel)"
+
+# Run the maintainer reset script
+node maintainer/reset-extension.js --auto
+
+# Check if the reset script succeeded
+if [ $? -ne 0 ]; then
+    echo "❌ Maintainer reset failed! Commit aborted."
+    exit 1
+fi
+
+echo "✅ Maintainer reset completed successfully"
+
+# Stage any changes made by the reset script
+git add .
+
+echo "✅ Pre-commit hook completed successfully"
