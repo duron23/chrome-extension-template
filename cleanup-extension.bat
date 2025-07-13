@@ -1,4 +1,4 @@
 @echo off
 echo Running Chrome Extension Cleanup Script...
-node cleanup-extension.js
+node scripts/cleanup-extension.js
 pause

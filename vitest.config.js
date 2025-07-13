@@ -8,14 +8,9 @@ module.exports = defineConfig({
     setupFiles: "tests/setup.ts",
     coverage: {
       include: ["src/**/*"],
-      exclude: [
-        "src/**/*.d.ts",
-        "src/**/index.html",
-        "src/static/**",
-        "src/manifest/**"
-      ],
+      exclude: ["src/**/*.d.ts", "src/**/index.html", "src/static/**"],
       reporter: ["text", "html", "lcov"],
-      reportsDirectory: "coverage"
-    }
+      reportsDirectory: "coverage",
+    },
   },
 });
