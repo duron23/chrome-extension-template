@@ -4,10 +4,17 @@ import fs from "fs";
 // Import puppeteer properly
 import puppeteer, { type Browser, type Page } from "puppeteer";
 
+// Helper function to get the parent folder name (matches webpack logic)
+const getParentFolderName = (): string => {
+  return path.basename(path.resolve(__dirname, "..", ".."));
+};
+
 // Configuration
+const extensionBuild = process.env.EXTENSION_BUILD || "dev";
+const extensionName = getParentFolderName();
 const extensionPath = path.resolve(
   __dirname,
-  "../../dist/dev/chrome-extension-template-dev"
+  `../../dist/${extensionBuild}/${extensionName}-${extensionBuild}`
 );
 const pageUrl =
   "data:text/html,<html><head><title>Test Page</title></head><body><h1>E2E Test Page</h1></body></html>";
@@ -18,13 +25,15 @@ async function runE2ETest(): Promise<void> {
 
   try {
     console.log("🚀 Starting E2E test...");
+    console.log(`📁 Extension name: ${extensionName}`);
+    console.log(`🏗️  Build environment: ${extensionBuild}`);
     console.log(`📁 Extension path: ${extensionPath}`);
     console.log(`🎯 Headless mode: ${isHeadless}`);
 
     // Check if extension build exists
     if (!fs.existsSync(extensionPath)) {
       throw new Error(
-        `Extension build not found at: ${extensionPath}. Please run 'npm run build:dev' first.`
+        `Extension build not found at: ${extensionPath}. Please run 'npm run build:${extensionBuild}' first.`
       );
     }
 
