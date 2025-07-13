@@ -19,7 +19,7 @@
     "customize": "node scripts/customize-features.js",
     "show:ids": "node scripts/show-extension-ids.js",
     "watch": "webpack --watch --progress --config webpack/webpack.watch.config.js",
-    "clean": "rimraf dist .tsbuildinfo",
+    "cleanup": "rimraf dist coverage .tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint . --max-warnings 0",
     "test:watch": "vitest",

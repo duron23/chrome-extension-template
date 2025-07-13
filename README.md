@@ -313,7 +313,6 @@ chrome-extension-template/
 │   │   └── sidepanel/         # React component tests
 │   └── e2e/                    # End-to-end tests (TypeScript + Puppeteer)
 │       ├── test.ts            # Main E2E test suite
-│       ├── debug.ts           # E2E debugging utilities
 │       └── downloads/         # Test download artifacts
 ├── dist/                        # Build output (generated)
 │   ├── dev/                    # Development builds

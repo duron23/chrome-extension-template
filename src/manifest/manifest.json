@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Extension Template",
-  "version": "0.0.3",
-  "description": "A modern Chrome extension template with comprehensive tooling",
+  "name": "DEV : Chrome Extension Template",
+  "version": "0.0.15",
+  "description": "DEV : A modern Chrome extension template with comprehensive tooling",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
@@ -10,7 +10,7 @@
   "permissions": [
     "offscreen"
   ],
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmUPpMRax57Q/IvR55P5VZZYn4bQ5u6ZfaKDyJ0IRgCM5NpoOS2Z7SQOCaTDIvHAdofKf1hD+0Do8Hzk4+fD6GLf2i7/cCWDn9mOz7pRnKdlRE5q8eVRfT5uGwH34Teob0YufaPS7TXUm8uYeerar4hjYcUO/T0RNj13mqhA0dLotK1H2za9774ooBMTxeVWtdDz8nWPDHqUJaxMR6yFqyJp4u6/M8ZYA2BmSr9PQ6mKjq6W7QSkUKlML4s5V6iRqPOU+icaYSaw/dv7JjaA3mNwiRZ4JJ83/rgaoKFmWaRwmxPqHNkptYkXFP/pUnGtsSFPoC7p3ONmlBtIV4fu2AQIDAQAB",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArFvqDk1UpMhTIMNgdmmm9j/DqZpfPgrHlhMbbmWuopFq2AypKxmOkK6cXglOBl99WDV+ptfeS1YwBfz/Dhz7pK9FMW/ij18oVi9pdjSpH7Wjii7Mpf8LW6egEu17Pw/xQ9r+jleDB3XN+UGSxQT8DsIoW5cMK/ewtNGc2VsY7a+v6+Bf3Bh6AIV9tcrrrct3u0trpMZwqZr5AdYCC5kFt/8c2NQA7qdSHkDRIRl2N+53hMJiXM51uXtHM5CW4w5ym8OneLkhKawhx29BkzVPaneIlcGSv47df+Q3bEAwQQ7XoZWsSFQfqMVn8eVolhI+K4QVhO0vMIIROU+9kQo1mwIDAQAB",
   "action": {
     "default_popup": "popup/popup.html"
   },

@@ -3,7 +3,7 @@
   "description": "A modern Chrome extension template with comprehensive tooling",
   "dev": {
     "extensionId": "nkieppodppbdifgphkampmffgoogpecf",
-    "version": "0.0.13",
+    "version": "0.0.15",
     "calculatedId": "nkieppodppbdifgphkampmffgoogpecf",
     "prefix": "DEV"
   },
