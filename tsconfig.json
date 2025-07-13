@@ -1,33 +1,43 @@
 {
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */    
-    
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
     /* Projects */
-    "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
-    "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
+    "incremental": true /* Save .tsbuildinfo files to allow for incremental compilation of projects. */,
+    "tsBuildInfoFile": "./.tsbuildinfo" /* Specify the path to .tsbuildinfo incremental compilation file. */,
     "target": "ES2024" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "lib": ["ES2024", "DOM", "DOM.Iterable", "WebWorker"], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
     "jsx": "react-jsx" /* Specify what JSX code is generated. */,
-   
+
     /* Modules */
     "module": "ESNext" /* Specify what module code is generated. */,
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
     "moduleResolution": "Bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
     "types": [
-        "chrome", "react", "react-dom", "node", "vitest", "vitest/globals"
-      ]  /* Specify type package names to be included without being referenced in a source file. */,
+      "chrome",
+      "react",
+      "react-dom",
+      "node",
+      "vitest",
+      "vitest/globals"
+    ] /* Specify type package names to be included without being referenced in a source file. */,
     "resolveJsonModule": true /* Enable importing .json files. */,
 
     /* JavaScript Support */
     "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
     "checkJs": true /* Enable error reporting in type-checked JavaScript files. */,
     /* Emit */
-    "noEmit": false,                                   /* Enable emitting files from a compilation. */
-    "noEmitOnError": true,                            /* Disable emitting files if any type checking errors are reported. */
+    "noEmit": false /* Enable emitting files from a compilation. */,
+    "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */,
 
     /* Interop Constraints */
-     "isolatedModules": true,
-     "allowSyntheticDefaultImports": true /* Allow 'import x from y' when a module doesn't have a default export. */,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true /* Allow 'import x from y' when a module doesn't have a default export. */,
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
@@ -37,12 +47,14 @@
     "noUncheckedIndexedAccess": true /* Add 'undefined' to a type when accessed using an index. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "coverage",
+    "scripts",
+    "config",
+    "webpack"
+    // Note: tests/ is intentionally included for type checking
   ]
 }

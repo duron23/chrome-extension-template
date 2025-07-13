@@ -9,7 +9,7 @@
       "description": "Options page for extension settings"
     },
     "sidepanel": {
-      "enabled": false,
+      "enabled": true,
       "description": "Side panel UI for the extension"
     },
     "offscreen": {
@@ -19,9 +19,7 @@
     "contentScripts": {
       "enabled": true,
       "description": "Content scripts that run on web pages",
-      "matches": [
-        "http://*/*"
-      ]
+      "matches": ["http://*/*"]
     }
   }
 }

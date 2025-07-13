@@ -3,7 +3,7 @@
   "description": "A modern Chrome extension template with comprehensive tooling",
   "dev": {
     "extensionId": "fhgcnnpgllbmdkjcdkkcmoklblijgacm",
-    "version": "0.0.1",
+    "version": "0.0.7",
     "prefix": "DEV",
     "calculatedId": "fhgcnnpgllbmdkjcdkkcmoklblijgacm"
   },

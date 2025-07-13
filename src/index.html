@@ -1,11 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <style>
+    :root {
+      /* Chrome Extension Theme Variables */
+      --primary-color: #1f2937;
+      --primary-light: #374151;
+      --primary-dark: #111827;
+      --secondary-color: #3b82f6;
+      --secondary-light: #60a5fa;
+      --secondary-dark: #2563eb;
+      --accent-color: #10b981;
+      --accent-light: #34d399;
+      --accent-dark: #059669;
+      --background-primary: #ffffff;
+      --background-secondary: #f9fafb;
+      --background-tertiary: #f3f4f6;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --border-focus: #3b82f6;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 0.25rem;
+      --radius-md: 0.375rem;
+      --radius-lg: 0.5rem;
+      --transition-fast: 150ms ease-in-out;
+      --transition-normal: 300ms ease-in-out;
+    }
+
+    /* Dark mode theme */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-primary: #111827;
+        --background-secondary: #1f2937;
+        --background-tertiary: #374151;
+        --text-primary: #f9fafb;
+        --text-secondary: #d1d5db;
+        --text-muted: #9ca3af;
+        --border-color: #374151;
+        --primary-color: #f9fafb;
+        --primary-light: #f3f4f6;
+        --primary-dark: #ffffff;
+      }
+    }
+
+    /* Base theme styles */
+    body {
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+      min-height: fit-content;
+      height: auto;
+    }
+
+    #root {
+      min-height: fit-content;
+      height: auto;
+    }
+
+    /* Common component styles */
+    .theme-button {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .theme-button:hover {
+      background-color: var(--secondary-dark);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .theme-button:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .theme-button.secondary {
+      background-color: var(--background-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .theme-button.secondary:hover {
+      background-color: var(--background-tertiary);
+      border-color: var(--border-focus);
+    }
+
+    .theme-input {
+      background-color: var(--background-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      transition: all var(--transition-fast);
+      outline: none;
+      width: 100%;
+    }
+
+    .theme-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+    }
+
+    .theme-card {
+      background-color: var(--background-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .theme-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .theme-header {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .theme-text {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .theme-divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 1rem 0;
+      border: none;
+    }
+
+    .theme-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .theme-badge.secondary {
+      background-color: var(--background-tertiary);
+      color: var(--text-secondary);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--background-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: var(--radius-sm);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    /* Animation utilities */
+    .fade-in {
+      animation: fadeIn var(--transition-normal) ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-in {
+      animation: slideIn var(--transition-normal) ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root" class="fade-in"></div>
+</body>
+
 </html>

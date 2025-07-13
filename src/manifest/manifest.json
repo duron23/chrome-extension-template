@@ -1,14 +1,15 @@
 {
   "manifest_version": 3,
   "name": "DEV : Chrome Extension Template",
-  "version": "0.0.1",
+  "version": "0.0.7",
   "description": "DEV : A modern Chrome extension template with comprehensive tooling",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
   },
   "permissions": [
-    "offscreen"
+    "offscreen",
+    "sidePanel"
   ],
   "action": {
     "default_popup": "popup/popup.html"
@@ -24,5 +25,8 @@
       ]
     }
   ],
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArZtkPVAfcRVk4gXwwQ83G2jMSDaDLl1iM6nU7E5UaJYXdfmSDJ9I/G6w3ANRO1pPIF9nIqPF52/GazFZQWqO3T0xgj1UmJQhJkqxV6+nlSuzyoyqpw8jEFqm5MTQDzI6H1jYj9XXL260AEe3mpDo6QLpGnbP3pCeu7uDK381KtZXdEHrGPDNPCQPMSgdj5JRaUzQI8DCtzotSF4Qn+P5XD/xBE8djXTIyroBiqJrtqTZqRIuO4njgJ+KTqMCZsNqwTK1Vk9lsgIopKqlQwIToRUzap7VqJVX3Wx3HSXjuZTTMM7ZkPdTq8iHe9cozJx0dPcyJAwTezcPN327SuAvBwIDAQAB"
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArZtkPVAfcRVk4gXwwQ83G2jMSDaDLl1iM6nU7E5UaJYXdfmSDJ9I/G6w3ANRO1pPIF9nIqPF52/GazFZQWqO3T0xgj1UmJQhJkqxV6+nlSuzyoyqpw8jEFqm5MTQDzI6H1jYj9XXL260AEe3mpDo6QLpGnbP3pCeu7uDK381KtZXdEHrGPDNPCQPMSgdj5JRaUzQI8DCtzotSF4Qn+P5XD/xBE8djXTIyroBiqJrtqTZqRIuO4njgJ+KTqMCZsNqwTK1Vk9lsgIopKqlQwIToRUzap7VqJVX3Wx3HSXjuZTTMM7ZkPdTq8iHe9cozJx0dPcyJAwTezcPN327SuAvBwIDAQAB",
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  }
 }
