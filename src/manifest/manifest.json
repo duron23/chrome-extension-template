@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DEV : Chrome Extension Template",
-  "version": "0.0.15",
+  "version": "0.0.0",
   "description": "DEV : A modern Chrome extension template with comprehensive tooling",
   "background": {
     "service_worker": "background.bundle.js",
@@ -10,7 +10,6 @@
   "permissions": [
     "offscreen"
   ],
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArFvqDk1UpMhTIMNgdmmm9j/DqZpfPgrHlhMbbmWuopFq2AypKxmOkK6cXglOBl99WDV+ptfeS1YwBfz/Dhz7pK9FMW/ij18oVi9pdjSpH7Wjii7Mpf8LW6egEu17Pw/xQ9r+jleDB3XN+UGSxQT8DsIoW5cMK/ewtNGc2VsY7a+v6+Bf3Bh6AIV9tcrrrct3u0trpMZwqZr5AdYCC5kFt/8c2NQA7qdSHkDRIRl2N+53hMJiXM51uXtHM5CW4w5ym8OneLkhKawhx29BkzVPaneIlcGSv47df+Q3bEAwQQ7XoZWsSFQfqMVn8eVolhI+K4QVhO0vMIIROU+9kQo1mwIDAQAB",
   "action": {
     "default_popup": "popup/popup.html"
   },

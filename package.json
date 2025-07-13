@@ -3,7 +3,7 @@
   "version": "1.2.0",
   "author": "Farooq Hussain M",
   "license": "ISC",
-  "description": "",
+  "description": "A modern Chrome extension template with comprehensive tooling",
   "sideEffects": [
     "**/*.css"
   ],

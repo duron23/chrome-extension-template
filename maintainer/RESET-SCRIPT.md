@@ -88,7 +88,7 @@ Both platform-specific scripts provide the same functionality:
 ### Interactive Mode (Recommended)
 
 ```bash
-node scripts/reset-extension.js
+node maintainer/reset-extension.js
 ```
 
 The script will:
@@ -153,7 +153,7 @@ node cleanup-extension.js --dry-run
 ### Optional Configuration
 
 1. **Update Extension Metadata**:
-   - Edit `src/manifest/config.json` to set new name/description
+   - Edit `config/config.json` to set new name/description
    - Update version numbers if desired
    - Configure features using `npm run customize`
 
@@ -231,7 +231,7 @@ If the script only partially completes:
 ```bash
 # Check what files still exist
 ls -la keys/
-cat src/manifest/config.json
+cat config/config.json
 
 # Run again with force flag
 node cleanup-extension.js --force
@@ -257,7 +257,7 @@ node cleanup-extension.js
 
 ### If Build Fails After Cleanup
 1. **Clean Install**: Remove node_modules and reinstall dependencies
-2. **Clear Caches**: Run `npm run clean` to clear build caches
+2. **Clear Caches**: Run `npm run cleanup` to clear build caches
 3. **Fresh Build**: Run complete build process from scratch
 
 ## Security Considerations

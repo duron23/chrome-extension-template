@@ -15,7 +15,7 @@ Added cross-platform support for the reset script to ensure the Chrome Extension
 ## Files Updated
 
 ### `package.json`
-- Added `"reset": "node scripts/reset-extension.js"` npm script
+- Added `"reset": "node maintainer/reset-extension.js"` npm script
 - Provides cross-platform reset via `npm run reset`
 
 ### `README.md`

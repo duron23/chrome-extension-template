@@ -25,7 +25,7 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 - **Content Scripts**: `src/content/` - Page-level script injection
 - **Manifest Configuration**: `src/manifest/` - Generated manifest file
   - `manifest.json` - Generated Manifest V3 file
-- **Toolchain Configuration**: Root directory - Build and deployment settings
+- **Build Configuration**: `config/` - Extension configuration
   - `config.json` - Environment-specific extension configuration
   - `features.json` - Feature toggles and component configuration
   - `manifest.xml` - Chrome Web Store update manifest
@@ -58,7 +58,6 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 - ESLint for linting
 - Vitest for unit testing
 - Puppeteer for end‑to‑end testing
-- Prettier for code formatting
 - Chrome types for TypeScript support
 
 ## Copilot Development Guidelines
@@ -68,12 +67,13 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 - popup is under `src/popup/`
 - options page is under `src/options/`
 - side panel is under `src/sidepanel/`
+- offscreen document is under `src/offscreen/`
 - content scripts are under `src/content/`
-- manifest is under `src/manifest/(version)/manifest.json`
-- config.json in root directory contains extension configuration and version information for various builds.
-- features.json in root directory controls feature toggles and component configuration.
-- index.html under `src/` is the entry point for the popup, options page, and side panel.
-- static assets (images, fonts, etc.) are under `src/static/`
+- manifest is under `src/manifest/manifest.json`
+- config.json in `config/` directory contains extension configuration and version information for various builds.
+- features.json in `config/` directory controls feature toggles and component configuration.
+- index.html under `src/` is the entry point for the popup, options page, side panel, and offscreen document.
+- styling is under `src/style/` with global CSS and Tailwind configuration
 
 ### Architecture Guidelines
 
@@ -87,7 +87,7 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 
 ### Feature System
 
-- Use `npm run customize` to enable/disable the 5 core extension components
+- Use `npm run customize` to enable/disable extension components (popup, options, sidepanel, offscreen, content scripts)
 - Edit `features.json` for manual feature configuration
 - Features control webpack entry points and add missing manifest entries (non-destructive)
 - Background service worker is always included and cannot be disabled
@@ -127,7 +127,7 @@ This is a modern Chrome Extension template with comprehensive tooling for develo
 - Use React.FC type for components with children
 - Keep components small and focused
 - Use Tailwind CSS for styling
-- Components are used in popup, options, side panel, and offscreen contexts
+- Components are used in popup, options, side panel, and offscreen document contexts
 
 ### Testing
 
