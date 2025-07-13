@@ -57,6 +57,7 @@ This template includes several performance and development optimizations:
 - **Interactive Feature Customization**: Run `npm run customize` to configure extension components via CLI
 - **Extension ID Management**: Comprehensive tooling for consistent IDs across builds and environments
 - **Show Extension IDs**: Display configured extension IDs with `npm run show:ids`
+- **Unified Theme System**: Complete design system with CSS custom properties, dark mode support, and component utilities
 - **Cleanup Script**: Reset extension state and IDs for fresh starts
 - **Maintainer Git Hooks**: Template maintainer tools for automatic reset before commits (maintainer-only)
 
@@ -270,6 +271,8 @@ chrome-extension-template/
 │   ├── options/                 # Options page (React)
 │   ├── sidepanel/              # Side panel interface (React)
 │   ├── offscreen/              # Offscreen document (React)
+│   ├── utils/                   # Utility functions and theme system
+│   │   └── theme.ts            # Theme utilities and design system
 │   ├── style/                   # Global styles and CSS
 │   ├── manifest/                # Extension manifest files
 │   │   └── manifest.json       # Generated manifest file (Manifest V3)
@@ -282,9 +285,11 @@ chrome-extension-template/
 │   ├── pre-commit              # Unix/Linux/macOS pre-commit hook
 │   └── pre-commit.bat          # Windows pre-commit hook
 ├── docs/                        # Documentation
+│   ├── README.md               # Documentation index and guide
 │   ├── RESET-SCRIPT.md         # Reset script documentation
 │   ├── EXTENSION-ID-MANAGEMENT.md  # PEM key management guide
 │   ├── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
+│   ├── THEME-SYSTEM.md         # Theme system and design guide
 │   └── GIT-HOOKS.md            # Git hooks integration guide
 ├── .github/                     # GitHub integration
 │   └── copilot-instructions.md # GitHub Copilot guidance for Chrome extension development
@@ -292,6 +297,7 @@ chrome-extension-template/
 │   ├── README.md               # Maintainer tools documentation
 │   ├── reset-extension.js      # Template reset script
 │   ├── setup-git-hooks.js      # Git hooks setup (maintainer-only)
+│   ├── test-git-hooks.js       # Git hooks testing utility
 │   ├── maintainer-reset.bat    # Windows reset wrapper
 │   └── maintainer-reset.sh     # Linux/Unix reset wrapper
 ├── scripts/                     # Build and utility scripts
@@ -524,3 +530,13 @@ npm update
   - Excludes `.githooks/` directory from distributions
   - Removes development-only documentation and temp files
   - Ensures end users get clean, focused template files
+
+## 📚 Documentation
+
+For detailed guides and documentation, see the `docs/` directory:
+
+- **[Documentation Index](docs/README.md)** - Complete guide to all documentation
+- **[Theme System](docs/THEME-SYSTEM.md)** - Unified design system and styling guide
+- **[Feature Customization](docs/FEATURE-CUSTOMIZATION.md)** - Configure extension components
+- **[Extension ID Management](docs/EXTENSION-ID-MANAGEMENT.md)** - PEM keys and extension IDs
+- **[Git Hooks](docs/GIT-HOOKS.md)** - Maintainer tools for automatic reset (maintainer-only)

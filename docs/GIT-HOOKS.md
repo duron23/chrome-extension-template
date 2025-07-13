@@ -122,17 +122,22 @@ npm run setup-hooks
 
 If the pre-commit hook isn't running:
 
-1. **Check Git configuration:**
+1. **Test the hook configuration:**
+   ```bash
+   node maintainer/test-git-hooks.js
+   ```
+
+2. **Check Git configuration:**
    ```bash
    git config core.hooksPath
    ```
    Should output: `.githooks`
 
-2. **Verify hook files exist:**
+3. **Verify hook files exist:**
    - `.githooks/pre-commit` (Unix/Linux/macOS)
    - `.githooks/pre-commit.bat` (Windows)
 
-3. **Re-run setup:**
+4. **Re-run setup:**
    ```bash
    node maintainer/setup-git-hooks.js
    ```
@@ -196,3 +201,17 @@ node maintainer/reset-extension.js --auto --keep-dist
 ```
 
 Note: Additional flags would need to be implemented in the reset script.
+
+### Testing Hook Configuration
+
+To verify your git hooks are properly configured:
+
+```bash
+node maintainer/test-git-hooks.js
+```
+
+This will check:
+- Git hooks path configuration
+- Hook file existence and permissions
+- Reset script availability
+- Git repository status

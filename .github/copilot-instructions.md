@@ -369,3 +369,91 @@ src/
 ```
 
 This template provides the foundation for building modern Chrome extensions with TypeScript, React, and comprehensive tooling. Use these patterns with GitHub Copilot to accelerate your extension development while following Chrome extension best practices.
+
+## Theme System Integration
+
+This template includes a comprehensive theme system for consistent styling across all extension components.
+
+### Using the Theme System
+
+Apply component-specific theming and use pre-built theme classes:
+
+```typescript
+import { applyComponentTheme, themeClasses } from "../utils/theme";
+
+const MyComponent: React.FC = () => {
+  useEffect(() => {
+    // Apply component-specific theme (popup, options, sidepanel, offscreen)
+    applyComponentTheme("popup");
+  }, []);
+
+  return (
+    <div className={themeClasses.container}>
+      <h1 className={themeClasses.header}>My Extension</h1>
+      <button className={themeClasses.buttonPrimary}>Primary Action</button>
+      <input className={themeClasses.inputField} placeholder="Enter text..." />
+    </div>
+  );
+};
+```
+
+### Dark Mode Support
+
+The theme automatically adapts to system preferences:
+
+```typescript
+import { isDarkMode, watchThemeChanges } from "../utils/theme";
+
+const Component: React.FC = () => {
+  const [darkMode, setDarkMode] = useState(isDarkMode());
+
+  useEffect(() => {
+    const cleanup = watchThemeChanges((isDark) => {
+      setDarkMode(isDark);
+    });
+
+    return cleanup;
+  }, []);
+
+  return <div>Current mode: {darkMode ? "Dark" : "Light"}</div>;
+};
+```
+
+### Available Theme Classes
+
+Use these pre-built classes for consistent styling:
+
+- **Buttons**: `themeClasses.buttonPrimary`, `themeClasses.buttonSecondary`
+- **Inputs**: `themeClasses.inputField`
+- **Layout**: `themeClasses.container`, `themeClasses.card`
+- **Typography**: `themeClasses.header`, `themeClasses.text`
+- **Animations**: `themeClasses.animations.fadeIn`, `themeClasses.animations.slideIn`
+
+### CSS Custom Properties
+
+Access theme variables directly in CSS or Tailwind:
+
+```css
+/* Using CSS custom properties */
+.my-element {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+```
+
+```tsx
+/* Using Tailwind classes with theme variables */
+<div className="bg-background-primary text-text-primary border border-border rounded-theme-lg p-4">
+  Themed content
+</div>
+```
+
+### Component-Specific Sizing
+
+The theme system automatically applies appropriate sizing for each component type:
+
+- **Popup**: Fit-content sizing with min/max width constraints
+- **Options**: Centered layout with responsive padding
+- **Sidepanel**: Full height with overflow handling
+- **Offscreen**: Hidden by default
