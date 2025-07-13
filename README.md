@@ -77,27 +77,41 @@ This template includes several performance and development optimizations:
 
 ## 🚀 Getting Started
 
-### 1. Setup
+### ⚡ Quick Start (5 minutes)
 
-To get started, clone the repository and install the necessary dependencies:
+**New to Chrome extensions?** Follow our [**📋 Quick Start Guide**](QUICK-START.md) to go from zero to developing in under 5 minutes!
+
+### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/your-repo/chrome-extension-template.git
-cd chrome-extension-template
+git clone https://github.com/your-repo/chrome-extension-template.git my-extension
+cd my-extension
 npm install
 ```
+
+### 2. Customize Your Extension
+
+```bash
+# Interactive setup - configure name, description, and features
+npm run customize
+```
+
+### 3. Build and Load
+
+```bash
+# Build for development
+npm run build:dev
+
+# Start development with file watching
+npm run watch
+```
+
+Load `dist/dev/my-extension-dev/` as an unpacked extension in Chrome.
 
 **System Requirements:**
 - Node.js 18+ (LTS) or Node.js 22+ (recommended for optimal performance)
 - npm 9+ or yarn 4+
 - Chrome/Chromium browser for extension testing
-
-**Quick Start:**
-```bash
-# Build the extension for development
-npm run build:dev
-
-# Start development with file watching
 npm run watch
 
 # Run all tests
@@ -264,6 +278,8 @@ The build process will automatically update the manifest.json by adding only the
 
 ```
 chrome-extension-template/
+├── QUICK-START.md               # 🚀 5-minute setup guide for new users
+├── README.md                    # Main documentation and overview
 ├── src/                          # Source code
 │   ├── background/              # Service worker scripts
 │   ├── content/                 # Content scripts
@@ -284,17 +300,23 @@ chrome-extension-template/
 ├── .githooks/                   # Git hooks for automatic reset before commits
 │   ├── pre-commit              # Unix/Linux/macOS pre-commit hook
 │   └── pre-commit.bat          # Windows pre-commit hook
-├── docs/                        # Documentation
-│   ├── README.md               # Documentation index and guide
-│   ├── RESET-SCRIPT.md         # Reset script documentation
-│   ├── EXTENSION-ID-MANAGEMENT.md  # PEM key management guide
-│   ├── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
-│   ├── THEME-SYSTEM.md         # Theme system and design guide
-│   └── GIT-HOOKS.md            # Git hooks integration guide
+├── docs/                        # 📖 Developer documentation
+│   ├── README.md               # Documentation index for developers
+│   ├── THEME-SYSTEM.md         # Complete theme system guide
+│   ├── FEATURE-CUSTOMIZATION.md # Feature configuration guide
+│   ├── EXTENSION-ID-MANAGEMENT.md # PEM keys & Chrome Web Store
+│   └── TROUBLESHOOTING.md      # Common issues & solutions
 ├── .github/                     # GitHub integration
 │   └── copilot-instructions.md # GitHub Copilot guidance for Chrome extension development
 ├── maintainer/                  # 🔧 Maintainer-only tools (not for end users)
 │   ├── README.md               # Maintainer tools documentation
+│   ├── docs/                   # 📋 Maintainer-specific documentation
+│   │   ├── README.md           # Maintainer documentation index
+│   │   ├── GIT-HOOKS.md        # Git hooks setup & troubleshooting
+│   │   ├── RESET-SCRIPT.md     # Reset script documentation
+│   │   ├── CROSS-PLATFORM-RESET.md # Cross-platform considerations
+│   │   ├── DISTRIBUTION.md     # Template distribution guide
+│   │   └── keys-README.md      # PEM key management for maintainers
 │   ├── reset-extension.js      # Template reset script
 │   ├── setup-git-hooks.js      # Git hooks setup (maintainer-only)
 │   ├── test-git-hooks.js       # Git hooks testing utility
@@ -533,10 +555,14 @@ npm update
 
 ## 📚 Documentation
 
-For detailed guides and documentation, see the `docs/` directory:
+**Getting Started:**
+- **[🚀 Quick Start Guide](QUICK-START.md)** - 5-minute setup for new users
+- **[📖 Documentation Index](docs/README.md)** - Complete guide to all documentation
 
-- **[Documentation Index](docs/README.md)** - Complete guide to all documentation
-- **[Theme System](docs/THEME-SYSTEM.md)** - Unified design system and styling guide
-- **[Feature Customization](docs/FEATURE-CUSTOMIZATION.md)** - Configure extension components
-- **[Extension ID Management](docs/EXTENSION-ID-MANAGEMENT.md)** - PEM keys and extension IDs
-- **[Git Hooks](docs/GIT-HOOKS.md)** - Maintainer tools for automatic reset (maintainer-only)
+**Development Guides:**
+- **[🎨 Theme System](docs/THEME-SYSTEM.md)** - Unified design system and styling guide
+- **[⚙️ Feature Customization](docs/FEATURE-CUSTOMIZATION.md)** - Configure extension components
+- **[🔧 Extension ID Management](docs/EXTENSION-ID-MANAGEMENT.md)** - PEM keys and extension IDs
+
+**Advanced:**
+- **[🔗 Git Hooks](docs/GIT-HOOKS.md)** - Maintainer tools for automatic reset (maintainer-only)

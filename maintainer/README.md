@@ -2,7 +2,16 @@
 
 This directory contains tools that are only used by the template maintainer and are not intended for end users of the Chrome Extension Template.
 
-## Contents
+## 📋 Documentation
+
+**📁 See:** [`docs/`](docs/) for comprehensive maintainer documentation including:
+- Git hooks setup and troubleshooting
+- Reset script usage and options
+- Template distribution guidelines
+- Cross-platform considerations
+- Key management for maintainers
+
+## 🛠️ Tools Overview
 
 ### `reset-extension.js`
 The main reset script that returns the template to a clean state for distribution.

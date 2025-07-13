@@ -1,6 +1,6 @@
-# Documentation Index
+# Developer Documentation
 
-This directory contains comprehensive documentation for the Chrome Extension Template. Here's a guide to help you find what you need:
+This directory contains comprehensive documentation for **Chrome Extension developers** using this template. Here's a guide to help you find what you need:
 
 ## 📖 Documentation Files
 
@@ -32,36 +32,26 @@ This directory contains comprehensive documentation for the Chrome Extension Tem
 
 **Use when:** Setting up extension IDs, preparing for Chrome Web Store, or managing development keys.
 
-### 🔗 **GIT-HOOKS.md**
-**Git hooks for template maintainers**
-- Automatic reset before commits (maintainer-only)
-- Setup and configuration guide
-- Troubleshooting hook issues
-- Cross-platform support
+### 🆘 **TROUBLESHOOTING.md**
+**Common development issues and solutions**
+- Build and dependency problems
+- Extension loading issues
+- Theme and styling troubleshooting
+- Development workflow problems
 
-**Use when:** You're maintaining the template itself (not for regular extension development).
-
-### 🔄 **RESET-SCRIPT.md** (in `maintainer/` directory)
-**Template reset and cleanup utilities**
-- Maintainer-only reset script documentation
-- Cleaning extension state for distribution
-- Cross-platform reset tools
-
-**Use when:** Preparing clean template distributions (maintainer-only).
+**Use when:** Encountering issues during extension development or deployment.
 
 ## 🚀 Quick Start Guides
 
 ### For Extension Developers
-1. **Start here:** Main `README.md` for setup and building
-2. **Customize features:** `FEATURE-CUSTOMIZATION.md`
-3. **Style your extension:** `THEME-SYSTEM.md`
-4. **Manage extension IDs:** `EXTENSION-ID-MANAGEMENT.md`
+1. **Start here:** [🚀 Quick Start Guide](../QUICK-START.md) for 5-minute setup
+2. **Customize features:** [Feature Customization](FEATURE-CUSTOMIZATION.md)
+3. **Style your extension:** [Theme System](THEME-SYSTEM.md)
+4. **Manage extension IDs:** [Extension ID Management](EXTENSION-ID-MANAGEMENT.md)
+5. **Troubleshoot issues:** [Troubleshooting Guide](TROUBLESHOOTING.md)
 
 ### For Template Maintainers
-1. **Regular development:** Main `README.md`
-2. **Set up git hooks:** `GIT-HOOKS.md`
-3. **Reset for distribution:** `maintainer/RESET-SCRIPT.md`
-4. **All maintainer tools:** `maintainer/README.md`
+📁 **See:** [`maintainer/docs/`](../maintainer/docs/) for maintainer-specific documentation
 
 ## 📁 Related Files
 
