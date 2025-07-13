@@ -34,7 +34,7 @@ const acquireFileLock = (filePath) => {
  */
 const atomicWriteFile = (filePath, content) => {
   const tempPath = `${filePath}.tmp`;
-  fs.writeFileSync(tempPath, content, 'utf8');
+  fs.writeFileSync(tempPath, content, "utf8");
   fs.renameSync(tempPath, filePath);
 };
 
@@ -42,12 +42,12 @@ const atomicWriteFile = (filePath, content) => {
 const env = process.env.NODE_ENV || "dev";
 
 // Get the parent folder name for the extension
-const parentDir = path.basename(path.resolve(__dirname, "."));
+const parentDir = path.basename(path.resolve(__dirname, "..", "."));
 
 // Define paths
-const keysDir = path.join(__dirname, "keys");
+const keysDir = path.join(__dirname, "..", "keys");
 const pemPath = path.join(keysDir, `${parentDir}-${env}.pem`);
-const configPath = path.resolve(__dirname, "src", "manifest/config.json");
+const configPath = path.resolve(__dirname, "..", "config", "config.json");
 
 // Ensure keys directory exists
 if (!fs.existsSync(keysDir)) {
@@ -63,7 +63,7 @@ const generatePemIfNeeded = async () => {
 
   // Acquire lock for PEM file operations
   const releaseLock = await acquireFileLock(pemPath);
-  
+
   try {
     // Double-check after acquiring lock (another process might have created it)
     if (fs.existsSync(pemPath)) {
@@ -71,15 +71,15 @@ const generatePemIfNeeded = async () => {
     }
 
     console.log(`🔑 Generating PEM key for ${env} environment...`);
-    
+
     // Generate a simple RSA key pair
-    const crypto = require('crypto');
-    const { privateKey } = crypto.generateKeyPairSync('rsa', {
+    const crypto = require("crypto");
+    const { privateKey } = crypto.generateKeyPairSync("rsa", {
       modulusLength: 2048,
-      publicKeyEncoding: { type: 'spki', format: 'pem' },
-      privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+      publicKeyEncoding: { type: "spki", format: "pem" },
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
     });
-    
+
     // Use atomic write for PEM file
     atomicWriteFile(pemPath, privateKey);
     return true;
@@ -96,27 +96,32 @@ const main = async () => {
   // Generate PEM if needed
   const success = await generatePemIfNeeded();
   if (!success) {
-    console.error("❌ Failed to generate PEM key. Extension ID may not be consistent.");
+    console.error(
+      "❌ Failed to generate PEM key. Extension ID may not be consistent."
+    );
     process.exit(1);
   }
 
   // Run extract-key.js to update the public key in manifest
-  const { extractPublicKeyForManifest, calculateExtensionId } = require("./extract-key");
+  const {
+    extractPublicKeyForManifest,
+    calculateExtensionId,
+  } = require("./extract-key");
   if (fs.existsSync(pemPath)) {
     const publicKey = extractPublicKeyForManifest(pemPath);
     if (publicKey) {
       const extensionId = calculateExtensionId(publicKey);
       console.log(`✅ Extension ID for ${env}: ${extensionId}`);
-      
+
       // Update config if needed with proper locking
       const configLock = await acquireFileLock(configPath);
       try {
         const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-        
+
         if (!config[env]) {
           config[env] = { extensionId: "", version: "0.0.0" };
         }
-        
+
         if (!config[env].extensionId || config[env].extensionId === "") {
           config[env].extensionId = extensionId;
           config[env].calculatedId = extensionId;
@@ -132,7 +137,7 @@ const main = async () => {
 };
 
 // Execute main function and handle errors
-main().catch(error => {
-  console.error('Error in ensure-pem:', error);
+main().catch((error) => {
+  console.error("Error in ensure-pem:", error);
   process.exit(1);
 });

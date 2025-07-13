@@ -1,0 +1,18 @@
+# Git export attributes for clean distribution
+# These files/directories will be excluded from git archive (release zips)
+
+# Maintainer-only tools - exclude from releases
+maintainer/ export-ignore
+
+# Git hooks - exclude from releases (maintainer workflow only)
+.githooks/ export-ignore
+
+# Documentation that's only relevant for template development
+docs/GIT-HOOKS.md export-ignore
+
+# Any temp or development files
+*.tmp export-ignore
+.tsbuildinfo export-ignore
+
+# Coverage reports
+coverage/ export-ignore

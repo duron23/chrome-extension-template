@@ -2,19 +2,13 @@ const { merge } = require("webpack-merge");
 const common = require("./webpack.common.config");
 const { AfterDonePlugin } = require("./webpack.common.config");
 const TerserPlugin = require("terser-webpack-plugin");
-const dotenv = require("dotenv");
 
-// Load environment variables for uat
-dotenv.config({ path: "./.env.uat" });
-
-const config = merge(
-  common({ EXTENSION_BUILD: process.env.EXTENSION_BUILD || "prod" }),
-  {
-    mode: "production",
-    optimization: {
-      minimize: true,
-      minimizer: [new TerserPlugin()],
-      /* splitChunks: {
+const config = merge(common({ EXTENSION_BUILD: "uat" }), {
+  mode: "production",
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    /* splitChunks: {
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
@@ -28,9 +22,8 @@ const config = merge(
           },
         },
       }, */
-    },
-    plugins: [new AfterDonePlugin()],
-  }
-);
+  },
+  plugins: [new AfterDonePlugin()],
+});
 
 module.exports = config;

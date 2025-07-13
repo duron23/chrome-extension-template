@@ -1,20 +1,29 @@
-# Extension Cleanup Script
+# Extension Reset Script
 
-This document explains how to use the cleanup script to reset your Chrome extension to a clean state, removing all generated IDs, keys, and version numbers.
+This document explains how to use the reset script to reset your Chrome extension template to a clean state, perfect for template distribution or starting new projects.
 
 ## Overview
 
-The `cleanup-extension.js` script provides a complete reset functionality for the Chrome extension template. This is useful when you want to start fresh with new extension IDs, share your codebase without exposing your extension keys, or prepare a clean template for distribution.
+The `reset-extension.js` script provides a complete reset functionality for the Chrome extension template. This is essential when you want to prepare the template for sharing, distribute a clean version to GitHub, or start a fresh project without any previous development artifacts.
 
 ## What the Script Does
 
-The cleanup script performs comprehensive cleanup across multiple areas:
+The reset script performs comprehensive reset across multiple areas:
 
 ### Version Management
 - **Resets all version numbers** to `0.0.0` in:
-  - `src/manifest/config.json` (all environments: dev, uat, prod)
+  - `config/config.json` (all environments: dev, uat, prod)
   - `src/manifest/manifest.json` 
-  - `src/manifest/manifest.xml`
+  - `config/manifest.xml`
+
+### Extension Identity Reset *(NEW)*
+- **Resets extension name** to "Chrome Extension Template" in:
+  - `config/config.json`
+  - `package.json` (as "chrome-extension-template")
+  - `package-lock.json`
+- **Resets extension description** to "A modern Chrome extension template with comprehensive tooling" in:
+  - `config/config.json`
+  - `package.json`
 
 ### Extension ID Management
 - **Clears extension IDs** from `config.json` for all environments
@@ -55,18 +64,39 @@ The cleanup script performs comprehensive cleanup across multiple areas:
 
 ## How to Use
 
+### Cross-Platform Scripts
+
+#### Windows
+```batch
+reset-extension.bat
+```
+
+#### Linux/Unix/macOS
+```bash
+# Make executable (first time only)
+chmod +x reset-extension.sh
+
+# Run the script
+./reset-extension.sh
+```
+
+Both platform-specific scripts provide the same functionality:
+- Display informative banner about the reset process
+- Run the Node.js reset script with full interactive prompts
+- Wait for user input before closing (equivalent to Windows 'pause')
+
 ### Interactive Mode (Recommended)
 
 ```bash
-node cleanup-extension.js
+node maintainer/reset-extension.js
 ```
 
 The script will:
-1. **Display Warning**: Show what will be cleaned up
+1. **Display Warning**: Show what will be reset
 2. **Confirm Action**: Ask for confirmation before proceeding
-3. **Choose Scope**: Ask if you want to clean the `dist` directory too
-4. **Execute Cleanup**: Perform the cleanup with progress indicators
-5. **Report Results**: Show what was cleaned and any issues
+3. **Choose Scope**: Ask if you want to clear the `dist` directory too
+4. **Execute Reset**: Perform the reset with progress indicators
+5. **Report Results**: Show what was reset and any issues
 
 ### Command Line Options
 
@@ -123,7 +153,7 @@ node cleanup-extension.js --dry-run
 ### Optional Configuration
 
 1. **Update Extension Metadata**:
-   - Edit `src/manifest/config.json` to set new name/description
+   - Edit `config/config.json` to set new name/description
    - Update version numbers if desired
    - Configure features using `npm run customize`
 
@@ -201,7 +231,7 @@ If the script only partially completes:
 ```bash
 # Check what files still exist
 ls -la keys/
-cat src/manifest/config.json
+cat config/config.json
 
 # Run again with force flag
 node cleanup-extension.js --force
@@ -227,7 +257,7 @@ node cleanup-extension.js
 
 ### If Build Fails After Cleanup
 1. **Clean Install**: Remove node_modules and reinstall dependencies
-2. **Clear Caches**: Run `npm run clean` to clear build caches
+2. **Clear Caches**: Run `npm run cleanup` to clear build caches
 3. **Fresh Build**: Run complete build process from scratch
 
 ## Security Considerations
@@ -248,3 +278,24 @@ node cleanup-extension.js
 - Update any external systems that reference the extension ID
 
 This cleanup script provides a powerful way to reset your Chrome extension template to a pristine state while maintaining the ability to quickly rebuild with new, consistent extension IDs.
+
+## Recent Updates
+
+### Name and Description Reset (NEW)
+The reset script now also resets the extension name and description across all configuration files:
+
+**Default Reset Values:**
+- **Name**: "Chrome Extension Template"
+- **Description**: "A modern Chrome extension template with comprehensive tooling"
+
+**Files Updated:**
+- `config/config.json` - Sets name and description fields
+- `package.json` - Sets name (as "chrome-extension-template") and description
+- `package-lock.json` - Updates name references
+
+**After Reset Workflow:**
+1. Run reset script to reset everything to defaults
+2. Use `npm run customize` to set your custom name and description
+3. Build with `npm run build:dev` to apply changes
+
+This ensures a consistent workflow where the template starts with sensible defaults and can be easily customized for your specific project needs.

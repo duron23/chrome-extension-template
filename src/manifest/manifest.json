@@ -1,11 +1,27 @@
 {
   "manifest_version": 3,
-  "name": "dev : <CHANGE_ME>",
+  "name": "DEV : Chrome Extension Template",
   "version": "0.0.0",
-  "description": "dev : <CHANGE_ME>",
+  "description": "DEV : A modern Chrome extension template with comprehensive tooling",
   "background": {
     "service_worker": "background.bundle.js",
     "type": "module"
   },
-  "permissions": []
+  "permissions": [
+    "offscreen"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "js": [
+        "content/content.bundle.js"
+      ],
+      "matches": [
+        "http://*/*"
+      ]
+    }
+  ]
 }

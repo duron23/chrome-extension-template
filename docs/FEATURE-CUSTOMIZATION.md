@@ -60,7 +60,7 @@ Add host permissions for specific websites or patterns:
 
 You can also manually edit the configuration files:
 
-### Features Configuration (`src/manifest/features.json`)
+### Features Configuration (`config/features.json`)
 
 ```json
 {
@@ -95,7 +95,7 @@ You can also manually edit the configuration files:
 **Important**: This file only controls the 5 core extension components. Background service worker is always included and cannot be disabled. Permissions and host permissions must be managed directly in `manifest.json`.
 ```
 
-### Environment Configuration (`src/manifest/config.json`)
+### Environment Configuration (`config/config.json`)
 
 This file contains environment-specific settings:
 
@@ -286,7 +286,7 @@ This is expected behavior! The feature system:
 ### Build Errors
 1. Verify `features.json` syntax is valid JSON
 2. Check that enabled features have corresponding source files
-3. Use `npm run clean` and rebuild if issues persist
+3. Use `npm run cleanup` and rebuild if issues persist
 4. Ensure only the 5 supported components are configured in features.json
 
 ## Advanced Usage
@@ -302,7 +302,7 @@ Use environment variables or build flags to conditionally enable features:
 ```javascript
 // In your build scripts
 const isDev = process.env.NODE_ENV === 'development';
-const features = require('./src/manifest/features.json');
+const features = require('./config/features.json');
 if (isDev) {
   features.features.debugTools = { enabled: true };
 }

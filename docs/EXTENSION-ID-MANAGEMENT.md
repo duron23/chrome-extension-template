@@ -59,7 +59,7 @@ Extension IDs are calculated using Chrome's exact method:
 
 ### 5. Configuration Management
 
-Extension IDs are stored in `src/manifest/config.json`:
+Extension IDs are stored in `config/config.json`:
 ```json
 {
   "dev": {
