@@ -60,6 +60,28 @@ node maintainer/setup-git-hooks.js
 - Automatically runs reset script before each commit
 - Ensures template distribution readiness
 
+## Clean Distribution with .gitattributes
+
+The template uses `.gitattributes` with `export-ignore` to automatically exclude maintainer tools from release distributions:
+
+### What Gets Excluded
+- `maintainer/` directory (all maintainer tools)
+- `.githooks/` directory (Git hooks setup)
+- `.github/` directory (GitHub workflows)
+- `docs/GIT-HOOKS.md` (maintainer-specific documentation)
+- Temporary and development files
+
+### Creating Clean Archives
+```bash
+# Create a clean distribution archive (excludes maintainer tools)
+npm run archive
+
+# Or manually with git archive
+git archive --format=zip --output=chrome-extension-template.zip HEAD
+```
+
+This ensures end users receive only the files they need without maintainer-specific tools.
+
 ## When to Use
 
 These tools should be used by the template maintainer when:

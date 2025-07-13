@@ -65,6 +65,7 @@ This template includes several performance and development optimizations:
 - **Automatic PEM Management**: Seamless extension ID consistency across packed and unpacked installations
 - **Improved Manifest Generation**: Dynamic manifest creation based on enabled features
 - **Better Error Handling**: Enhanced build process with comprehensive error reporting
+- **Clean Distribution**: `.gitattributes` ensures maintainer tools are excluded from releases
 
 ### Modern Dependencies (2025)
 - **React 19.1**: Latest React with improved performance and new features
@@ -155,11 +156,7 @@ Use the following scripts to manage different environments and development proce
   - Lint Fix: `npm run lint` - Automatically fix code style issues
   - Lint Check: `npm run lint:check` - Check for linting issues (zero-warning enforcement)
   - CI Pipeline: `npm run ci` - Complete validation (typecheck + lint + tests)
-
-- **Git Hooks Integration**:
-  - Setup Hooks: `npm run setup-hooks` - Configure automatic reset before commits
-  - Manual Reset: `npm run reset` - Run maintainer reset with prompts
-  - Auto Reset: `npm run reset:auto` - Run maintainer reset without prompts
+  - Archive: `npm run archive` - Create clean distribution archive (excludes maintainer tools)
 
 ### 4. Testing
 
@@ -289,6 +286,8 @@ chrome-extension-template/
 │   ├── EXTENSION-ID-MANAGEMENT.md  # PEM key management guide
 │   ├── FEATURE-CUSTOMIZATION.md    # Feature configuration guide
 │   └── GIT-HOOKS.md            # Git hooks integration guide
+├── .github/                     # GitHub integration
+│   └── copilot-instructions.md # GitHub Copilot guidance for Chrome extension development
 ├── maintainer/                  # 🔧 Maintainer-only tools (not for end users)
 │   ├── README.md               # Maintainer tools documentation
 │   ├── reset-extension.js      # Template reset script
@@ -325,6 +324,7 @@ chrome-extension-template/
 ├── tailwind.config.js         # Tailwind CSS configuration
 ├── vitest.config.js          # Vitest testing configuration
 ├── postcss.config.js         # PostCSS configuration
+├── .gitattributes            # Git export attributes (excludes maintainer tools from releases)
 └── package.json              # Dependencies and scripts
 ```
 
@@ -517,3 +517,10 @@ npm audit
 # Update dependencies (be careful with breaking changes)
 npm update
 ```
+
+### Clean Distribution
+- **.gitattributes**: Defines export-ignore patterns to exclude maintainer tools from release archives
+  - Excludes `maintainer/` directory from git archive
+  - Excludes `.githooks/` directory from distributions
+  - Removes development-only documentation and temp files
+  - Ensures end users get clean, focused template files

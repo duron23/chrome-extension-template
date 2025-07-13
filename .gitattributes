@@ -7,9 +7,6 @@ maintainer/ export-ignore
 # Git hooks - exclude from releases (maintainer workflow only)
 .githooks/ export-ignore
 
-# Development and CI files - exclude from releases
-.github/ export-ignore
-
 # Documentation that's only relevant for template development
 docs/GIT-HOOKS.md export-ignore
 
