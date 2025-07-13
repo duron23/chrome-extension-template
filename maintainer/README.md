@@ -39,26 +39,36 @@ maintainer/maintainer-reset.sh
 ```
 
 ### `setup-git-hooks.js`
-Git hooks configuration script for template maintainers.
+Sets up Git hooks for template maintainers to automatically run the reset script before commits.
 
 **Purpose:**
-- Set up automatic reset before commits
-- Ensure template stays clean for distribution
-- Configure pre-commit hooks for cross-platform support
-
-**⚠️ WARNING:** This is for template maintainers ONLY! End users should NOT use this as it will reset their extension to template defaults before every commit.
+- Configure Git to use `.githooks` directory
+- Make hooks executable on Unix systems
+- Verify hook and reset script configuration
+- Provide interactive confirmation for maintainer-only use
 
 **Usage:**
 ```bash
-# From project root - MAINTAINER ONLY
+# From project root
 node maintainer/setup-git-hooks.js
 ```
 
-**What it does:**
-- Configures Git to use `.githooks` directory
-- Sets up pre-commit hooks (Unix/Windows compatible)
-- Automatically runs reset script before each commit
-- Ensures template distribution readiness
+**⚠️ WARNING:** This is for template maintainers only! It will reset the extension to defaults before every commit.
+
+### `test-git-hooks.js`
+Tests whether Git hooks are properly configured and working.
+
+**Purpose:**
+- Verify Git hooks path configuration
+- Check hook file existence and permissions
+- Validate reset script availability
+- Confirm Git repository status
+
+**Usage:**
+```bash
+# From project root
+node maintainer/test-git-hooks.js
+```
 
 ## Clean Distribution with .gitattributes
 
