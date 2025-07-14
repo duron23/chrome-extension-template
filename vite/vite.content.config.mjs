@@ -50,24 +50,12 @@ export default defineConfig(({ mode }) => {
   const extensionBuild =
     process.env.EXTENSION_BUILD || modeToExtensionBuild[mode] || "dev";
 
-  // Get extension name from package.json, fall back to folder name
-  const getExtensionName = () => {
-    try {
-      const packagePath = resolve(__dirname, "..", "package.json");
-      const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf8"));
-      return packageJson.name || getParentFolderName();
-    } catch (error) {
-      console.warn("Could not read package.json, using folder name");
-      return getParentFolderName();
-    }
-  };
-
-  // Get parent folder name for extension naming fallback
+  // Get parent folder name for extension naming
   const getParentFolderName = () => {
     return resolve(__dirname, "..").split(/[/\\]/).pop();
   };
 
-  const extensionName = getExtensionName();
+  const extensionName = getParentFolderName();
   const basePath = resolve(__dirname, "..", "dist", extensionBuild);
   const outputPath = resolve(basePath, `${extensionName}-${extensionBuild}`);
 
