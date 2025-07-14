@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offscreen Document</title>
+    <style>
+        /* Hide the offscreen document by default */
+        body {
+            display: none;
+            margin: 0;
+            padding: 0;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Offscreen documents are hidden and used for programmatic purposes -->
+    <div id="offscreen-container" style="display: none;">
+        Offscreen Document Ready
+    </div>
+
+    <!-- Load the offscreen script -->
+    <script type="module" src="./offscreen.bundle.js"></script>
+</body>
+
+</html>

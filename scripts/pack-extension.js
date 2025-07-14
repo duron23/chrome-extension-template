@@ -36,11 +36,13 @@ const atomicWriteFile = (filePath, content) => {
 };
 
 // Determine the environment (development or production)
-const env = process.env.NODE_ENV || "dev"; // Default to 'dev' instead of 'development'
+const env = (process.env.NODE_ENV || "dev").trim(); // Default to 'dev' instead of 'development'
 
 // Make sure EXTENSION_BUILD is set
 if (!process.env.EXTENSION_BUILD) {
   process.env.EXTENSION_BUILD = env;
+} else {
+  process.env.EXTENSION_BUILD = process.env.EXTENSION_BUILD.trim();
 }
 
 console.log(

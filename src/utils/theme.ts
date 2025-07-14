@@ -87,46 +87,40 @@ export const watchThemeChanges = (
  * Common CSS classes for consistent styling
  */
 export const themeClasses = {
-  // Buttons
-  button: {
-    primary: "theme-button",
-    secondary: "theme-button secondary",
-  },
-
-  // Inputs
-  input: "theme-input",
-
-  // Cards and containers
-  card: "theme-card",
+  // Layout
+  container: "bg-background-primary text-text-primary min-h-screen p-4",
+  card: "bg-background-secondary border border-border rounded-theme-lg p-4 shadow-theme-sm",
 
   // Typography
-  header: "theme-header",
-  text: "theme-text",
+  header: "text-text-primary text-xl font-semibold mb-4",
+  text: "text-text-secondary",
 
-  // Layout
-  divider: "theme-divider",
+  // Buttons
+  buttonPrimary:
+    "bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-theme-md font-medium transition-all duration-150 shadow-theme-sm hover:shadow-theme-md",
+  buttonSecondary:
+    "bg-background-secondary hover:bg-background-tertiary text-text-primary border border-border px-4 py-2 rounded-theme-md font-medium transition-all duration-150",
+
+  // Form elements
+  inputField:
+    "bg-background-primary text-text-primary border border-border rounded-theme-md px-3 py-2 w-full focus:border-border-focus focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition-all duration-150",
+
+  // Utilities
+  divider: "border-t border-border my-4",
 
   // Badges
   badge: {
-    primary: "theme-badge",
-    secondary: "theme-badge secondary",
+    primary:
+      "bg-primary text-white px-2 py-1 rounded-theme-sm text-xs font-medium",
+    secondary:
+      "bg-background-tertiary text-text-primary px-2 py-1 rounded-theme-sm text-xs font-medium border border-border",
   },
 
   // Animations
   animations: {
-    fadeIn: "fade-in",
-    slideIn: "slide-in",
+    fadeIn: "animate-fade-in",
+    slideIn: "animate-slide-in",
   },
-
-  // Tailwind utility combinations
-  container:
-    "bg-background-primary text-text-primary border border-border rounded-theme-lg p-4 shadow-theme-sm",
-  buttonPrimary:
-    "bg-secondary text-white hover:bg-secondary-dark px-4 py-2 rounded-theme-md font-medium transition-fast shadow-theme-sm hover:shadow-theme-md",
-  buttonSecondary:
-    "bg-background-secondary text-text-primary hover:bg-background-tertiary border border-border px-4 py-2 rounded-theme-md font-medium transition-fast",
-  inputField:
-    "bg-background-primary text-text-primary border border-border rounded-theme-md px-3 py-2 focus:border-border-focus focus:ring-2 focus:ring-secondary/20 transition-fast",
 } as const;
 
 /**

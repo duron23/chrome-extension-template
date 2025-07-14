@@ -4,6 +4,16 @@ This directory contains comprehensive documentation for **Chrome Extension devel
 
 ## 📖 Documentation Files
 
+### ⚡ **VITE-BUILD-SYSTEM.md**
+**Comprehensive guide to the modern Vite-based build system**
+- Multi-configuration setup for UI, background, and content scripts
+- Build environments (dev, UAT, production) and optimizations
+- Bundle analysis and performance monitoring
+- React 19 compatibility and JSX runtime configuration
+- Watch mode, CSS inlining, and Chrome extension-specific optimizations
+
+**Use when:** Understanding the build process, debugging build issues, or optimizing bundle performance.
+
 ### 🎨 **THEME-SYSTEM.md**
 **Complete guide to the unified theme system**
 - CSS custom properties and design tokens
@@ -45,10 +55,11 @@ This directory contains comprehensive documentation for **Chrome Extension devel
 
 ### For Extension Developers
 1. **Start here:** [🚀 Quick Start Guide](../QUICK-START.md) for 5-minute setup
-2. **Customize features:** [Feature Customization](FEATURE-CUSTOMIZATION.md)
-3. **Style your extension:** [Theme System](THEME-SYSTEM.md)
-4. **Manage extension IDs:** [Extension ID Management](EXTENSION-ID-MANAGEMENT.md)
-5. **Troubleshoot issues:** [Troubleshooting Guide](TROUBLESHOOTING.md)
+2. **Understand the build system:** [Vite Build System](VITE-BUILD-SYSTEM.md) for modern toolchain
+3. **Customize features:** [Feature Customization](FEATURE-CUSTOMIZATION.md)
+4. **Style your extension:** [Theme System](THEME-SYSTEM.md)
+5. **Manage extension IDs:** [Extension ID Management](EXTENSION-ID-MANAGEMENT.md)
+6. **Troubleshoot issues:** [Troubleshooting Guide](TROUBLESHOOTING.md)
 
 ### For Template Maintainers
 📁 **See:** [`maintainer/docs/`](../maintainer/docs/) for maintainer-specific documentation
@@ -56,6 +67,9 @@ This directory contains comprehensive documentation for **Chrome Extension devel
 ## 📁 Related Files
 
 ### Configuration Files
+- `vite/vite.config.mjs` - Main Vite build configuration for UI components
+- `vite/vite.uat.config.mjs` - UAT environment build configuration  
+- `vite/vite.prod.config.mjs` - Production build configuration
 - `config/config.json` - Extension identity and settings
 - `config/features.json` - Feature toggles and component configuration
 - `src/utils/theme.ts` - Theme utilities and design system
@@ -64,6 +78,8 @@ This directory contains comprehensive documentation for **Chrome Extension devel
 ### Scripts and Tools
 - `scripts/customize-features.js` - Interactive feature customization
 - `scripts/show-extension-ids.js` - Display current extension IDs
+- `scripts/generate-manifest.js` - Generate manifests for different environments
+- `scripts/pack-extension.js` - Create extension packages for distribution
 - `maintainer/setup-git-hooks.js` - Git hooks setup (maintainer-only)
 - `maintainer/test-git-hooks.js` - Git hooks testing utility
 

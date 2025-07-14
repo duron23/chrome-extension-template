@@ -4,28 +4,29 @@ This repository serves as a powerful and flexible template for building Chrome E
 
 ## 🛠 Tech Stack
 
-- **Webpack**: Efficiently bundles and tran- **Webpack**: Efficiently bundles and transforms your code with advanced optimizations including code splitting, tree shaking, and production minification.
-- **React 19**: Latest React version for building modern Popup, Options, and SidePanel interfaces with enhanced performance.
-- **TypeScript 5.8**: Provides strict type safety with ES2024 target and enhanced development features with incremental compilation.
-- **Tailwind CSS v3**: Utility-first CSS framework with advanced production optimizations and CSS minification.
-- **Vitest**: Fast and lightweight testing framework with comprehensive TypeScript support and coverage reporting.
-- **Puppeteer**: Modern E2E testing with TypeScript support for Chrome extension testing.
-- **ESLint 9**: Latest flat config system with comprehensive TypeScript and React rules including async/await best practices.
-- **Chrome Types**: Built-in TypeScript support for Chrome's extension APIs with latest @types/chrome.
+- **Vite 7**: Lightning-fast build tool with native ES modules, HMR, and optimized bundling for Chrome extensions
+- **React 19**: Latest React version for building modern Popup, Options, and SidePanel interfaces with enhanced performance
+- **TypeScript 5.8**: Provides strict type safety with ES2024 target and enhanced development features with incremental compilation
+- **Tailwind CSS v4**: Next-generation utility-first CSS framework with native Vite plugin and advanced optimizations
+- **Vitest 3**: Fast and lightweight testing framework with comprehensive TypeScript support and coverage reporting
+- **Puppeteer 24**: Modern E2E testing with TypeScript support for Chrome extension testing
+- **ESLint 9**: Latest flat config system with comprehensive TypeScript and React rules including async/await best practices
+- **Chrome Types**: Built-in TypeScript support for Chrome's extension APIs with latest @types/chrome
 
 ## ✨ Optimization Features
 
 This template includes several performance and development optimizations:
 
 ### Build Optimizations
-- **Code Splitting**: Automatic vendor and React library separation for better caching
-- **Tree Shaking**: Removes unused code to reduce bundle size
-- **CSS Minification**: Production builds include optimized CSS with cssnano
+- **Vite's Native Bundling**: Ultra-fast builds with Rollup-based bundling and tree shaking
+- **ES Module Output**: Modern ES modules for background scripts and UI components
+- **IIFE Content Scripts**: Isolated execution context for content scripts
+- **CSS Inlining**: Automatic CSS injection into bundles for Chrome extension compatibility
+- **Multi-Config Architecture**: Separate optimized configs for UI, background, and content scripts
 - **Console Removal**: Automatically removes console.log statements in production
-- **Incremental TypeScript**: Faster rebuilds with TypeScript build caching
 
 ### Development Features
-- **Bundle Analysis**: Analyze bundle size and dependencies with `npm run build:analyze`
+- **Bundle Analysis**: Analyze bundle size and dependencies with `npm run build:analyze` (generates interactive HTML report)
 - **Type Checking**: Standalone TypeScript type checking with `npm run typecheck`
 - **Linting**: Zero-warning enforcement with comprehensive async/await rules via `npm run lint:check`
 - **E2E Testing**: Modern Puppeteer-based end-to-end testing with TypeScript support
@@ -40,14 +41,14 @@ This template includes several performance and development optimizations:
 - **Test UI**: Interactive test interface with `npm run test:ui`
 
 ### Dependency Management
-- **Latest Versions**: All dependencies updated to latest stable versions
-- **Optimized Dependencies**: Removed unnecessary packages to reduce bundle size
-- **Compatibility**: Ensured version compatibility across TypeScript toolchain
+- **Latest Versions**: All dependencies updated to latest stable versions (2025)
+- **Optimized Dependencies**: Vite's efficient dependency pre-bundling
+- **Compatibility**: Ensured version compatibility across Vite and TypeScript toolchain
 - **Security**: No security vulnerabilities with regular dependency audits
 
 ### Security Enhancements
 - **Minimal Permissions**: Template uses only essential Chrome extension permissions
-- **Modern Configuration**: Uses latest webpack and TypeScript configurations
+- **Modern Configuration**: Uses latest Vite and TypeScript configurations
 - **Strict TypeScript**: Enhanced type safety with strict mode and comprehensive rules
 - **Async/await Best Practices**: ESLint rules enforce proper Promise handling and error management
 
@@ -146,62 +147,94 @@ Configure different environments through `config/config.json`:
 Use the following scripts to manage different environments and development processes:
 
 **Note:** The `maintainer/` directory contains tools used only by the template maintainer for preparing clean distributions. End users can ignore this directory.
+### 3. Development
+
+The template uses a modern Vite-based build system with separate configurations for different components:
+
+#### Build Scripts
 
 - **Generate Manifest**: Customize the manifest based on the environment.
   - Development: `npm run prebuild:dev`
   - UAT: `npm run prebuild:uat`
   - Production: `npm run prebuild:prod`
 
-- **Build**: Compile and optimize the extension for different environments.
-  - Development: `npm run build:dev`
-  - UAT: `npm run build:uat`
-  - Production: `npm run build:prod`
+- **Build**: Compile and optimize the extension for different environments using Vite.
+  - Development: `npm run build:dev` - Fast builds with source maps and development optimizations
+  - UAT: `npm run build:uat` - Staging environment with production-like optimizations
+  - Production: `npm run build:prod` - Fully optimized builds with minification
 
-- **Advanced Build Options**:
-  - Bundle Analysis: `npm run build:analyze` - Generates detailed bundle size reports
-  - Clean Build: `npm run cleanup` - Removes all build artifacts and caches
+#### Build Architecture
 
-- **Watch**: Start a watch mode to rebuild the extension automatically on code changes.
+The Vite build system uses multiple specialized configurations:
+- **UI Components** (`vite/vite.config.mjs`): React components (popup, options, sidepanel, offscreen)
+- **Background Script** (`vite/vite.background.config.mjs`): Service worker with ES module output
+- **Content Scripts** (`vite/vite.content.config.mjs`): IIFE format for content script isolation
+- **Environment Configs**: Separate configurations for dev, UAT, and production environments
+
+#### Advanced Build Options
+
+- **Bundle Analysis**: `npm run build:analyze` - Generates interactive HTML reports with:
+  - Bundle size breakdown by module
+  - Dependency visualization
+  - Gzip/Brotli compression analysis
+  - Tree-shaking effectiveness
+
+- **Watch Mode**: `npm run watch` - Automatic rebuilds with Vite's fast HMR across all configurations
   ```bash
   npm run watch
   ```
 
-- **Code Quality**:
-  - Type Check: `npm run typecheck` - Standalone TypeScript type checking
-  - Lint Fix: `npm run lint` - Automatically fix code style issues
-  - Lint Check: `npm run lint:check` - Check for linting issues (zero-warning enforcement)
-  - CI Pipeline: `npm run ci` - Complete validation (typecheck + lint + tests)
-  - Archive: `npm run archive` - Create clean distribution archive (excludes maintainer tools)
+- **Clean Build**: `npm run cleanup` - Removes all build artifacts and TypeScript cache
+  ```bash
+  npm run cleanup
+  ```
+
+#### Code Quality
+
+- **Type Check**: `npm run typecheck` - Standalone TypeScript type checking
+- **Lint Fix**: `npm run lint` - Automatically fix code style issues with ESLint 9
+- **Lint Check**: `npm run lint:check` - Check for linting issues (zero-warning enforcement)
+- **CI Pipeline**: `npm run ci` - Complete validation (typecheck + lint + tests)
+- **Archive**: `npm run archive` - Create clean distribution archive (excludes maintainer tools)
+
+#### Extension Management
+
+- **Show Extension IDs**: `npm run show:ids` - Display configured extension IDs for all environments
+- **Ensure PEM Keys**: `npm run ensure-pem` - Generate/validate extension ID consistency
 
 ### 4. Testing
 
-Run tests using ViTest with comprehensive TypeScript support:
+Run tests using Vitest 3 with comprehensive TypeScript support and modern testing capabilities:
 
-- **Test Watch**: Continuously run unit tests during development.
+#### Unit Testing
+- **Test Watch**: Continuously run unit tests during development with Vitest's fast execution.
   ```bash
   npm run test:watch
   ```
 
-- **Test UI**: Run tests with a user interface.
+- **Test UI**: Run tests with Vitest's interactive web-based interface.
   ```bash
   npm run test:ui
   ```
 
-- **Unit Tests**: Run all unit tests.
+- **Unit Tests**: Run all unit tests with React Testing Library support.
   ```bash
   npm run test:unit
   ```
 
-- **End-to-End Tests**: Run TypeScript-based end-to-end tests with Puppeteer.
+#### End-to-End Testing
+- **E2E Tests**: Run TypeScript-based end-to-end tests with Puppeteer 24.
   ```bash
   npm run test:e2e
   ```
 
-- **E2E Headless Mode**: Run E2E tests in headless mode for CI/CD.  ```bash
+- **E2E Headless Mode**: Run E2E tests in headless mode for CI/CD pipelines.
+  ```bash
   npm run test:e2e:headless
   ```
 
-- **Test Coverage**: Generate a comprehensive test coverage report.
+#### Coverage Reporting
+- **Test Coverage**: Generate comprehensive test coverage reports with @vitest/coverage-v8.
   ```bash
   npm run coverage
   ```
@@ -214,7 +247,25 @@ To load the extension into Chrome for testing:
 
 1. Open Chrome and navigate to `chrome://extensions/`.
 2. Enable "Developer mode" at the top-right corner.
-3. Click "Load unpacked" and select the `dist/` directory generated by the build process.
+3. Click "Load unpacked" and select the appropriate `dist/` directory:
+   - **Development**: `dist/dev/chrome-extension-template-dev/`
+   - **UAT**: `dist/uat/chrome-extension-template-uat/`
+   - **Production**: `dist/prod/chrome-extension-template-prod/`
+
+## ⚠️ Known Issues & Compatibility
+
+### React 19 + Vite Compatibility
+This template includes a workaround for a compatibility issue between React 19 and @vitejs/plugin-react@4.6.0:
+
+- **Issue**: The automatic JSX runtime exports development functions (`jsxDEV`) in production builds
+- **Solution**: Production builds use classic JSX runtime (`React.createElement`) while development uses automatic runtime
+- **Impact**: Slightly larger production bundles, but ensures runtime stability
+- **Future**: This workaround can be removed when the React plugin is updated
+
+### System Requirements
+- **Node.js 18+** (LTS) or **Node.js 22+** (recommended for optimal Vite performance)
+- **npm 9+** or **yarn 4+**
+- **Chrome/Chromium browser** for extension testing
 
 ## 🧩 Feature Customization
 
@@ -280,6 +331,8 @@ The build process will automatically update the manifest.json by adding only the
 chrome-extension-template/
 ├── QUICK-START.md               # 🚀 5-minute setup guide for new users
 ├── README.md                    # Main documentation and overview
+├── VITE-MIGRATION-COMPLETE.md   # Migration completion documentation
+├── VITEMIGRATION.md            # Migration guide and notes
 ├── src/                          # Source code
 │   ├── background/              # Service worker scripts
 │   ├── content/                 # Content scripts
@@ -302,6 +355,7 @@ chrome-extension-template/
 │   └── pre-commit.bat          # Windows pre-commit hook
 ├── docs/                        # 📖 Developer documentation
 │   ├── README.md               # Documentation index for developers
+│   ├── VITE-BUILD-SYSTEM.md    # Comprehensive Vite build system guide
 │   ├── THEME-SYSTEM.md         # Complete theme system guide
 │   ├── FEATURE-CUSTOMIZATION.md # Feature configuration guide
 │   ├── EXTENSION-ID-MANAGEMENT.md # PEM keys & Chrome Web Store
@@ -326,13 +380,16 @@ chrome-extension-template/
 │   ├── customize-features.js   # Interactive feature customization
 │   ├── generate-manifest.js    # Dynamic manifest generation
 │   ├── ensure-pem.js          # PEM key management
-│   └── show-extension-ids.js  # Display current extension IDs
-├── webpack/                     # Webpack configurations
-│   ├── webpack.common.config.js    # Shared webpack configuration
-│   ├── webpack.dev.config.js      # Development builds
-│   ├── webpack.uat.config.js      # UAT builds
-│   ├── webpack.prod.config.js     # Production builds
-│   └── webpack.watch.config.js    # Watch mode configuration
+│   ├── show-extension-ids.js  # Display current extension IDs
+│   └── post-build-package.js  # Post-build packaging script
+├── vite/                        # Vite build configurations
+│   ├── vite.config.mjs         # Main UI components configuration
+│   ├── vite.background.config.mjs  # Background service worker build
+│   ├── vite.content.config.mjs     # Content scripts build
+│   ├── vite.dev.config.mjs         # Development environment
+│   ├── vite.uat.config.mjs         # UAT environment
+│   ├── vite.prod.config.mjs        # Production environment
+│   └── vite.watch.config.mjs       # Watch mode configuration
 ├── keys/                        # PEM files for consistent extension IDs
 ├── tests/                       # Test files
 │   ├── setup.ts                # Test setup and configuration
@@ -351,7 +408,6 @@ chrome-extension-template/
 ├── tsconfig.json              # TypeScript configuration
 ├── tailwind.config.js         # Tailwind CSS configuration
 ├── vitest.config.js          # Vitest testing configuration
-├── postcss.config.js         # PostCSS configuration
 ├── .gitattributes            # Git export attributes (excludes maintainer tools from releases)
 └── package.json              # Dependencies and scripts
 ```
@@ -359,11 +415,13 @@ chrome-extension-template/
 ## 🔧 Configuration Files
 
 ### Build System
-- **webpack.common.config.js**: Shared webpack configuration with performance optimizations
-- **webpack.prod.config.js**: Production-specific optimizations (code splitting, minification)
-- **webpack.dev.config.js**: Development configuration with source maps
-- **webpack.uat.config.js**: UAT-specific build configuration
-- **webpack.watch.config.js**: Watch mode configuration for development
+- **vite/vite.config.mjs**: Main Vite configuration for UI components
+- **vite/vite.background.config.mjs**: Background service worker build configuration
+- **vite/vite.content.config.mjs**: Content scripts build configuration
+- **vite/vite.dev.config.mjs**: Development environment configuration
+- **vite/vite.uat.config.mjs**: UAT environment configuration
+- **vite/vite.prod.config.mjs**: Production environment configuration
+- **vite/vite.watch.config.mjs**: Watch mode configuration for development
 - **tsconfig.json**: TypeScript configuration with incremental compilation
 
 ### Extension Configuration
@@ -378,30 +436,31 @@ chrome-extension-template/
 - **tests/setup.ts**: Centralized test setup with @testing-library/jest-dom integration
 
 ### Styling
-- **tailwind.config.js**: Tailwind CSS with production optimizations
-- **postcss.config.js**: PostCSS configuration with autoprefixer and cssnano
+- **tailwind.config.js**: Tailwind CSS v4 with native Vite plugin and production optimizations
+- **src/style/main.css**: Global styles and Tailwind CSS imports
+- **src/style/tailwind.css**: Tailwind CSS directives and custom styles
 
 ### Development Tools
 - **scripts/customize-features.js**: Interactive CLI tool for feature configuration
 - **scripts/generate-manifest.js**: Dynamic manifest generation based on features and environment
-- **scripts/pack-extension.js**: Extension packaging with consistent ID management
+- **scripts/post-build-package.js**: Post-build packaging with consistent ID management
 - **scripts/ensure-pem.js**: Automatic PEM key generation and management
 - **scripts/show-extension-ids.js**: Display current extension IDs for all environments
 
 ## 🎯 Performance Optimizations
 
 ### Production Build Features
-1. **Code Splitting**: Separates vendor libraries and React chunks for better caching
-2. **Tree Shaking**: Removes unused code with `sideEffects: false` configuration
-3. **Minification**: CSS minification with cssnano, JS minification with Terser
-4. **Console Removal**: Automatically strips console.log and debugger statements
-5. **Bundle Analysis**: Optional bundle size analysis with webpack-bundle-analyzer
+1. **Optimized Bundling**: Vite's Rollup-based bundling with automatic code splitting and tree shaking
+2. **CSS Inlining**: Automatic CSS injection into JavaScript bundles for Chrome extension compatibility
+3. **Minification**: JavaScript minification with Terser, optimized for Chrome extension constraints
+4. **Console Removal**: Automatically strips console.log and debugger statements in production
+5. **Bundle Analysis**: Interactive HTML reports with rollup-plugin-visualizer for dependency analysis
 
 ### Development Features
-1. **Incremental Compilation**: TypeScript builds only changed files
-2. **Source Maps**: Detailed debugging information in development
-3. **Hot Reloading**: Watch mode for automatic rebuilds
-4. **Type Checking**: Standalone TypeScript validation
+1. **Hot Module Replacement**: Vite's lightning-fast HMR for instant updates during development
+2. **Source Maps**: Detailed debugging information with Vite's optimized source map generation
+3. **Watch Mode**: Automatic rebuilds with Vite's efficient file watching
+4. **Type Checking**: Standalone TypeScript validation with incremental compilation
 
 ### Security & Best Practices
 1. **Minimal Permissions**: Only essential Chrome extension permissions
@@ -560,9 +619,11 @@ npm update
 - **[📖 Documentation Index](docs/README.md)** - Complete guide to all documentation
 
 **Development Guides:**
+- **[⚡ Vite Build System](docs/VITE-BUILD-SYSTEM.md)** - Comprehensive guide to the modern Vite-based build system
 - **[🎨 Theme System](docs/THEME-SYSTEM.md)** - Unified design system and styling guide
 - **[⚙️ Feature Customization](docs/FEATURE-CUSTOMIZATION.md)** - Configure extension components
 - **[🔧 Extension ID Management](docs/EXTENSION-ID-MANAGEMENT.md)** - PEM keys and extension IDs
 
 **Advanced:**
-- **[🔗 Git Hooks](docs/GIT-HOOKS.md)** - Maintainer tools for automatic reset (maintainer-only)
+- **[🆘 Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[🔗 Git Hooks](maintainer/docs/GIT-HOOKS.md)** - Maintainer tools for automatic reset (maintainer-only)

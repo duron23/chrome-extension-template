@@ -131,7 +131,7 @@ theme: {
 #### 3. Add Custom Theme Classes in `src/utils/theme.ts`
 ```typescript
 export const customThemeClasses = {
-  myButton: 'bg-brand-primary text-white px-4 py-2 rounded',
+  myButton: 'bg-brand-primary text-white px-4 py-2 rounded-sm',
   myCard: 'bg-background-secondary p-6 shadow-lg',
 };
 ```
