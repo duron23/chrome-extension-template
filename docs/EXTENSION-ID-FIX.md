@@ -1,98 +1,96 @@
-# Extension ID Management - Issue Analysis and Fix
+# Extension ID Management - Watch Mode Fix
 
 ## Issue Description
 The user reported that "watch is updating all build extensionId to same, whereas it should not."
 
 ## Root Cause Analysis
 
-After thorough investigation, the issue was identified in the watch script behavior:
-
-### Problem 1: Watch Script Didn't Initialize Environment
-The original `watch-all.js` script:
-- Directly started Vite build processes without ensuring proper environment setup
-- Did not call `ensure-pem.js` before starting watch mode
-- If started without prior builds, would lack proper extension IDs and PEM keys
-
-### Problem 2: Potential Race Conditions
-While the scripts have file locking mechanisms, concurrent execution could potentially cause issues in certain edge cases.
-
-### Problem 3: Lack of Environment Validation
-The scripts didn't validate environment parameters, which could lead to unexpected behavior.
+The problem was that the watch mode was using whatever manifest configuration existed from the last build. For example:
+1. Run `npm run build:uat` - this updates the source manifest with UAT key and naming
+2. Run `npm run watch` - this would use the UAT configuration instead of DEV
 
 ## Solution Implemented
 
-### 1. Enhanced Watch Script (`scripts/watch-all.js`)
-- **Added environment setup**: Now calls `ensure-pem.js` before starting watch processes
-- **Better error handling**: Proper async/await pattern with error handling
-- **Clearer messaging**: More informative console output
+### Simple and Clean Approach
+Watch mode now:
+1. **Only compiles code** - no config updates, no version increments
+2. **Uses dev environment only** - as intended for development
+3. **Validates dev PEM exists** - fails with clear error if not
+4. **Restores dev manifest** - ensures consistent dev environment
 
-### 2. Improved Environment Validation
-- **`ensure-pem.js`**: Added environment validation and better logging
-- **`generate-manifest.js`**: Added environment validation and better logging
+### How It Works
 
-### 3. New Debug Tool (`scripts/debug-extension-ids.js`)
-- **Comprehensive ID checking**: Shows all extension IDs and their sources
-- **Duplicate detection**: Identifies if multiple environments use the same ID
-- **Inconsistency detection**: Warns if config IDs don't match PEM-derived IDs
-- **Recommendations**: Provides actionable steps to fix issues
+1. **Pre-check**: `prepare-watch-manifest.js` runs before watch starts
+2. **PEM validation**: Checks if dev PEM exists, fails if not
+3. **Manifest restoration**: Updates source manifest with dev key and naming
+4. **Clean compilation**: Watch mode only compiles, no other modifications
 
-## How Extension IDs Work
+### Key Benefits
+✅ **Predictable**: Watch always uses dev environment  
+✅ **Safe**: No config modifications during watch  
+✅ **Clear errors**: Tells user to run build:dev if PEM missing  
+✅ **Consistent**: Same key/naming as build:dev  
 
-### Environment Isolation
-Each environment has its own PEM key and extension ID:
-- `keys/chrome-extension-template-dev.pem` → Dev extension ID
-- `keys/chrome-extension-template-uat.pem` → UAT extension ID  
-- `keys/chrome-extension-template-prod.pem` → Prod extension ID
+## File Changes
 
-### ID Generation Process
-1. **PEM Key Creation**: Unique RSA key pair generated per environment
-2. **Public Key Extraction**: Public key extracted from PEM file
-3. **Extension ID Calculation**: Chrome's algorithm applied to public key
-4. **Config Storage**: ID stored in `config/config.json` for each environment
+### New File: `scripts/prepare-watch-manifest.js`
+- Validates dev PEM exists
+- Updates manifest with dev key and naming
+- Does NOT update config files or version numbers
 
-### Watch Mode Behavior
-- **Environment**: Always uses `dev` environment (by design)
-- **Setup**: Now ensures dev PEM key exists before starting
-- **Isolation**: Won't affect UAT or PROD extension IDs
+### Modified File: `scripts/watch-all.js`
+- Calls prepare-watch-manifest before starting watch
+- Clear messaging about watch mode purpose
 
 ## Usage
 
-### Debug Extension IDs
+### Before Watch Mode
+Must have dev environment set up first:
 ```bash
-npm run debug:ids
-```
-Shows comprehensive information about all extension IDs and identifies any issues.
-
-### Normal Development Workflow
-```bash
-# Start watch mode (now properly initializes dev environment)
-npm run watch
-
-# Build specific environments
-npm run build:dev
-npm run build:uat  
-npm run build:prod
+npm run build:dev  # Creates dev PEM and extension ID
 ```
 
-### Show Extension IDs
+### Watch Mode
 ```bash
-npm run show:ids
+npm run watch  # Now safely uses dev environment
 ```
-Quick overview of extension ID status.
+
+### Error Handling
+If dev PEM doesn't exist:
+```
+❌ Dev PEM key not found!
+💡 Please run 'npm run build:dev' first to generate the development environment
+```
 
 ## Verification
 
-The fix ensures:
-✅ Each environment has unique extension IDs  
-✅ Watch mode properly initializes dev environment  
-✅ No race conditions in extension ID generation  
-✅ Clear error messages and debugging tools  
-✅ Proper environment validation  
+### Test Scenario 1: Watch without dev environment
+```bash
+# Clean state - no PEM files
+npm run watch
+# Result: Clear error message, tells user to run build:dev
+```
 
-## Files Modified
+### Test Scenario 2: Watch after different environment build
+```bash
+npm run build:uat    # Sets manifest to UAT configuration
+npm run watch        # Correctly restores DEV configuration
+```
 
-1. `scripts/watch-all.js` - Enhanced with environment setup
-2. `scripts/ensure-pem.js` - Added validation and better logging  
-3. `scripts/generate-manifest.js` - Added validation and better logging
-4. `scripts/debug-extension-ids.js` - New comprehensive debug tool
-5. `package.json` - Added debug:ids script
+### Test Scenario 3: Normal development workflow
+```bash
+npm run build:dev    # Set up dev environment
+npm run watch        # Works correctly with dev configuration
+```
+
+## Key Differences from Build Mode
+
+| Aspect | Build Mode | Watch Mode |
+|--------|------------|------------|
+| **Environment** | Any (dev/uat/prod) | DEV only |
+| **Version Update** | ✅ Increments version | ❌ No version changes |
+| **Config Update** | ✅ Updates config.json | ❌ No config changes |
+| **Manifest Update** | ✅ Adds key, name, version | ✅ Adds key, name (no version) |
+| **PEM Creation** | ✅ Creates if missing | ❌ Fails if missing |
+
+This ensures watch mode is purely for development compilation while maintaining the correct extension identity.

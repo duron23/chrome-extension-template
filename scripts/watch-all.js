@@ -9,44 +9,45 @@ const path = require("path");
 const fs = require("fs");
 
 console.log("🔄 Starting concurrent watch mode for all components...");
+console.log("💡 Watch mode compiles code for development environment only");
 console.log("═══════════════════════════════════════════════════════");
 
-// Ensure we have the proper development environment set up before starting watch
-const setupDevEnvironment = () => {
+// Prepare manifest for watch mode (check dev PEM and update key property)
+const prepareWatchManifest = () => {
   return new Promise((resolve, reject) => {
-    console.log("🔧 Setting up development environment...");
+    console.log("🔧 Preparing development manifest...");
 
     const isWindows = process.platform === "win32";
-    const npmCmd = isWindows ? "npm.cmd" : "npm";
+    const nodeCmd = isWindows ? "node.exe" : "node";
 
-    const setupProcess = spawn(npmCmd, ["run", "ensure-pem"], {
-      cwd: path.resolve(__dirname, ".."),
-      stdio: "pipe",
-      shell: true,
-      env: {
-        ...process.env,
-        NODE_ENV: "dev",
-      },
-    });
+    const prepareProcess = spawn(
+      nodeCmd,
+      ["scripts/prepare-watch-manifest.js"],
+      {
+        cwd: path.resolve(__dirname, ".."),
+        stdio: "pipe",
+        shell: true,
+      }
+    );
 
     let output = "";
-    setupProcess.stdout.on("data", (data) => {
+    let errorOutput = "";
+
+    prepareProcess.stdout.on("data", (data) => {
       output += data.toString();
     });
 
-    setupProcess.stderr.on("data", (data) => {
-      output += data.toString();
+    prepareProcess.stderr.on("data", (data) => {
+      errorOutput += data.toString();
     });
 
-    setupProcess.on("close", (code) => {
+    prepareProcess.on("close", (code) => {
       if (code === 0) {
-        console.log("✅ Development environment ready");
         console.log(output.trim());
         resolve();
       } else {
-        console.error("❌ Failed to set up development environment");
-        console.error(output);
-        reject(new Error(`Setup failed with code ${code}`));
+        console.error(errorOutput.trim());
+        reject(new Error(`Manifest preparation failed with code ${code}`));
       }
     });
   });
@@ -156,7 +157,7 @@ const startWatchProcesses = () => {
 // Main execution
 const main = async () => {
   try {
-    await setupDevEnvironment();
+    await prepareWatchManifest();
     startWatchProcesses();
   } catch (error) {
     console.error("❌ Failed to start watch mode:", error.message);
