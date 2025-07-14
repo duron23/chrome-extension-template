@@ -42,6 +42,19 @@ const atomicWriteFile = (filePath, content) => {
 // Determine the environment (dev, uat, or prod)
 const env = (process.env.NODE_ENV || "dev").trim(); // Trim to remove any whitespace
 
+// Validate environment
+const validEnvironments = ["dev", "uat", "prod"];
+if (!validEnvironments.includes(env)) {
+  console.error(
+    `❌ Invalid environment: ${env}. Valid environments are: ${validEnvironments.join(
+      ", "
+    )}`
+  );
+  process.exit(1);
+}
+
+console.log(`📋 Generating manifest for ${env} environment...`);
+
 // Paths to the manifest and XML files
 const manifestPath = path.resolve(
   __dirname,

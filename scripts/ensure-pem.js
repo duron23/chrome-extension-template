@@ -39,7 +39,20 @@ const atomicWriteFile = (filePath, content) => {
 };
 
 // Get environment from command line arguments or default to dev
-const env = process.env.NODE_ENV || "dev";
+const env = (process.env.NODE_ENV || "dev").trim();
+
+// Validate environment
+const validEnvironments = ["dev", "uat", "prod"];
+if (!validEnvironments.includes(env)) {
+  console.error(
+    `❌ Invalid environment: ${env}. Valid environments are: ${validEnvironments.join(
+      ", "
+    )}`
+  );
+  process.exit(1);
+}
+
+console.log(`🔧 Ensuring PEM key for ${env} environment...`);
 
 // Get the parent folder name for the extension
 const parentDir = path.basename(path.resolve(__dirname, "..", "."));

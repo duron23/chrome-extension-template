@@ -11,6 +11,47 @@ const fs = require("fs");
 console.log("🔄 Starting concurrent watch mode for all components...");
 console.log("═══════════════════════════════════════════════════════");
 
+// Ensure we have the proper development environment set up before starting watch
+const setupDevEnvironment = () => {
+  return new Promise((resolve, reject) => {
+    console.log("🔧 Setting up development environment...");
+
+    const isWindows = process.platform === "win32";
+    const npmCmd = isWindows ? "npm.cmd" : "npm";
+
+    const setupProcess = spawn(npmCmd, ["run", "ensure-pem"], {
+      cwd: path.resolve(__dirname, ".."),
+      stdio: "pipe",
+      shell: true,
+      env: {
+        ...process.env,
+        NODE_ENV: "dev",
+      },
+    });
+
+    let output = "";
+    setupProcess.stdout.on("data", (data) => {
+      output += data.toString();
+    });
+
+    setupProcess.stderr.on("data", (data) => {
+      output += data.toString();
+    });
+
+    setupProcess.on("close", (code) => {
+      if (code === 0) {
+        console.log("✅ Development environment ready");
+        console.log(output.trim());
+        resolve();
+      } else {
+        console.error("❌ Failed to set up development environment");
+        console.error(output);
+        reject(new Error(`Setup failed with code ${code}`));
+      }
+    });
+  });
+};
+
 const processes = [];
 
 // Get the correct vite executable path
@@ -83,32 +124,51 @@ const spawnViteProcess = (configPath, mode, label, color) => {
 };
 
 // Start all three watch processes
-const uiProcess = spawnViteProcess(
-  "vite/vite.watch.config.mjs",
-  "development",
-  "UI Components",
-  "\x1b[36m" // Cyan
-);
+const startWatchProcesses = () => {
+  const uiProcess = spawnViteProcess(
+    "vite/vite.watch.config.mjs",
+    "development",
+    "UI Components",
+    "\x1b[36m" // Cyan
+  );
 
-const backgroundProcess = spawnViteProcess(
-  "vite/vite.background.config.mjs",
-  "development",
-  "Background",
-  "\x1b[33m" // Yellow
-);
+  const backgroundProcess = spawnViteProcess(
+    "vite/vite.background.config.mjs",
+    "development",
+    "Background",
+    "\x1b[33m" // Yellow
+  );
 
-const contentProcess = spawnViteProcess(
-  "vite/vite.content.config.mjs",
-  "development",
-  "Content Scripts",
-  "\x1b[35m" // Magenta
-);
+  const contentProcess = spawnViteProcess(
+    "vite/vite.content.config.mjs",
+    "development",
+    "Content Scripts",
+    "\x1b[35m" // Magenta
+  );
 
-processes.push(uiProcess, backgroundProcess, contentProcess);
+  processes.push(uiProcess, backgroundProcess, contentProcess);
 
-console.log("\n✅ All watch processes started!");
-console.log("💡 Press Ctrl+C to stop all watchers");
-console.log("═══════════════════════════════════════════════════════\n");
+  console.log("\n✅ All watch processes started!");
+  console.log("💡 Press Ctrl+C to stop all watchers");
+  console.log("═══════════════════════════════════════════════════════\n");
+};
+
+// Main execution
+const main = async () => {
+  try {
+    await setupDevEnvironment();
+    startWatchProcesses();
+  } catch (error) {
+    console.error("❌ Failed to start watch mode:", error.message);
+    process.exit(1);
+  }
+};
+
+// Execute main function
+main().catch((error) => {
+  console.error("❌ Unexpected error:", error);
+  process.exit(1);
+});
 
 // Handle graceful shutdown
 const cleanup = () => {
