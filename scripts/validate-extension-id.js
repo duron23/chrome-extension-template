@@ -12,6 +12,13 @@ const {
 } = require("./extract-key");
 
 // Path to the PEM file and manifest file
+// Determine the project name dynamically
+const getProjectName = () => {
+  return path.basename(path.resolve(__dirname, ".."));
+};
+
+const projectName = getProjectName();
+
 const manifestPath = path.join(
   __dirname,
   "..",
@@ -24,7 +31,7 @@ const distManifestPath = path.join(
   "..",
   "dist",
   "dev",
-  "chrome-extension-templatedev",
+  `${projectName}dev`,
   "manifest.json"
 );
 
@@ -49,12 +56,7 @@ try {
   console.log(`   Calculated ID: ${calculatedId}`);
 
   // Also try to read the extension ID from Chrome's perspective (from a .crx file if available)
-  const pemPath = path.join(
-    __dirname,
-    "..",
-    "keys",
-    "chrome-extension-template-dev.pem"
-  );
+  const pemPath = path.join(__dirname, "..", "keys", `${projectName}-dev.pem`);
 
   if (fs.existsSync(pemPath)) {
     console.log(`\n🔑 PEM File Analysis:`);

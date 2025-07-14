@@ -107,7 +107,7 @@ npm run build:dev
 npm run watch
 ```
 
-Load `dist/dev/my-extension-dev/` as an unpacked extension in Chrome.
+Load `dist/dev/your-extension-name-dev/` as an unpacked extension in Chrome.
 
 **System Requirements:**
 - Node.js 18+ (LTS) or Node.js 22+ (recommended for optimal performance)
@@ -248,9 +248,9 @@ To load the extension into Chrome for testing:
 1. Open Chrome and navigate to `chrome://extensions/`.
 2. Enable "Developer mode" at the top-right corner.
 3. Click "Load unpacked" and select the appropriate `dist/` directory:
-   - **Development**: `dist/dev/chrome-extension-template-dev/`
-   - **UAT**: `dist/uat/chrome-extension-template-uat/`
-   - **Production**: `dist/prod/chrome-extension-template-prod/`
+   - **Development**: `dist/dev/your-extension-name-dev/`
+   - **UAT**: `dist/uat/your-extension-name-uat/`
+   - **Production**: `dist/prod/your-extension-name-prod/`
 
 ## ⚠️ Known Issues & Compatibility
 

@@ -126,7 +126,7 @@ Generate detailed bundle analysis reports:
 npm run build:analyze
 ```
 
-This creates an interactive HTML report at `dist/prod/chrome-extension-template-prod/stats.html` showing:
+This creates an interactive HTML report at `dist/prod/your-extension-name-prod/stats.html` showing:
 - Module dependencies and sizes
 - Tree shaking effectiveness  
 - Compression ratios (Gzip/Brotli)
