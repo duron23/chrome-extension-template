@@ -286,8 +286,8 @@ export default defineConfig(({ mode }) => {
         output: {
           format: "es",
           entryFileNames: "[name].bundle.js",
-          chunkFileNames: "chunks/[name]-[hash].js",
-          assetFileNames: "assets/[name]-[hash].[ext]",
+          chunkFileNames: "chunks/chunk-[name]-[hash].js", // never starts with _
+          assetFileNames: "assets/asset-[name]-[hash].[ext]", // never starts with _
         },
       },
     },
