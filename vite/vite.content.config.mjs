@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
-import glob from "glob";
+import { glob } from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = resolve(__filename, "..");
@@ -63,11 +63,17 @@ export default defineConfig(({ mode }) => {
   // Load features configuration
   const features = loadFeaturesConfig();
 
-  // Find all content script entry points
+  // Find all content script entry points - using loop to process all content.ts files
   const contentEntries = {};
-  const contentFiles = glob.sync(
-    resolve(__dirname, "..", "src", "content", "**", "content.ts")
+  // Look for content.ts files in src/ and any subdirectories
+  // Use forward slashes for glob pattern on Windows
+  const searchPath = resolve(__dirname, "..", "src", "**/content.ts").replace(
+    /\\/g,
+    "/"
   );
+
+  const contentFiles = glob.sync(searchPath);
+
   contentFiles.forEach((file) => {
     // Create a unique name for each entry based on its path
     const relPath = file
@@ -99,6 +105,8 @@ export default defineConfig(({ mode }) => {
         input: contentEntries,
         output: {
           entryFileNames: "[name].bundle.js",
+          chunkFileNames: "chunks/chunk-[name]-[hash].js", // never starts with _
+          assetFileNames: "assets/asset-[name]-[hash].[ext]", // never starts with _
           format: "iife",
           name: "ContentScript",
           globals: {

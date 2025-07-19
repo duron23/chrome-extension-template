@@ -14,6 +14,21 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 let cachedFeaturesConfig = null;
 
 /**
+ * Plugin to clean the environment-specific directory before building
+ */
+const cleanEnvDirPlugin = (envDir) => {
+  return {
+    name: "clean-env-dir",
+    buildStart() {
+      if (fs.existsSync(envDir)) {
+        console.log(`🧹 Cleaning ${envDir} to remove stale files...`);
+        fs.rmSync(envDir, { recursive: true, force: true });
+      }
+    },
+  };
+};
+
+/**
  * Plugin to inline CSS into JS bundles for Chrome extensions
  */
 const inlineCSSPlugin = () => {
@@ -239,6 +254,7 @@ export default defineConfig(({ mode }) => {
       }),
       tailwindcss(), // Using the new Tailwind CSS v4 Vite plugin
       inlineCSSPlugin(),
+      cleanEnvDirPlugin(basePath), // Clean environment directory before building
       viteStaticCopy({
         targets: [
           {
@@ -274,7 +290,7 @@ export default defineConfig(({ mode }) => {
 
     build: {
       outDir: outputPath,
-      emptyOutDir: false,
+      emptyOutDir: true, // Clean the environment-specific directory to remove stale files
       sourcemap: isDev ? "inline" : false,
       minify: isProd ? "terser" : false,
       target: "es2024",

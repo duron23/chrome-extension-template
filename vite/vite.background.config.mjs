@@ -86,7 +86,14 @@ export default defineConfig(({ mode }) => {
         external: ["chrome"],
         output: {
           preserveModules: true, // 1:1 transpilation as per rules
+          preserveModulesRoot: "src", // Use src as root to prevent _virtual paths
+          chunkFileNames: "chunks/chunk-[name]-[hash].js", // never starts with _
+          assetFileNames: "assets/asset-[name]-[hash].[ext]", // never starts with _
           entryFileNames: (chunkInfo) => {
+            // Handle virtual modules specifically
+            if (chunkInfo.name.startsWith("_virtual/")) {
+              return `virtual/${chunkInfo.name.replace("_virtual/", "")}.js`;
+            }
             // Keep original filename for background entry
             if (chunkInfo.name === "background") {
               return "background.bundle.js";
