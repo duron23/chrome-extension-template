@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
+import glob from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = resolve(__filename, "..");
@@ -62,6 +63,20 @@ export default defineConfig(({ mode }) => {
   // Load features configuration
   const features = loadFeaturesConfig();
 
+  // Find all content script entry points
+  const contentEntries = {};
+  const contentFiles = glob.sync(
+    resolve(__dirname, "..", "src", "content", "**", "content.ts")
+  );
+  contentFiles.forEach((file) => {
+    // Create a unique name for each entry based on its path
+    const relPath = file
+      .replace(resolve(__dirname, "..") + "\\", "")
+      .replace(/\\/g, "/");
+    const entryName = relPath.replace(/\.ts$/, "").replace(/^src\//, "");
+    contentEntries[entryName] = file;
+  });
+
   // Only build content scripts if enabled
   if (!features.features?.contentScripts?.enabled) {
     console.log("📦 Content scripts disabled, skipping...");
@@ -81,13 +96,7 @@ export default defineConfig(({ mode }) => {
       target: "es2024",
 
       rollupOptions: {
-        input: {
-          "content/content": resolve(
-            __dirname,
-            "..",
-            "./src/content/content.ts"
-          ),
-        },
+        input: contentEntries,
         output: {
           entryFileNames: "[name].bundle.js",
           format: "iife",
