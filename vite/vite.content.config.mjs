@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = resolve(__filename, "..");
 
 /**
- * Load the features configuration file
+ * Load the features configuration file with enhanced error handling
  */
 const loadFeaturesConfig = () => {
   const featuresPath = resolve(__dirname, "..", "config", "features.json");
@@ -22,19 +22,48 @@ const loadFeaturesConfig = () => {
   try {
     if (fs.existsSync(featuresPath)) {
       const configData = fs.readFileSync(featuresPath, "utf8");
+
+      if (!configData.trim()) {
+        console.warn("⚠️  features.json is empty, using default configuration");
+        return defaultConfig;
+      }
+
       const parsedConfig = JSON.parse(configData);
 
-      if (parsedConfig?.features && typeof parsedConfig.features === "object") {
-        return parsedConfig;
+      if (
+        !parsedConfig?.features ||
+        typeof parsedConfig.features !== "object"
+      ) {
+        console.warn(
+          "⚠️  Invalid features structure in features.json, using default configuration"
+        );
+        return defaultConfig;
       }
+
+      return parsedConfig;
+    } else {
+      console.log("ℹ️  features.json not found, using default configuration");
+      return defaultConfig;
     }
   } catch (error) {
-    console.error(
-      `Error loading features.json: ${error}, using default configuration`
-    );
+    if (error instanceof SyntaxError) {
+      console.error(
+        `❌ Invalid JSON syntax in features.json: ${error.message}`
+      );
+    } else if (error.code === "EACCES") {
+      console.error(
+        `❌ Permission denied reading features.json: ${error.message}`
+      );
+    } else if (error.code === "EMFILE" || error.code === "ENFILE") {
+      console.error(
+        `❌ Too many open files, unable to read features.json: ${error.message}`
+      );
+    } else {
+      console.error(`❌ Error loading features.json: ${error.message}`);
+    }
+    console.log("📋 Using default configuration due to error");
+    return defaultConfig;
   }
-
-  return defaultConfig;
 };
 
 export default defineConfig(({ mode }) => {
@@ -65,23 +94,64 @@ export default defineConfig(({ mode }) => {
 
   // Find all content script entry points - using loop to process all content.ts files
   const contentEntries = {};
-  // Look for content.ts files in src/ and any subdirectories
-  // Use forward slashes for glob pattern on Windows
-  const searchPath = resolve(__dirname, "..", "src", "**/content.ts").replace(
-    /\\/g,
-    "/"
-  );
 
-  const contentFiles = glob.sync(searchPath);
+  try {
+    // Look for content.ts files in src/ and any subdirectories
+    // Use forward slashes for glob pattern on Windows
+    const searchPath = resolve(__dirname, "..", "src", "**/content.ts").replace(
+      /\\/g,
+      "/"
+    );
 
-  contentFiles.forEach((file) => {
-    // Create a unique name for each entry based on its path
-    const relPath = file
-      .replace(resolve(__dirname, "..") + "\\", "")
-      .replace(/\\/g, "/");
-    const entryName = relPath.replace(/\.ts$/, "").replace(/^src\//, "");
-    contentEntries[entryName] = file;
-  });
+    const contentFiles = glob.sync(searchPath);
+
+    if (contentFiles.length === 0) {
+      console.warn("⚠️  No content.ts files found in src/ directory");
+    } else {
+      console.log(`📋 Found ${contentFiles.length} content script(s)`);
+    }
+
+    contentFiles.forEach((file) => {
+      try {
+        // Verify file exists and is readable
+        if (!fs.existsSync(file)) {
+          console.warn(`⚠️  Content script file not found: ${file}`);
+          return;
+        }
+
+        const stats = fs.statSync(file);
+        if (!stats.isFile()) {
+          console.warn(`⚠️  Content script path is not a file: ${file}`);
+          return;
+        }
+
+        // Create a unique name for each entry based on its path
+        const relPath = file
+          .replace(resolve(__dirname, "..") + "\\", "")
+          .replace(/\\/g, "/");
+        const entryName = relPath.replace(/\.ts$/, "").replace(/^src\//, "");
+
+        // Validate entry name
+        if (!entryName || entryName.includes("..")) {
+          console.warn(
+            `⚠️  Invalid entry name generated for ${file}: ${entryName}`
+          );
+          return;
+        }
+
+        contentEntries[entryName] = file;
+      } catch (fileError) {
+        console.error(
+          `❌ Error processing content script ${file}: ${fileError.message}`
+        );
+      }
+    });
+  } catch (globError) {
+    console.error(
+      `❌ Error searching for content scripts: ${globError.message}`
+    );
+    console.log("📋 Continuing with empty content entries");
+  }
 
   // Only build content scripts if enabled
   if (!features.features?.contentScripts?.enabled) {

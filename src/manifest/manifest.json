@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "DEV : Chrome Extension Template",
+  "name": "Chrome Extension Template",
   "version": "0.0.0",
-  "description": "DEV : A modern Chrome extension template with comprehensive tooling",
+  "description": "A modern Chrome extension template with comprehensive tooling",
   "background": {
     "service_worker": "background/background.js",
     "type": "module"
@@ -10,6 +10,10 @@
   "permissions": [
     "offscreen",
     "sidePanel"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
   ],
   "action": {
     "default_popup": "popup/popup.html"
@@ -21,7 +25,8 @@
         "content/content.bundle.js"
       ],
       "matches": [
-        "http://*/*"
+        "http://*/*",
+        "https://*/*"
       ]
     }
   ],

@@ -7,6 +7,9 @@ manifest2.back
 coverage/
 .tsbuildinfo
 
+# Puppeteer cache (if browser download is re-enabled)
+.cache/
+
 # PEM files containing private keys
 keys/*.pem
 *.pem

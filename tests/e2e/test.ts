@@ -9,6 +9,24 @@ const getParentFolderName = (): string => {
   return path.basename(path.resolve(__dirname, "..", ".."));
 };
 
+// Helper function to find system Chrome installation
+const findSystemChrome = (): string | undefined => {
+  const possiblePaths = [
+    // Windows paths
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    process.env.LOCALAPPDATA + "\\Google\\Chrome\\Application\\chrome.exe",
+    // Add more paths as needed for other OS
+  ];
+
+  for (const chromePath of possiblePaths) {
+    if (chromePath && fs.existsSync(chromePath)) {
+      return chromePath;
+    }
+  }
+  return undefined;
+};
+
 // Configuration
 const extensionBuild = process.env.EXTENSION_BUILD || "dev";
 const extensionName = getParentFolderName();
@@ -46,7 +64,11 @@ async function runE2ETest(): Promise<void> {
 
     console.log("✅ Extension build verified");
 
-    browser = await puppeteer.launch({
+    // Try to find system Chrome first
+    const systemChrome = findSystemChrome();
+    console.log(`🔍 System Chrome: ${systemChrome || "Not found"}`);
+
+    const launchOptions: any = {
       headless: isHeadless,
       defaultViewport: null,
       args: [
@@ -58,7 +80,19 @@ async function runE2ETest(): Promise<void> {
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
       ],
-    });
+    };
+
+    // Use system Chrome if available
+    if (systemChrome) {
+      launchOptions.executablePath = systemChrome;
+      console.log("🎯 Using system Chrome installation");
+    } else {
+      console.log(
+        "⚠️  System Chrome not found, falling back to Puppeteer's Chrome"
+      );
+    }
+
+    browser = await puppeteer.launch(launchOptions);
     console.log("🌐 Browser launched successfully");
 
     const page: Page = await browser.newPage();

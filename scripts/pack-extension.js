@@ -4,20 +4,58 @@ const fs = require("fs");
 
 // Simple file locking mechanism to prevent race conditions
 const locks = new Map();
+const lockTimeouts = new Map(); // Track lock timeouts
 
 /**
- * Acquire a lock for a file path to prevent concurrent operations
+ * Acquire a lock for a file path to prevent concurrent operations with timeout
  * @param {string} filePath - The file path to lock
+ * @param {number} timeout - Maximum time to wait for lock in milliseconds (default: 30000)
  * @returns {Promise<Function>} - A function to release the lock
  */
-const acquireFileLock = (filePath) => {
-  return new Promise((resolve) => {
+const acquireFileLock = (filePath, timeout = 30000) => {
+  return new Promise((resolve, reject) => {
+    const lockKey = path.resolve(filePath); // Normalize path for consistent locking
+    const startTime = Date.now();
+
     const checkLock = () => {
-      if (locks.has(filePath)) {
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed > timeout) {
+        reject(
+          new Error(`Failed to acquire lock for ${filePath} after ${timeout}ms`)
+        );
+        return;
+      }
+
+      if (locks.has(lockKey)) {
         setTimeout(checkLock, 10); // Wait 10ms and check again
       } else {
-        locks.set(filePath, true);
-        resolve(() => locks.delete(filePath));
+        locks.set(lockKey, {
+          timestamp: Date.now(),
+          process: process.pid,
+        });
+
+        // Set up auto-cleanup timeout
+        const timeoutId = setTimeout(() => {
+          if (locks.has(lockKey)) {
+            console.warn(`⚠️  Force releasing stale lock for ${filePath}`);
+            locks.delete(lockKey);
+            lockTimeouts.delete(lockKey);
+          }
+        }, timeout * 2); // Auto-cleanup after double the lock timeout
+
+        lockTimeouts.set(lockKey, timeoutId);
+
+        const releaseLock = () => {
+          locks.delete(lockKey);
+          const timeoutId = lockTimeouts.get(lockKey);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            lockTimeouts.delete(lockKey);
+          }
+        };
+
+        resolve(releaseLock);
       }
     };
     checkLock();
@@ -25,14 +63,57 @@ const acquireFileLock = (filePath) => {
 };
 
 /**
- * Atomic file write operation to prevent corruption
+ * Atomic file write operation to prevent corruption with backup
  * @param {string} filePath - Path to write to
  * @param {string} content - Content to write
  */
 const atomicWriteFile = (filePath, content) => {
-  const tempPath = `${filePath}.tmp`;
-  fs.writeFileSync(tempPath, content, "utf8");
-  fs.renameSync(tempPath, filePath);
+  const tempPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
+  const backupPath = `${filePath}.backup`;
+
+  try {
+    // Create backup if original file exists
+    if (fs.existsSync(filePath)) {
+      fs.copyFileSync(filePath, backupPath);
+    }
+
+    // Write to temporary file first
+    fs.writeFileSync(tempPath, content, "utf8");
+
+    // Atomic rename
+    fs.renameSync(tempPath, filePath);
+
+    // Remove backup after successful write
+    if (fs.existsSync(backupPath)) {
+      fs.unlinkSync(backupPath);
+    }
+  } catch (error) {
+    // Cleanup temp file if it exists
+    if (fs.existsSync(tempPath)) {
+      try {
+        fs.unlinkSync(tempPath);
+      } catch (cleanupError) {
+        console.warn(
+          `⚠️  Failed to cleanup temp file ${tempPath}: ${cleanupError.message}`
+        );
+      }
+    }
+
+    // Restore from backup if available
+    if (fs.existsSync(backupPath)) {
+      try {
+        fs.copyFileSync(backupPath, filePath);
+        fs.unlinkSync(backupPath);
+        console.log(`✅ Restored ${filePath} from backup`);
+      } catch (restoreError) {
+        console.error(
+          `❌ Failed to restore from backup: ${restoreError.message}`
+        );
+      }
+    }
+
+    throw error;
+  }
 };
 
 // Determine the environment (development or production)

@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = resolve(__filename, "..");
 
 /**
- * Load the features configuration file
+ * Load the features configuration file with enhanced error handling
  */
 const loadFeaturesConfig = () => {
   const featuresPath = resolve(__dirname, "..", "config", "features.json");
@@ -25,19 +25,48 @@ const loadFeaturesConfig = () => {
   try {
     if (fs.existsSync(featuresPath)) {
       const configData = fs.readFileSync(featuresPath, "utf8");
+
+      if (!configData.trim()) {
+        console.warn("⚠️  features.json is empty, using default configuration");
+        return defaultConfig;
+      }
+
       const parsedConfig = JSON.parse(configData);
 
-      if (parsedConfig?.features && typeof parsedConfig.features === "object") {
-        return parsedConfig;
+      if (
+        !parsedConfig?.features ||
+        typeof parsedConfig.features !== "object"
+      ) {
+        console.warn(
+          "⚠️  Invalid features structure in features.json, using default configuration"
+        );
+        return defaultConfig;
       }
+
+      return parsedConfig;
+    } else {
+      console.log("ℹ️  features.json not found, using default configuration");
+      return defaultConfig;
     }
   } catch (error) {
-    console.error(
-      `Error loading features.json: ${error}, using default configuration`
-    );
+    if (error instanceof SyntaxError) {
+      console.error(
+        `❌ Invalid JSON syntax in features.json: ${error.message}`
+      );
+    } else if (error.code === "EACCES") {
+      console.error(
+        `❌ Permission denied reading features.json: ${error.message}`
+      );
+    } else if (error.code === "EMFILE" || error.code === "ENFILE") {
+      console.error(
+        `❌ Too many open files, unable to read features.json: ${error.message}`
+      );
+    } else {
+      console.error(`❌ Error loading features.json: ${error.message}`);
+    }
+    console.log("📋 Using default configuration due to error");
+    return defaultConfig;
   }
-
-  return defaultConfig;
 };
 
 export default defineConfig(({ mode }) => {

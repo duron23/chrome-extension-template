@@ -12,6 +12,7 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 // Cache the features config to avoid race conditions
 let cachedFeaturesConfig = null;
+let loadingPromise = null; // Prevent concurrent loading
 
 /**
  * Plugin to clean the environment-specific directory before building
@@ -83,11 +84,25 @@ document.head.appendChild(style);
 };
 
 /**
- * Load the features configuration file
+ * Load the features configuration file with enhanced error handling and race condition protection
  */
 const loadFeaturesConfig = () => {
+  // Return cached result if available
   if (cachedFeaturesConfig !== null) {
     return cachedFeaturesConfig;
+  }
+
+  // If already loading, return default config to prevent blocking
+  if (loadingPromise !== null) {
+    return {
+      features: {
+        popup: { enabled: true },
+        options: { enabled: true },
+        sidepanel: { enabled: true },
+        offscreen: { enabled: true },
+        contentScripts: { enabled: true },
+      },
+    };
   }
 
   const featuresPath = resolve(__dirname, "..", "config", "features.json");
@@ -105,13 +120,57 @@ const loadFeaturesConfig = () => {
   try {
     if (fs.existsSync(featuresPath)) {
       const featuresContent = fs.readFileSync(featuresPath, "utf8");
-      cachedFeaturesConfig = JSON.parse(featuresContent);
+
+      // Validate JSON content before parsing
+      if (!featuresContent.trim()) {
+        console.warn("⚠️  features.json is empty, using defaults");
+        cachedFeaturesConfig = defaultConfig;
+        return cachedFeaturesConfig;
+      }
+
+      const parsedConfig = JSON.parse(featuresContent);
+
+      // Validate config structure
+      if (!parsedConfig || typeof parsedConfig !== "object") {
+        console.warn("⚠️  Invalid features.json structure, using defaults");
+        cachedFeaturesConfig = defaultConfig;
+        return cachedFeaturesConfig;
+      }
+
+      // Ensure features object exists
+      if (!parsedConfig.features || typeof parsedConfig.features !== "object") {
+        console.warn(
+          "⚠️  Missing or invalid features object in features.json, using defaults"
+        );
+        cachedFeaturesConfig = defaultConfig;
+        return cachedFeaturesConfig;
+      }
+
+      cachedFeaturesConfig = parsedConfig;
     } else {
       console.log("⚠️  features.json not found, using defaults");
       cachedFeaturesConfig = defaultConfig;
     }
   } catch (error) {
-    console.error("❌ Error loading features.json:", error);
+    if (error instanceof SyntaxError) {
+      console.error("❌ Invalid JSON syntax in features.json:", error.message);
+    } else if (error.code === "EACCES") {
+      console.error(
+        "❌ Permission denied reading features.json:",
+        error.message
+      );
+    } else if (error.code === "EMFILE" || error.code === "ENFILE") {
+      console.error(
+        "❌ Too many open files, unable to read features.json:",
+        error.message
+      );
+    } else {
+      console.error(
+        "❌ Unexpected error loading features.json:",
+        error.message
+      );
+    }
+    console.log("📋 Using default configuration due to error");
     cachedFeaturesConfig = defaultConfig;
   }
 
@@ -122,48 +181,121 @@ const createHtmlPlugin = (features, outputPath) => {
   return {
     name: "create-html",
     generateBundle() {
-      const htmlTemplate = fs.readFileSync(
-        resolve(__dirname, "..", "src", "template.html"),
-        "utf8"
-      );
+      try {
+        const templatePath = resolve(__dirname, "..", "src", "template.html");
 
-      const uiComponents = [
-        { name: "popup", enabled: features.features?.popup?.enabled },
-        { name: "options", enabled: features.features?.options?.enabled },
-        { name: "sidepanel", enabled: features.features?.sidepanel?.enabled },
-        { name: "offscreen", enabled: features.features?.offscreen?.enabled },
-      ];
-
-      uiComponents.forEach(({ name, enabled }) => {
-        if (enabled) {
-          let html;
-
-          // Use custom HTML for offscreen document
-          if (name === "offscreen") {
-            html = fs.readFileSync(
-              resolve(__dirname, "..", "src", "offscreen", "offscreen.html"),
-              "utf8"
-            );
-          } else {
-            // Use template for UI components
-            html = htmlTemplate.replace(
-              "<%= htmlWebpackPlugin.options.title %>",
-              name
-            );
-            html = html.replace(
-              "</head>",
-              `  <script type="module" src="./${name}.bundle.js"></script>\n</head>`
-            );
-          }
-
-          const dir = resolve(outputPath, name);
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
-          fs.writeFileSync(resolve(dir, `${name}.html`), html);
+        if (!fs.existsSync(templatePath)) {
+          throw new Error(`Template file not found at ${templatePath}`);
         }
-      });
+
+        const htmlTemplate = fs.readFileSync(templatePath, "utf8");
+
+        if (!htmlTemplate.trim()) {
+          throw new Error("Template file is empty");
+        }
+
+        const uiComponents = [
+          { name: "popup", enabled: features.features?.popup?.enabled },
+          { name: "options", enabled: features.features?.options?.enabled },
+          { name: "sidepanel", enabled: features.features?.sidepanel?.enabled },
+          { name: "offscreen", enabled: features.features?.offscreen?.enabled },
+        ];
+
+        uiComponents.forEach(({ name, enabled }) => {
+          if (enabled) {
+            try {
+              let html;
+
+              // Use custom HTML for offscreen document
+              if (name === "offscreen") {
+                const offscreenPath = resolve(
+                  __dirname,
+                  "..",
+                  "src",
+                  "offscreen",
+                  "offscreen.html"
+                );
+
+                if (!fs.existsSync(offscreenPath)) {
+                  console.warn(
+                    `⚠️  Offscreen HTML template not found at ${offscreenPath}, skipping`
+                  );
+                  return;
+                }
+
+                html = fs.readFileSync(offscreenPath, "utf8");
+
+                if (!html.trim()) {
+                  console.warn(
+                    `⚠️  Offscreen HTML template is empty, skipping`
+                  );
+                  return;
+                }
+              } else {
+                // Use template for UI components
+                html = htmlTemplate.replace(
+                  "<%= htmlWebpackPlugin.options.title %>",
+                  name
+                );
+                html = html.replace(
+                  "</head>",
+                  `  <script type="module" src="./${name}.bundle.js"></script>\n</head>`
+                );
+              }
+
+              const dir = resolve(outputPath, name);
+
+              // Ensure directory exists with proper error handling
+              try {
+                if (!fs.existsSync(dir)) {
+                  fs.mkdirSync(dir, { recursive: true });
+                }
+              } catch (dirError) {
+                if (dirError.code === "EACCES") {
+                  throw new Error(
+                    `Permission denied creating directory ${dir}`
+                  );
+                } else if (dirError.code === "ENOSPC") {
+                  throw new Error(
+                    `No space left on device when creating directory ${dir}`
+                  );
+                } else {
+                  throw new Error(
+                    `Failed to create directory ${dir}: ${dirError.message}`
+                  );
+                }
+              }
+
+              const htmlPath = resolve(dir, `${name}.html`);
+
+              try {
+                fs.writeFileSync(htmlPath, html, "utf8");
+              } catch (writeError) {
+                if (writeError.code === "EACCES") {
+                  throw new Error(`Permission denied writing ${htmlPath}`);
+                } else if (writeError.code === "ENOSPC") {
+                  throw new Error(
+                    `No space left on device when writing ${htmlPath}`
+                  );
+                } else {
+                  throw new Error(
+                    `Failed to write ${htmlPath}: ${writeError.message}`
+                  );
+                }
+              }
+            } catch (componentError) {
+              console.error(
+                `❌ Error processing ${name} component:`,
+                componentError.message
+              );
+              // Continue with other components instead of failing the entire build
+            }
+          }
+        });
+      } catch (error) {
+        console.error("❌ Critical error in createHtmlPlugin:", error.message);
+        throw error; // Re-throw critical errors that should fail the build
+      }
     },
   };
 };
@@ -272,23 +404,38 @@ export default defineConfig(({ mode }) => {
             const rootPath = resolve(__dirname, "..", "src", "root");
             try {
               if (fs.existsSync(rootPath)) {
-                const files = fs.readdirSync(rootPath, { withFileTypes: true });
-                const hasNonGitkeepFiles = files.some(
-                  (file) => file.name !== ".gitkeep"
-                );
-                if (hasNonGitkeepFiles) {
-                  return [
-                    {
-                      src: ["src/root/*", "!src/root/.gitkeep"],
-                      dest: ".",
-                    },
-                  ];
+                try {
+                  const files = fs.readdirSync(rootPath, {
+                    withFileTypes: true,
+                  });
+                  const hasNonGitkeepFiles = files.some(
+                    (file) => file.name !== ".gitkeep"
+                  );
+                  if (hasNonGitkeepFiles) {
+                    return [
+                      {
+                        src: ["src/root/*", "!src/root/.gitkeep"],
+                        dest: ".",
+                      },
+                    ];
+                  }
+                } catch (readError) {
+                  if (readError.code === "EACCES") {
+                    console.warn(
+                      "⚠️  Permission denied reading src/root directory"
+                    );
+                  } else if (readError.code === "ENOTDIR") {
+                    console.warn("⚠️  src/root exists but is not a directory");
+                  } else {
+                    console.warn(
+                      `⚠️  Error reading src/root directory: ${readError.message}`
+                    );
+                  }
                 }
               }
             } catch (error) {
               console.warn(
-                "⚠️  Could not check src/root directory:",
-                error.message
+                `⚠️  Could not check src/root directory: ${error.message}`
               );
             }
             return [];

@@ -90,6 +90,8 @@ cd my-extension
 npm install
 ```
 
+> **💡 Performance Note**: This template is optimized to skip Puppeteer's browser download since we use your system Chrome for testing. If you need to re-enable browser downloads, remove the `PUPPETEER_SKIP_DOWNLOAD` setting from `.puppeteerrc.cjs`.
+
 ### 2. Customize Your Extension
 
 ```bash
@@ -232,6 +234,8 @@ Run tests using Vitest 3 with comprehensive TypeScript support and modern testin
   ```bash
   npm run test:e2e:headless
   ```
+
+> **🎯 Smart Chrome Detection**: E2E tests automatically detect and use your system Chrome installation instead of downloading a separate browser. This provides faster startup and more realistic testing conditions.
 
 #### Coverage Reporting
 - **Test Coverage**: Generate comprehensive test coverage reports with @vitest/coverage-v8.
