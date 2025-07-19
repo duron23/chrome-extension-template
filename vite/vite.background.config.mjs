@@ -38,31 +38,34 @@ const loadFeaturesConfig = () => {
         typeof parsedConfig.features !== "object"
       ) {
         console.warn(
-          "⚠️  Invalid features structure in features.json, using default configuration"
+          "⚠️  Missing or invalid features object in features.json, using defaults"
         );
         return defaultConfig;
       }
 
       return parsedConfig;
     } else {
-      console.log("ℹ️  features.json not found, using default configuration");
+      console.log("⚠️  features.json not found, using defaults");
       return defaultConfig;
     }
   } catch (error) {
     if (error instanceof SyntaxError) {
-      console.error(
-        `❌ Invalid JSON syntax in features.json: ${error.message}`
-      );
+      console.error("❌ Invalid JSON syntax in features.json:", error.message);
     } else if (error.code === "EACCES") {
       console.error(
-        `❌ Permission denied reading features.json: ${error.message}`
+        "❌ Permission denied reading features.json:",
+        error.message
       );
     } else if (error.code === "EMFILE" || error.code === "ENFILE") {
       console.error(
-        `❌ Too many open files, unable to read features.json: ${error.message}`
+        "❌ Too many open files, unable to read features.json:",
+        error.message
       );
     } else {
-      console.error(`❌ Error loading features.json: ${error.message}`);
+      console.error(
+        "❌ Unexpected error loading features.json:",
+        error.message
+      );
     }
     console.log("📋 Using default configuration due to error");
     return defaultConfig;

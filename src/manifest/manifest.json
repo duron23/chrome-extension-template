@@ -22,7 +22,8 @@
   "content_scripts": [
     {
       "js": [
-        "content/content.bundle.js"
+        "content/content-script.bundle.js",
+        "content/example2.content.bundle.js"
       ],
       "matches": [
         "http://*/*",

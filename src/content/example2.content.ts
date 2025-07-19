@@ -1,4 +1,4 @@
 import { getHelper } from "./helper";
 const helper = getHelper();
 
-console.log("Content Script Loaded", helper);
+console.log("Example 2 Content Script Loaded", helper);
