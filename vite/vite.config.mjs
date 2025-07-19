@@ -267,6 +267,32 @@ export default defineConfig(({ mode }) => {
             dest: "../",
             rename: "manifest.xml",
           },
+          // Conditionally copy src/root contents only if there are non-.gitkeep files
+          ...(() => {
+            const rootPath = resolve(__dirname, "..", "src", "root");
+            try {
+              if (fs.existsSync(rootPath)) {
+                const files = fs.readdirSync(rootPath, { withFileTypes: true });
+                const hasNonGitkeepFiles = files.some(
+                  (file) => file.name !== ".gitkeep"
+                );
+                if (hasNonGitkeepFiles) {
+                  return [
+                    {
+                      src: ["src/root/*", "!src/root/.gitkeep"],
+                      dest: ".",
+                    },
+                  ];
+                }
+              }
+            } catch (error) {
+              console.warn(
+                "⚠️  Could not check src/root directory:",
+                error.message
+              );
+            }
+            return [];
+          })(),
         ],
       }),
       createHtmlPlugin(features, outputPath),
