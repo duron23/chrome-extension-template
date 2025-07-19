@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { applyComponentTheme, themeClasses } from "../utils/theme";
+import { applyComponentTheme } from "../utils/theme";
 
 const PopUp = () => {
   useEffect(() => {

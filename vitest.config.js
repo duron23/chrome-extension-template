@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
-const { defineConfig } = require("vitest/config");
+import { defineConfig } from "vitest/config";
+import { resolve } from "path";
 
-module.exports = defineConfig({
+export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
@@ -11,6 +12,14 @@ module.exports = defineConfig({
       exclude: ["src/**/*.d.ts", "src/**/index.html", "src/static/**"],
       reporter: ["text", "html", "lcov"],
       reportsDirectory: "coverage",
+    },
+  },
+  resolve: {
+    alias: {
+      "@": resolve("src"),
+      "@/components": resolve("src/components"),
+      "@/utils": resolve("src/utils"),
+      "@/styles": resolve("src/style"),
     },
   },
 });
