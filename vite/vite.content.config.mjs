@@ -70,7 +70,7 @@ const loadFeaturesConfig = () => {
 };
 
 export default defineConfig(async ({ mode }) => {
-  const isDev = mode === "development";
+  const isDev = mode === "development" || mode === "uat";
   const isProd = mode === "production";
 
   // Map mode to extension build
@@ -246,7 +246,7 @@ export default defineConfig(async ({ mode }) => {
           build: {
             outDir: outputPath,
             emptyOutDir: false,
-            sourcemap: isDev ? true : false,
+            sourcemap: isDev ? "inline" : false,
             minify: isProd ? "terser" : false,
             target: "es2024",
             rollupOptions: {

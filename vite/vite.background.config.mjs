@@ -73,7 +73,7 @@ const loadFeaturesConfig = () => {
 };
 
 export default defineConfig(({ mode }) => {
-  const isDev = mode === "development";
+  const isDev = mode === "development" || mode === "uat";
   const isProd = mode === "production";
 
   // Map mode to extension build
