@@ -4,7 +4,7 @@ Get your Chrome extension development environment up and running in under 5 minu
 
 ## ⚡ Prerequisites
 
-- **Node.js 18+** (LTS recommended) - [Download here](https://nodejs.org/)
+- **Node.js 18+** (LTS recommended, Node.js 22+ for optimal performance) - [Download here](https://nodejs.org/)
 - **Chrome/Chromium browser** for testing
 - **Git** for version control
 - **Code editor** (VS Code recommended)

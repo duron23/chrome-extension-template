@@ -36,11 +36,11 @@ npm run build:dev
 ```bash
 # Check your Node.js version
 node --version
-# Requires: Node.js 18.0.0 or higher
+# Requires: Node.js 18.0.0 or higher (Node.js 22+ recommended for optimal performance)
 ```
 
 **Solution**: 
-- Install Node.js 18+ from [nodejs.org](https://nodejs.org/)
+- Install Node.js 18+ from [nodejs.org](https://nodejs.org/) (Node.js 22+ recommended)
 - Consider using a Node.js version manager (nvm, fnm)
 
 ### Dependency Installation Issues
@@ -75,15 +75,15 @@ rm -f tsconfig.tsbuildinfo
 - Check import/export syntax
 - Verify file extensions (.ts, .tsx)
 
-### Webpack Build Issues
+### Vite Build Issues
 
-**Problem**: Webpack build fails
+**Problem**: Vite build fails
 ```bash
-# Check webpack configuration
+# Check vite configuration
 npm run build:dev -- --verbose
 
-# Clear webpack cache
-rm -rf .webpack-cache dist
+# Clear vite cache
+rm -rf node_modules/.vite dist
 ```
 
 **Problem**: Hot reload not working
@@ -234,7 +234,7 @@ npm run build:dev
 **Solution**:
 1. **Check feature configuration**: Verify in `config/features.json`
 2. **Rebuild**: Run `npm run build:dev` after configuration changes
-3. **Check webpack entries**: Verify feature is included in webpack config
+3. **Check vite entries**: Verify feature is included in vite config
 
 ## 🧪 Testing Issues
 
@@ -300,8 +300,8 @@ Enable verbose logging for troubleshooting:
 # Build with debug information
 DEBUG=* npm run build:dev
 
-# Run with webpack stats
-npm run build:dev -- --stats verbose
+# Run with vite analysis
+npm run build:analyze
 ```
 
 ### Clear Everything
@@ -310,7 +310,7 @@ When all else fails, complete reset:
 
 ```bash
 # Clear all build artifacts and dependencies
-rm -rf node_modules dist .webpack-cache tsconfig.tsbuildinfo
+rm -rf node_modules dist node_modules/.vite tsconfig.tsbuildinfo
 npm cache clean --force
 npm install
 npm run build:dev

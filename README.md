@@ -41,7 +41,7 @@ This template includes several performance and development optimizations:
 - **Test UI**: Interactive test interface with `npm run test:ui`
 
 ### Dependency Management
-- **Latest Versions**: All dependencies updated to latest stable versions (2025)
+- **Latest Versions**: All dependencies updated to latest stable versions (July 2025)
 - **Optimized Dependencies**: Vite's efficient dependency pre-bundling
 - **Compatibility**: Ensured version compatibility across Vite and TypeScript toolchain
 - **Security**: No security vulnerabilities with regular dependency audits
@@ -52,7 +52,7 @@ This template includes several performance and development optimizations:
 - **Strict TypeScript**: Enhanced type safety with strict mode and comprehensive rules
 - **Async/await Best Practices**: ESLint rules enforce proper Promise handling and error management
 
-## 🚀 Latest Features (2025)
+## 🚀 Latest Features (July 2025)
 
 ### New Tools & Scripts
 - **Interactive Feature Customization**: Run `npm run customize` to configure extension components via CLI
@@ -69,11 +69,11 @@ This template includes several performance and development optimizations:
 - **Better Error Handling**: Enhanced build process with comprehensive error reporting
 - **Clean Distribution**: `.gitattributes` ensures maintainer tools are excluded from releases
 
-### Modern Dependencies (2025)
+### Modern Dependencies (July 2025)
 - **React 19.1**: Latest React with improved performance and new features
 - **TypeScript 5.8**: Enhanced type safety and ES2024 support
-- **Puppeteer 24**: Modern E2E testing with built-in TypeScript support
-- **ESLint 9**: Flat config system with comprehensive TypeScript rules
+- **Puppeteer 24.12**: Modern E2E testing with built-in TypeScript support
+- **ESLint 9.30**: Flat config system with comprehensive TypeScript rules
 - **Vitest 3.2**: Fast unit testing with improved coverage reporting
 
 ## 🚀 Getting Started
@@ -223,7 +223,7 @@ Run tests using Vitest 3 with comprehensive TypeScript support and modern testin
   ```
 
 #### End-to-End Testing
-- **E2E Tests**: Run TypeScript-based end-to-end tests with Puppeteer 24.
+- **E2E Tests**: Run TypeScript-based end-to-end tests with Puppeteer 24.12.
   ```bash
   npm run test:e2e
   ```

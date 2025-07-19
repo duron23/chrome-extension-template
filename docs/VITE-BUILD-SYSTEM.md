@@ -4,7 +4,7 @@ This document describes the modern Vite-based build system used by this Chrome E
 
 ## Overview
 
-The template has been fully migrated from Webpack to Vite 7, providing:
+The template has been fully migrated from Webpack to Vite 7.0.4, providing:
 - ⚡ **Lightning-fast builds** with native ES modules
 - 🔥 **Hot Module Replacement (HMR)** for rapid development
 - 📦 **Optimized bundling** with Rollup under the hood
@@ -31,7 +31,7 @@ vite/
 
 #### UI Components (`vite.config.mjs`)
 - **Output Format**: ES modules for modern Chrome extension support
-- **React Integration**: React 19 with automatic JSX runtime (dev) / classic JSX runtime (prod)
+- **React Integration**: React 19.1 with automatic JSX runtime (dev) / classic JSX runtime (prod)
 - **Tailwind CSS v4**: Native Vite plugin with CSS inlining for extension compatibility
 - **Code Splitting**: Automatic vendor chunks for React libraries
 - **Bundle Analysis**: Rollup visualizer integration with `ANALYZE=true`
