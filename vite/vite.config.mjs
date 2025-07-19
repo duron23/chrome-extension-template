@@ -267,11 +267,6 @@ export default defineConfig(({ mode }) => {
             dest: "../",
             rename: "manifest.xml",
           },
-          {
-            src: "src/root/worker.js",
-            dest: ".",
-            rename: "worker.js",
-          },
         ],
       }),
       createHtmlPlugin(features, outputPath),
