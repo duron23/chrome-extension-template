@@ -382,7 +382,18 @@ export default defineConfig(({ mode }) => {
         // Use the modern automatic JSX runtime consistently across environments
         // to align with tsconfig (jsx: "react-jsx") and React 17+ guidelines.
         jsxRuntime: "automatic",
+        // Ensure dev transform (jsxDEV) is only used in dev/uat. In prod we want jsx/jsxs.
         development: isDev,
+        // Extra guard: pass through to Babel to prevent accidental dev JSX in prod
+        babel: {
+          plugins: [],
+          caller: {
+            name: "vite-plugin-react",
+            supportsStaticESM: true,
+            supportsTopLevelAwait: true,
+            development: isDev,
+          },
+        },
       }),
       tailwindcss(), // Using the new Tailwind CSS v4 Vite plugin
       inlineCSSPlugin(),
@@ -475,6 +486,13 @@ export default defineConfig(({ mode }) => {
           assetFileNames: "assets/asset-[name]-[hash].[ext]", // never starts with _
         },
       },
+    },
+
+    // Ensure esbuild uses the correct JSX runtime per mode to avoid jsxDEV leaking into prod
+    esbuild: {
+      jsx: "automatic",
+      jsxImportSource: "react",
+      jsxDev: isDev,
     },
 
     // Remove PostCSS configuration since we're using the Vite plugin

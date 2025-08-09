@@ -444,23 +444,29 @@ export default defineConfig(async ({ mode }) => {
   }
 
   // Return a build configuration that skips the main Vite build
-  // since we've already built all our content scripts individually
-  // We need to provide a dummy input to prevent Rollup errors
-  const dummyEntryContent = 'console.log("Content scripts already built");';
-  const dummyEntryPath = resolve(outputPath, ".temp-content-entry.js");
-
-  try {
-    fs.writeFileSync(dummyEntryPath, dummyEntryContent);
-  } catch (writeError) {
-    console.warn(`⚠️  Could not create temp entry file: ${writeError.message}`);
-  }
+  // since we've already built all our content scripts individually.
+  // Provide a virtual input module to prevent Rollup errors without writing any files.
+  const virtualNoopId = "virtual:temp-content-entry";
 
   return {
+    plugins: [
+      {
+        name: "virtual-temp-content-entry",
+        resolveId(id) {
+          if (id === virtualNoopId) return id;
+        },
+        load(id) {
+          if (id === virtualNoopId) {
+            return 'console.log("Content scripts already built")';
+          }
+        },
+      },
+    ],
     build: {
       rollupOptions: {
-        input: dummyEntryPath, // Use dummy file as input
+        input: virtualNoopId, // Use virtual module as input
         output: {
-          dir: resolve(outputPath, ".temp"), // Output to temp directory
+          dir: resolve(outputPath, ".temp"), // Logical output dir (won't be written)
           format: "es",
         },
         external: () => false, // Don't mark anything as external
