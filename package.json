@@ -9,7 +9,8 @@
   ],
   "config": {
     "puppeteer": {
-      "skipDownload": "true"
+      "skipDownload": "false",
+      "defaultProduct": "chrome"
     }
   },
   "scripts": {
