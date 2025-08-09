@@ -379,11 +379,9 @@ export default defineConfig(({ mode }) => {
   const config = {
     plugins: [
       react({
-        // WORKAROUND: React 19 with @vitejs/plugin-react@4.6.0 has an issue where
-        // the automatic JSX runtime exports jsxDEV in production builds, causing
-        // "jsxDEV is not a function" errors. Using classic runtime in production
-        // as a temporary fix until the plugin is updated to properly handle React 19.
-        jsxRuntime: isProd ? "classic" : "automatic",
+        // Use the modern automatic JSX runtime consistently across environments
+        // to align with tsconfig (jsx: "react-jsx") and React 17+ guidelines.
+        jsxRuntime: "automatic",
         development: isDev,
       }),
       tailwindcss(), // Using the new Tailwind CSS v4 Vite plugin
