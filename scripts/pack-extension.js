@@ -135,6 +135,29 @@ const getParentFolderName = () => {
   return parentDir;
 };
 
+const getVersionFromConfig = () => {
+  try {
+    const configPath = path.join(__dirname, "..", "config", "config.json");
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    const currentEnv =
+      process.env.EXTENSION_BUILD || (process.env.NODE_ENV || "dev").trim();
+    return config[currentEnv]?.version || "0.0.0";
+  } catch (error) {
+    console.warn(`⚠️  Could not read version from config: ${error.message}`);
+    return "0.0.0";
+  }
+};
+
+const sanitizeVersion = (version) => {
+  // Remove all characters that are not letters or numbers
+  return version.replace(/[^a-zA-Z0-9]/g, "");
+};
+
+const sanitizeFilename = (text) => {
+  // Remove all characters that are not letters or numbers
+  return text.replace(/[^a-zA-Z0-9]/g, "");
+};
+
 const parentDir = getParentFolderName();
 
 // Use a dedicated keys directory for storing PEM files
@@ -303,6 +326,29 @@ const packExtension = async () => {
       );
     } else {
       console.log(`📦 Extension packaged successfully`);
+
+      // Rename the .crx file to include version
+      const version = getVersionFromConfig();
+      const sanitizedVersion = sanitizeVersion(version);
+      const sanitizedParentDir = sanitizeFilename(parentDir);
+      const sanitizedBuildEnv = sanitizeFilename(process.env.EXTENSION_BUILD);
+      const originalCrxPath = `${extensionPath}.crx`;
+      const versionedCrxPath = path.join(
+        path.dirname(originalCrxPath),
+        `${sanitizedParentDir}${sanitizedBuildEnv}v${sanitizedVersion}.crx`
+      );
+
+      if (fs.existsSync(originalCrxPath)) {
+        try {
+          fs.renameSync(originalCrxPath, versionedCrxPath);
+          console.log(`📄 Extension file: ${path.basename(versionedCrxPath)}`);
+        } catch (renameError) {
+          console.warn(
+            `⚠️  Could not rename .crx file: ${renameError.message}`
+          );
+          console.log(`📄 Extension file: ${path.basename(originalCrxPath)}`);
+        }
+      }
 
       // If we didn't use an existing PEM, Chrome generated one in the dist directory
       // We should copy it to our keys directory for future use
