@@ -306,12 +306,14 @@ const createHtmlPlugin = (features, outputPath) => {
 export default defineConfig(({ mode }) => {
   const isDev = mode === "development" || mode === "uat";
   const isProd = mode === "production";
+  const isWatch = mode === "watch";
 
   // Map mode to extension build
   const modeToExtensionBuild = {
     development: "dev",
     uat: "uat",
     production: "prod",
+    watch: "dev", // Watch mode uses dev build
   };
 
   const extensionBuild =
@@ -386,7 +388,8 @@ export default defineConfig(({ mode }) => {
       }),
       tailwindcss(), // Using the new Tailwind CSS v4 Vite plugin
       inlineCSSPlugin(),
-      cleanEnvDirPlugin(basePath), // Clean environment directory before building
+      // Only clean environment directory in non-watch mode to prevent race conditions
+      ...(isWatch ? [] : [cleanEnvDirPlugin(basePath)]),
       viteStaticCopy({
         targets: [
           {
@@ -458,7 +461,7 @@ export default defineConfig(({ mode }) => {
 
     build: {
       outDir: outputPath,
-      emptyOutDir: true, // Clean the environment-specific directory to remove stale files
+      emptyOutDir: !isWatch, // Don't clean directory in watch mode to prevent race conditions
       sourcemap: isDev ? "inline" : false,
       minify: isProd ? "terser" : false,
       target: "es2024",
