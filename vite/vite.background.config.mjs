@@ -99,7 +99,7 @@ export default defineConfig(({ mode }) => {
     "📦 Building background service worker with 1:1 transpilation (ESM)..."
   );
 
-  return {
+  const backgroundConfig = {
     build: {
       outDir: outputPath,
       emptyOutDir: false, // Don't clear the directory as main build runs first
@@ -137,6 +137,11 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(mode),
+      "process.env.EXTENSION_BUILD": JSON.stringify(extensionBuild),
+    },
+
     resolve: {
       extensions: [".tsx", ".ts", ".jsx", ".js"],
       alias: {
@@ -146,10 +151,8 @@ export default defineConfig(({ mode }) => {
         "@/styles": resolve(__dirname, "..", "src/style"),
       },
     },
-
-    define: {
-      "process.env.NODE_ENV": JSON.stringify(mode),
-      "process.env.EXTENSION_BUILD": JSON.stringify(extensionBuild),
-    },
   };
+
+  // Return the configuration directly
+  return backgroundConfig;
 });

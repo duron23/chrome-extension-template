@@ -14,6 +14,7 @@ This guide prioritizes high-quality Chrome Extension Manifest V3 patterns, TypeS
 - Performance: avoid polling; use events/MutationObserver; keep content scripts light; offload heavy work to background/offscreen.
 - Security: no inline scripts/eval; sanitize any HTML; validate URLs; use chrome.scripting for injections.
 - Storage: batch reads/writes; handle quota; listen for `chrome.storage.onChanged`.
+- Avoid: functions with side effects
 - Always fix lint errors and keep tests passing (Vitest). Add unit tests for new logic.
 
 ## Manifest V3 best practices

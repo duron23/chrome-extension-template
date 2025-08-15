@@ -376,7 +376,7 @@ export default defineConfig(({ mode }) => {
     );
   }
 
-  const config = {
+  const uiConfig = {
     plugins: [
       react({
         // Use the modern automatic JSX runtime consistently across environments
@@ -495,13 +495,6 @@ export default defineConfig(({ mode }) => {
       jsxDev: isDev,
     },
 
-    // Remove PostCSS configuration since we're using the Vite plugin
-    // css: {
-    //   postcss: {
-    //     plugins: [require("@tailwindcss/postcss")],
-    //   },
-    // },
-
     define: {
       "process.env.NODE_ENV": JSON.stringify(
         isProd ? "production" : "development"
@@ -529,5 +522,6 @@ export default defineConfig(({ mode }) => {
     },
   };
 
-  return config;
+  // Return the configuration directly instead of merging with base
+  return uiConfig;
 });

@@ -448,7 +448,7 @@ export default defineConfig(async ({ mode }) => {
   // Provide a virtual input module to prevent Rollup errors without writing any files.
   const virtualNoopId = "virtual:temp-content-entry";
 
-  return {
+  const contentConfig = {
     plugins: [
       {
         name: "virtual-temp-content-entry",
@@ -475,4 +475,7 @@ export default defineConfig(async ({ mode }) => {
       emptyOutDir: false, // Don't clear the directory
     },
   };
+
+  // Return the configuration directly
+  return contentConfig;
 });
